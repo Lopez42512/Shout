@@ -1,1 +1,81 @@
-heloo world
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="./assets/css/style.css">
+  <title>Shout!</title>
+</head>
+
+<body>
+
+  <!-- map div -->
+
+  <div class="container">
+    <div id="map"> </div>
+    <button class="button" id="getGeoLocation">Geo Location</button>
+  </div>
+
+
+  <!-- Scripts -->
+
+  <script>
+    function initMap() {
+
+      if (navigator.geolocation) {
+
+
+        navigator.geolocation.getCurrentPosition((position) => {
+          console.log(position);
+
+          var userLocation = {
+            lati: position.coords.latitude,
+            long: position.coords.longitude
+          }
+          var pLocation = $("<p>");
+          pLocation.text("The Lattitude: " + lat + " and the longitude: " + long);
+
+          $("body").append(pLocation);
+
+          // The map, centered 
+          var map = new google.maps.Map(
+            document.getElementById('map'), {
+              zoom: 4,
+              center: {
+                lat: 0,
+                lng: 0
+              }
+            });
+
+          // The marker, positioned at Uluru
+          var marker = new google.maps.Marker({
+            position: userLocation,
+            map: map
+          });
+
+          map.setCenter(userLocation);
+
+
+        });
+      } else {
+        console.log("no access to geto")
+      }
+      // The location of Uluru
+
+
+
+    }
+  </script>
+
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA4Xg_9AqzPbXG547Ie66bFn-kqaYduOe0&callback=initMap">
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.9.0/firebase.js"></script>
+  <script src="./assets/javascript/main.js"></script>
+
+</body>
+
+</html>
