@@ -11,6 +11,9 @@ var gMap;
 // Just using HTML API for geo location and test it with other APIs
 function getGeoLocation() {
 
+    userLocation =[];
+    
+    // place inside function then query for it.
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
             
@@ -32,9 +35,9 @@ function getGeoLocation() {
 
     
 // this is the call for YELP QUERY
-// var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=delis&latitude=39.951061&longitude=-75.165619&radius=8046.72";
+// var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=delis&latitude=39.951061&longitude=-75.165619&radius=8000";
 //testing to see if I can get variables included
-var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=delis&latitude=" + userLocation[0] + "&longitude=" + userLocation[1] + "&radius=8046.72";
+var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=delis&latitude=" + userLocation[0] + "&longitude=" + userLocation[1] + "&radius=8000";
 var yelpAPI = "1QpSc4B1zI5GuI56PDAAvAfpfcsLg9LWuHRfVCeG4TIDDxRe3hGT-sxlU5h5DD0AdLgu-HHoa2cM4m1WaAefYoboIPdVHv0mCjivrwQrdU11FCFl2hd8-iaaTKOTXHYx";
 
 
