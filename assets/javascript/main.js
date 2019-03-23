@@ -48,8 +48,25 @@ function getGeoLocation() {
         },
         method: "GET"
     }).then((yelpResponse) => {
-            console.log(yelpResponse);
+        console.log(yelpResponse);
+        var result = $("<p>");
+        for (var i = 0; i < 5; i++) {
+            var name = yelpResponse.businesses[i].name;
+            var ratings = yelpResponse.businesses[i].rating;
+            var is_closed = yelpResponse.businesses[i].is_closed;
+            var location = yelpResponse.businesses[i].location.address1;
+            var yelpLat = yelpResponse.businesses[i].coordinates.latitude;
+            var yelpLong = yelpResponse.businesses[i].coordinates.longitude;
+            $("#name").append($("<p>").text(name));
+            $("#ratings").append($("<p>").text(ratings));
+            $("#is_closed").append($("<p>").text(is_closed));
+            $("#location").append($("<p>").text(location));
+        
+            
         }
+
+
+    }
 
     );
 }
