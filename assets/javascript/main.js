@@ -23,14 +23,15 @@ function getGeoLocation() {
             var pLocation = $("<p>");
             pLocation.text("The Lattitude-array: " + userLocation[0] + " and the longitude-array: " + userLocation[1]);
 
+            //update maps
+            googleMapsLoad(userLocation[0], userLocation[1]);
+
+            //update body
             $("body").append(pLocation);
-        });
+        }); 
     } else {
         console.log("no access to geto")
     }
-
-    console.log("console lat - " + userLocation[0] + " console long - " + userLocation[1]);
-
 
     // this is the call for YELP QUERY - WORKING
     var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=delis&latitude=39.951061&longitude=-75.165619&radius=8000";
@@ -48,11 +49,81 @@ function getGeoLocation() {
         },
         method: "GET"
     }).then((yelpResponse) => {
-            console.log(yelpResponse);
-        }
+        console.log(yelpResponse);
+    }
 
     );
 }
+
+//google map function of generating user and icon
+function googleMapsLoad(userLat, userLng) {
+
+    // initialize maps
+
+    var map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 20,
+        center: {
+            lat: userLat,
+            lng: userLng
+        }
+    });
+
+    var allUsers = [
+
+        firstUser = {
+            coords: {
+                lat: userLat,
+                lng: userLng,
+                radius: 10
+            },
+            iconImage: "./assets/images/map-icon.png",
+            content: "<h1>Hello Friends!</h1>"
+        }
+
+    ]
+
+    console.log(allUsers);
+    //loop through markers
+    for (var i = 0; i < allUsers.length; i++) {
+        addUserMarker(allUsers[i]);
+    }
+
+
+    //function Marker
+    function addUserMarker(user) {
+        //Add marker
+        var marker = new google.maps.Marker({
+            position: user.coords,
+            map: map,
+
+        });
+
+        console.log(user.coords);
+
+        //if user has an Icon
+        if (user.iconImage) {
+            //set Icon image
+            marker.setIcon(user.iconImage);
+        }
+
+        // if it contains infoWindow text then create one
+        if (user.content) {
+
+            //infoWindow is a pop up for the onClick
+            var infoWindow = new google.maps.InfoWindow({
+                content: user.content
+            });
+
+        }
+
+        marker.addListener("click", () => {
+
+            infoWindow.open(map, marker);
+        });
+
+    }
+}
+
 
 $(document).on("click", "#getGeoLocation", getGeoLocation);
 

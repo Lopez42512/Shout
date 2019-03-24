@@ -26,74 +26,20 @@
     function initMap() {
       //fixed place for now
       var place = {
-        zoom: 18,
+        zoom: 10,
         center: {
-          lat: 42,
-          lng: -71
+          lat: 39.94,
+          lng: -75.1993
         }
       }
       //new map
       var map = new google.maps.Map(document.getElementById("map"), place);
 
+      console.log(map);
       //Array of Users
 
-      var allUsers = [
-
-        firstUser = {
-          coords: {
-            lat: 42,
-            lng: -71
-          },
-          iconImage: "./assets/images/map-icon.png",
-          content: "<h1>Hello Friends!</h1>"
-        }
-
-      ]
-
-      console.log(allUsers);
-      //loop through markers
-      for (var i = 0; i < allUsers.length; i++) {
-        addUserMarker(allUsers[i]);
-      }
-
-
-      //function Marker
-      function addUserMarker(user) {
-        //Add marker
-        var marker = new google.maps.Marker({
-          position: user.coords,
-          map: map,
-
-        });
-
-        console.log(user.coords);
-
-        //if user has an Icon
-        if (user.iconImage) {
-          //set Icon image
-          marker.setIcon(user.iconImage);
-        }
-
-        // if it contains infoWindow text then create one
-        if (user.content) {
-
-          //infoWindow is a pop up for the onClick
-          var infoWindow = new google.maps.InfoWindow({
-            content: user.content
-          });
-
-        }
-
-        marker.addListener("click", () => {
-
-          infoWindow.open(map, marker);
-        });
-
-      }
-
-
-
     }
+    
   </script>
 <!-- google maps -->
   <script async defer
@@ -106,6 +52,7 @@
   <!-- GeoFire -->
 <script src="https://cdn.firebase.com/libs/geofire/5.0.1/geofire.min.js"></script>
   <script src="./assets/javascript/main.js"></script>
+  <script src="./assets/javascript/Geofire.js"></script>
 
 </body>
 
