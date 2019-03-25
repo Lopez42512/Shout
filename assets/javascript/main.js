@@ -2,6 +2,7 @@
 var userLocation = [];
 var gMap;
 
+
 // Initialize Firebase
 var config = {
     apiKey: "AIzaSyBWlRO86vNl6sL5psQX5f7H9Lw_wsULP9g",
@@ -21,6 +22,8 @@ var geoFireRefPush = firebase.database().ref("/geofire-location").push();
 // gefire initilize
 var geoFire = new GeoFire(geoFireRefPush);
 //--------
+// geoquery
+var shoutQuery;
 
 // Just using HTML API for geo location and test it with other APIs
 function getGeoLocation() {
@@ -64,11 +67,11 @@ function getGeoLocation() {
             //update map with location of user and create an icon and circle.
             googleMapShout(userLocation[0], userLocation[1]);
 
+            //geofire set location
+            firebaseUserLocation.on("value", setGeoFireUserInfo, errorObject);
+
             //set the user location to firebase
             firebaseUserLocation.set(userInfo);
-
-            //geofire set location
-            firebaseUserLocation.once("value").then(setGeoFireUserInfo, errorObject);
 
             //user who pressed the shout set geoQuery
 
@@ -95,9 +98,9 @@ function getGeoLocation() {
                     location: location
                 };
                 // addSellerToMap(oneSeller);
-                console.log("People Around: " + peopleAround);
+                console.log("From Shout Query - " + key + " is located at [" + location + "] which is within the query (" + distance.toFixed(2) + " km from center)");
+                console.log("People Around: " + JSON.stringify(peopleAround));
             });
-
 
             //update body
             $("body").append(pLocation);
@@ -107,7 +110,7 @@ function getGeoLocation() {
     }
 
     // this is the call for YELP QUERY - WORKING
-    var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=delis&latitude=39.951061&longitude=-75.165619&radius=8000";
+    var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=delis&latitude=39.951061&longitude=-75.165619&radius=5000";
 
     //testing  to get variables -- Needs WORK!
     // var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=delis&latitude=" + userLocation[0] + "&longitude=" + userLocation[1] + "&radius=8000";
@@ -126,8 +129,6 @@ function getGeoLocation() {
 
     //     );
 }
-
-
 
 //google map function of generating user and icon
 function googleMapShout(userLat, userLng) {
@@ -169,7 +170,7 @@ function googleMapShout(userLat, userLng) {
 
     ]
 
-    console.log(allUsers);
+
     //loop through markers
     for (var i = 0; i < allUsers.length; i++) {
         addUserMarker(allUsers[i]);
@@ -184,7 +185,7 @@ function googleMapShout(userLat, userLng) {
             map: map
         });
 
-        console.log(user.coords.center);
+        // console.log(user.coords.center);
 
         //if user has an Icon
         if (user.iconImage) {
@@ -217,7 +218,7 @@ function googleMapShout(userLat, userLng) {
             center: user.coords.center,
             radius: (user.coords.radius) * 1000 //kilometers
         });
-        console.log(user.coords.radius);
+        // console.log(user.coords.radius);
     }
 }
 
@@ -232,7 +233,7 @@ function setGeoFireUserInfo(snapshot) {
         var userRadius = snapshot[i].radius;
 
         geoFire.set(userName, userLocation).then(function () {
-            console.log("Current user " + userName + "'s location has been added to GeoFire and your location is " + userLocation);
+            // console.log("Current user " + userName + "'s location has been added to GeoFire and your location is " + userLocation);
 
             // geoFireRefPush.child(userName).onDisconnect().remove();
         });
