@@ -19,7 +19,7 @@ var firebaseData = firebase.database();
 //firebase userlocation
 var firebaseUserLocation = firebaseData.ref("user location");
 //get user list
-var userListRef = firebaseData.ref("online presence");
+var userListRef = firebaseData.ref("online");
 //current User Ref
 var currentUserRef = userListRef.push();
 //Add ourself to the list when online
@@ -38,6 +38,7 @@ var shoutQuery;
 //TODO: When you land on page ask the  user for the location and store on to the users firebase ID
 //TODO: When you press the shout button, get that specific users location and update firebase with that location
 //TODO: Use that Shout Location and update the browser to land a marker on the New Location
+
 
 // Just using HTML API for geo location and test it with other APIs
 function getGeoLocation() {
@@ -61,33 +62,34 @@ function getGeoLocation() {
             pLocation.text("The Lattitude-array: " + userLocation[0] + " and the longitude-array: " + userLocation[1]);
 
             //Set user's info for fireBasae
-            var userInfo = [
-                user1 = {
-                    name: "Jorge",
-                    center: {
-                        lat: parseFloat(userLocation[0]),
-                        lng: parseFloat(userLocation[1])
-                    },
-                    radius: Radius //kilometers
-                }
-                // user2 = {
-                //     name: "user 2",
-                //     center: {
-                //         lat: parseFloat(40.065494),
-                //         lng: parseFloat(-75.091064)
-                //     },
-                //     radius: Radius //kilometers
-                // }
-            ]
+            // var userInfo = [
+            //     user1 = {
+            //         name: "Jorge",
+            //         center: {
+            //             lat: parseFloat(userLocation[0]),
+            //             lng: parseFloat(userLocation[1])
+            //         },
+            //         radius: Radius //kilometers
+            //     }
+            //     // user2 = {
+            //     //     name: "user 2",
+            //     //     center: {
+            //     //         lat: parseFloat(40.065494),
+            //     //         lng: parseFloat(-75.091064)
+            //     //     },
+            //     //     radius: Radius //kilometers
+            //     // }
+            // ]
 
             //update map with location of user and create an icon and circle.
             googleMapShout(userLocation[0], userLocation[1]);
 
             //geofire set location
-            firebaseUserLocation.on("value", setGeoFireUserInfo, errorObject);
+            // firebaseUserLocation.on("value", setGeoFireUserInfo, errorObject);
+            firebaseData.ref("user info").on("child_added", setGeoFireUserInfo, errorObject);
 
             //set the user location to firebase
-            firebaseUserLocation.set(userInfo);
+            // firebaseUserLocation.set(userInfo);
 
             //user who pressed the shout set geoQuery
             var shoutQuery = geoFire.query({
@@ -299,6 +301,7 @@ function addShouterMarker(shoutLocation) {
 function setGeoFireUserInfo(snapshot) {
     //get snapshot vallue
     var snapshot = snapshot.val();
+    console.log(snapshot);
     // var keys = Object.keys(snapshot);
     //add all users 
     for (var i = 0; i < snapshot.length; i++) {
@@ -319,27 +322,63 @@ function errorObject(errorObject) {
 };
 
 function usersOnline() {
-    ourPresenceRef.on("value", function (snapshot) {
-        if (snapshot.val()) {
-            // remove ourselves when we disconnect
-            currentUserRef.onDisconnect().remove();
-
-            currentUserRef.set(true);
-        }
-    });
-
-    //number of online users is the number of objects in the presence list.
-    userListRef.on("value", function (snapshot) {
-        // remove ourselves when we disconnect
-        currentUserRef.onDisconnect().remove();
-        //user is present
-        currentUserRef.set(true);
-        console.log("# of online users = " + snapshot.numChildren());
-    });
-
+    var numberOfUsers;
     //get user location
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+            //Latitude and Longitude
+            var lat = position.coords.latitude;
+            var lng = position.coords.longitude;
 
+            //create a user object
+            var userOnlineInfo = [
+                user1 = {
+                    name: "Jorge",
+                    center: {
+                        lat: parseFloat(lat),
+                        lng: parseFloat(lng)
+                    },
+                    radius: Radius //kilometers
+                }
+            ]
 
+            //our online presence -- for now
+            ourPresenceRef.on("value", function (snapshot) {
+                if (snapshot.val()) {
+                    // remove ourselves when we disconnect
+                    firebaseData.ref("online").push().onDisconnect().remove();
+
+                    firebaseData.ref("online").push().set(true);
+                }
+            }, errorObject);
+
+            //number of online users is the number of objects in the presence list.
+            firebaseData.ref("online").on("value", function (snapshot) {
+                // remove ourselves when we disconnect
+                currentUserRef.onDisconnect().remove();
+                firebaseData.ref().child("user info").onDisconnect().remove();
+                // //user is present
+                currentUserRef.set(true);
+                //number of users
+                console.log("# of online users = " + snapshot.numChildren());
+            },errorObject);
+
+            //add users online
+            firebaseData.ref().child("user info").push({
+                //set the info to firebase
+                user1: {
+                    name: "Some value entered by user",
+                    center: {
+                        lat: parseFloat(lat),
+                        lng: parseFloat(lng)
+                    },
+                    radius: Radius //kilometers
+                }
+            });
+        });
+    } else {
+        console.log("no access to geto");
+    }
 }
 
 
