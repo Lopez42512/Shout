@@ -25,8 +25,7 @@ var currentUserRef = userListRef.push();
 //Add ourself to the list when online
 var ourPresenceRef = firebaseData.ref(".info/connected");
 
-
-//GEOFIRE----------------
+//GEOFIRE-------------------------------------------------------
 //geofire ref
 var geoFireRefPush = firebase.database().ref("/geofire-location").push();
 //gefire initilize
@@ -36,6 +35,9 @@ var geoFire = new GeoFire(geoFireRefPush);
 var shoutQuery;
 
 //-------------------------------------------------------------------
+//TODO: When you land on page ask the  user for the location and store on to the users firebase ID
+//TODO: When you press the shout button, get that specific users location and update firebase with that location
+//TODO: Use that Shout Location and update the browser to land a marker on the New Location
 
 // Just using HTML API for geo location and test it with other APIs
 function getGeoLocation() {
@@ -50,14 +52,13 @@ function getGeoLocation() {
             userLocation.push(position.coords.latitude);
             userLocation.push(position.coords.longitude);
 
-            //add to data-location attribute for This call.
+            //have user unique ID be stored and referenced when pressing the button.
             $(this).attr("data-lat", position.coords.latitude.toString());
             $(this).attr("data-lng", position.coords.longitude.toString());
 
             //display lattitude and longitude in dom
             var pLocation = $("<p>");
             pLocation.text("The Lattitude-array: " + userLocation[0] + " and the longitude-array: " + userLocation[1]);
-
 
             //Set user's info for fireBasae
             var userInfo = [
@@ -89,7 +90,6 @@ function getGeoLocation() {
             firebaseUserLocation.set(userInfo);
 
             //user who pressed the shout set geoQuery
-
             var shoutQuery = geoFire.query({
                 center: userLocation,
                 radius: Radius // kilometers
@@ -112,7 +112,7 @@ function getGeoLocation() {
                     distance: distance.toFixed(2) + "km",
                     location: location
                 };
-         
+
                 //create a new location of the shouter who will then place it on the firebase query
                 if (Math.floor(distance) !== 0) {
                     addShouterMarker(userLocation);
@@ -125,7 +125,7 @@ function getGeoLocation() {
 
                 // addSellerToMap(oneSeller);
                 console.log("From Shout Query - " + key + " is located at [" + location + "] which is within the query (" + distance.toFixed(2) + " km from center)");
-                
+
             });
 
             //update body
@@ -184,23 +184,28 @@ function googleMapShout(userLat, userLng) {
         }
 
     ]
+
     //set map's center to shouter
     map.panTo(allUsers[0].coords.center);
 
-    //loop through markers
+    //loop through markers and drop
     for (var i = 0; i < allUsers.length; i++) {
-        addUserMarker(allUsers[i]);
-    }
+        var userIndex = allUsers[i];
+        //    window.setTimeout( function(){
+        //     addUserMarker(userIndex)
+        //    },200) ;
 
+        addUserMarker(userIndex);
+    }
 
     //function Marker
     function addUserMarker(user) {
-        //Add marker
+
         var marker = new google.maps.Marker({
             position: user.coords.center,
-            map: map
+            map: map,
+            animation: google.maps.Animation.DROP,
         });
-
         // console.log(user.coords.center);
 
         //if user has an Icon
@@ -215,23 +220,24 @@ function googleMapShout(userLat, userLng) {
             var infoWindow = new google.maps.InfoWindow({
                 content: user.content
             });
-
         }
 
-        marker.addListener("click", () => {
-
-            infoWindow.open(map, marker);
-        });
-
+        // create circle    
         var cityCircle = new google.maps.Circle({
             strokeColor: '#FF0000',
-            strokeOpacity: 0.8,
+            strokeOpacity: 0.15,
             strokeWeight: 2,
             fillColor: '#FF0000',
-            fillOpacity: 0.35,
+            fillOpacity: 0.15,
             map: map,
             center: user.coords.center,
             radius: (user.coords.radius) * 1000 //kilometers
+        });
+
+        //check if marker has been clicked
+        marker.addListener("click", () => {
+
+            infoWindow.open(map, marker);
         });
     }
 }
@@ -252,7 +258,8 @@ function addShouterMarker(shoutLocation) {
 
     var marker = new google.maps.Marker({
         position: shouter.coords.center,
-        map: map
+        map: map,
+        animation: google.maps.Animation.DROP
     });
 
     // console.log(shouter.coords.center);
@@ -279,7 +286,7 @@ function addShouterMarker(shoutLocation) {
 
     var cityCircle = new google.maps.Circle({
         strokeColor: '#00bcd4',
-        strokeOpacity: 0.8,
+        strokeOpacity: 0.3,
         strokeWeight: 2,
         fillColor: '#f33839',
         fillOpacity: 0.35,
@@ -332,7 +339,7 @@ function usersOnline() {
 
     //get user location
 
-    
+
 }
 
 
