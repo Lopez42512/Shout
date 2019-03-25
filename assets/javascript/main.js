@@ -50,6 +50,10 @@ function getGeoLocation() {
             userLocation.push(position.coords.latitude);
             userLocation.push(position.coords.longitude);
 
+            //add to data-location attribute for This call.
+            $(this).attr("data-lat", position.coords.latitude.toString());
+            $(this).attr("data-lng", position.coords.longitude.toString());
+
             //display lattitude and longitude in dom
             var pLocation = $("<p>");
             pLocation.text("The Lattitude-array: " + userLocation[0] + " and the longitude-array: " + userLocation[1]);
