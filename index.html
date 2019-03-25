@@ -5,19 +5,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  
+
   <link rel="stylesheet" href="./assets/css/style.css">
   <title>Shout!</title>
 
-     <!-- Firebase -->
-     <script src="https://www.gstatic.com/firebasejs/5.9.1/firebase.js"></script>
-     <!-- GeoFire -->
-     <!-- <script src="./assets/javascript/geofire.min.js"></script> -->
-     <script src="https://cdn.firebase.com/libs/geofire/4.1.0/geofire.min.js"></script>
-      <!-- RSVP -->
-      <script src="https://cdn.jsdelivr.net/npm/rsvp@4/dist/rsvp.min.js"></script>
-     <!-- our geo code -->
-      <!-- <script src="./assets/javascript/geoTest.js"></script> -->
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/5.9.1/firebase.js"></script>
+  <!-- GeoFire -->
+  <!-- <script src="./assets/javascript/geofire.min.js"></script> -->
+  <script src="https://cdn.firebase.com/libs/geofire/4.1.0/geofire.min.js"></script>
+  <!-- RSVP -->
+  <script src="https://cdn.jsdelivr.net/npm/rsvp@4/dist/rsvp.min.js"></script>
+  <!-- our geo code -->
+  <!-- <script src="./assets/javascript/geoTest.js"></script> -->
 
 </head>
 
@@ -35,8 +35,11 @@
   <!-- Scripts -->
 
   <script>
+    // Initialize global map object --------
+    var map;
+
     function initMap() {
-      // //fixed place for now
+      // fixed place for now
       var place = {
         zoom: 10,
         center: {
@@ -45,22 +48,21 @@
         }
       }
       // //new map
-      var map = new google.maps.Map(document.getElementById("map"), place);
+      map = new google.maps.Map(document.getElementById("map"), place);
 
       // console.log(map);
-      // //Array of Users
+      // Array of Users
 
     }
-    
   </script>
-<!-- google maps -->
+  <!-- google maps -->
   <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB6JIwfy4q8P_mFaKEhDn2AnJ6e6-mpctc&callback=initMap">
   </script>
   <!-- jquery -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
- <!-- main code -->
+  <!-- main code -->
   <script src="./assets/javascript/main.js"></script>
 
 

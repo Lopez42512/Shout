@@ -1,9 +1,9 @@
 //Global variables
 var userLocation = [];
 var gMap;
+var Radius = 5;
 
-
-// Initialize Firebase
+// Initialize Firebase ----------------------------------------
 var config = {
     apiKey: "AIzaSyBWlRO86vNl6sL5psQX5f7H9Lw_wsULP9g",
     authDomain: "geofiretest-9d07e.firebaseapp.com",
@@ -16,7 +16,7 @@ firebase.initializeApp(config);
 
 //firebase database
 var firebaseData = firebase.database();
-var firebaseUserLocation = firebaseData.ref("firebase location");
+var firebaseUserLocation = firebaseData.ref("user location");
 //   geofire ref
 var geoFireRefPush = firebase.database().ref("/geofire-location").push();
 // gefire initilize
@@ -25,6 +25,7 @@ var geoFire = new GeoFire(geoFireRefPush);
 // geoquery
 var shoutQuery;
 
+//-------------------------------------------------------------------
 // Just using HTML API for geo location and test it with other APIs
 function getGeoLocation() {
 
@@ -51,7 +52,7 @@ function getGeoLocation() {
                         lat: parseFloat(userLocation[0]),
                         lng: parseFloat(userLocation[1])
                     },
-                    radius: 5 //kilometers
+                    radius: Radius //kilometers
                 },
                 user2 = {
                     name: "user 2",
@@ -59,10 +60,9 @@ function getGeoLocation() {
                         lat: parseFloat(40.065494),
                         lng: parseFloat(-75.091064)
                     },
-                    radius: 5 //kilometers
+                    radius: Radius //kilometers
                 }
             ]
-
 
             //update map with location of user and create an icon and circle.
             googleMapShout(userLocation[0], userLocation[1]);
@@ -77,7 +77,7 @@ function getGeoLocation() {
 
             var shoutQuery = geoFire.query({
                 center: userLocation,
-                radius: 5 // kilometers
+                radius: Radius // kilometers
             });
 
             // look at other people around
@@ -87,16 +87,27 @@ function getGeoLocation() {
                     lat: parseFloat(40.065494),
                     lng: parseFloat(-75.091064)
                 },
-                radius: 5 //kilometers
+                radius: Radius //kilometers
             };
 
             //check if someone is in your radius
             shoutQuery.on("key_entered", function (key, location, distance) {
                 peopleAround = {
                     id: key,
-                    distance: distance,
+                    distance: distance.toFixed(2) + "km",
                     location: location
                 };
+
+                //create a new location of the shouter who will then place it on the firebase query
+                if (Math.floor(distance) !== 0) {
+                    addShouterMarker(userLocation);
+                    console.log("Is distance 0 ? " + distance.toFixed);
+                }
+                
+                // locationOfShouter(userLocation);
+
+                //show the shouter's location
+
                 // addSellerToMap(oneSeller);
                 console.log("From Shout Query - " + key + " is located at [" + location + "] which is within the query (" + distance.toFixed(2) + " km from center)");
                 console.log("People Around: " + JSON.stringify(peopleAround));
@@ -133,17 +144,6 @@ function getGeoLocation() {
 //google map function of generating user and icon
 function googleMapShout(userLat, userLng) {
 
-    // initialize maps
-
-    var map = new google.maps.Map(document.getElementById("map"), {
-        zoom: 11,
-        center: {
-            lat: userLat,
-            lng: userLng
-        }
-    });
-
-
     var allUsers = [
 
         firstUser = {
@@ -152,7 +152,7 @@ function googleMapShout(userLat, userLng) {
                     lat: userLat,
                     lng: userLng
                 },
-                radius: 5 //kilometers
+                radius: Radius //kilometers
             },
             iconImage: "./assets/images/map-icon.png",
             content: "<h1>Hello Friends!</h1>"
@@ -169,7 +169,8 @@ function googleMapShout(userLat, userLng) {
         }
 
     ]
-
+    //set map's center to shouter
+    map.panTo(allUsers[0].coords.center);
 
     //loop through markers
     for (var i = 0; i < allUsers.length; i++) {
@@ -195,7 +196,6 @@ function googleMapShout(userLat, userLng) {
 
         // if it contains infoWindow text then create one
         if (user.content) {
-
             //infoWindow is a pop up for the onClick
             var infoWindow = new google.maps.InfoWindow({
                 content: user.content
@@ -218,8 +218,60 @@ function googleMapShout(userLat, userLng) {
             center: user.coords.center,
             radius: (user.coords.radius) * 1000 //kilometers
         });
-        // console.log(user.coords.radius);
     }
+}
+
+function addShouterMarker(shoutLocation) {
+    //Add marker
+    var shouter = {
+        coords: {
+            center: {
+                lat: shoutLocation[0],
+                lng: shoutLocation[1]
+            },
+            radius: Radius //kilometers
+        },
+        // iconImage: "./assets/images/map-icon.png",
+        content: "<h1>This is a SHOUT!</h1>"
+    };
+
+    var marker = new google.maps.Marker({
+        position: shouter.coords.center,
+        map: map
+    });
+
+    // console.log(shouter.coords.center);
+
+    //if user has an Icon
+    if (shouter.iconImage) {
+        //set Icon image
+        marker.setIcon(shouter.iconImage);
+    }
+
+    // if it contains infoWindow text then create one
+    if (shouter.content) {
+        //infoWindow is a pop up for the onClick
+        var shouterInfoWindow = new google.maps.InfoWindow({
+            content: shouter.content
+        });
+
+    }
+
+    marker.addListener("click", () => {
+
+        shouterInfoWindow.open(map, marker);
+    });
+
+    var cityCircle = new google.maps.Circle({
+        strokeColor: '#00bcd4',
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: '#f33839',
+        fillOpacity: 0.35,
+        map: map,
+        center: shouter.coords.center,
+        radius: (shouter.coords.radius) * 1000 //kilometers
+    });
 }
 
 function setGeoFireUserInfo(snapshot) {
@@ -230,7 +282,7 @@ function setGeoFireUserInfo(snapshot) {
     for (var i = 0; i < snapshot.length; i++) {
         var userName = snapshot[i].name;
         var userLocation = [snapshot[i].center.lat, snapshot[i].center.lng];
-        var userRadius = snapshot[i].radius;
+        var Radius = snapshot[i].radius;
 
         geoFire.set(userName, userLocation).then(function () {
             // console.log("Current user " + userName + "'s location has been added to GeoFire and your location is " + userLocation);
