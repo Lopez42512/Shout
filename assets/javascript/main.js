@@ -16,16 +16,27 @@ firebase.initializeApp(config);
 
 //firebase database
 var firebaseData = firebase.database();
+//firebase userlocation
 var firebaseUserLocation = firebaseData.ref("user location");
-//   geofire ref
+//get user list
+var userListRef = firebaseData.ref("online presence");
+//current User Ref
+var currentUserRef = userListRef.push();
+//Add ourself to the list when online
+var ourPresenceRef = firebaseData.ref(".info/connected");
+
+
+//GEOFIRE----------------
+//geofire ref
 var geoFireRefPush = firebase.database().ref("/geofire-location").push();
-// gefire initilize
+//gefire initilize
 var geoFire = new GeoFire(geoFireRefPush);
 //--------
 // geoquery
 var shoutQuery;
 
 //-------------------------------------------------------------------
+
 // Just using HTML API for geo location and test it with other APIs
 function getGeoLocation() {
 
@@ -53,15 +64,15 @@ function getGeoLocation() {
                         lng: parseFloat(userLocation[1])
                     },
                     radius: Radius //kilometers
-                },
-                user2 = {
-                    name: "user 2",
-                    center: {
-                        lat: parseFloat(40.065494),
-                        lng: parseFloat(-75.091064)
-                    },
-                    radius: Radius //kilometers
                 }
+                // user2 = {
+                //     name: "user 2",
+                //     center: {
+                //         lat: parseFloat(40.065494),
+                //         lng: parseFloat(-75.091064)
+                //     },
+                //     radius: Radius //kilometers
+                // }
             ]
 
             //update map with location of user and create an icon and circle.
@@ -97,20 +108,20 @@ function getGeoLocation() {
                     distance: distance.toFixed(2) + "km",
                     location: location
                 };
-
+         
                 //create a new location of the shouter who will then place it on the firebase query
                 if (Math.floor(distance) !== 0) {
                     addShouterMarker(userLocation);
-                    console.log("Is distance 0 ? " + distance.toFixed);
+                    console.log("People Around: " + JSON.stringify(peopleAround));
                 }
-                
+
                 // locationOfShouter(userLocation);
 
                 //show the shouter's location
 
                 // addSellerToMap(oneSeller);
                 console.log("From Shout Query - " + key + " is located at [" + location + "] which is within the query (" + distance.toFixed(2) + " km from center)");
-                console.log("People Around: " + JSON.stringify(peopleAround));
+                
             });
 
             //update body
@@ -296,5 +307,34 @@ function errorObject(errorObject) {
     console.log("The read failed: " + errorObject.code);
 };
 
-// Execute functions
+function usersOnline() {
+    ourPresenceRef.on("value", function (snapshot) {
+        if (snapshot.val()) {
+            // remove ourselves when we disconnect
+            currentUserRef.onDisconnect().remove();
+
+            currentUserRef.set(true);
+        }
+    });
+
+    //number of online users is the number of objects in the presence list.
+    userListRef.on("value", function (snapshot) {
+        // remove ourselves when we disconnect
+        currentUserRef.onDisconnect().remove();
+        //user is present
+        currentUserRef.set(true);
+        console.log("# of online users = " + snapshot.numChildren());
+    });
+
+    //get user location
+
+    
+}
+
+
+// Execute Initial functions----------------
+// Check who's online
+usersOnline();
+
+//on click shout
 $(document).on("click", "#getGeoLocation", getGeoLocation);
