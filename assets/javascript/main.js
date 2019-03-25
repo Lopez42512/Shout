@@ -142,18 +142,32 @@ function getGeoLocation() {
     // var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=delis&latitude=" + userLocation[0] + "&longitude=" + userLocation[1] + "&radius=8000";
     var yelpAPI = "1QpSc4B1zI5GuI56PDAAvAfpfcsLg9LWuHRfVCeG4TIDDxRe3hGT-sxlU5h5DD0AdLgu-HHoa2cM4m1WaAefYoboIPdVHv0mCjivrwQrdU11FCFl2hd8-iaaTKOTXHYx";
 
-    // //-----------YELP CALL
-    //     $.ajax({
-    //         url: yelpQuery,
-    //         headers: {
-    //             'Authorization': "Bearer " + yelpAPI,
-    //         },
-    //         method: "GET"
-    //     }).then((yelpResponse) => {
-    //             console.log("Yelp response: "+ yelpResponse);
-    //         }
+    //-----------YELP CALL
+        $.ajax({
+            url: yelpQuery,
+            headers: {
+                'Authorization': "Bearer " + yelpAPI,
+            },
+            method: "GET"
+        }).then((yelpResponse) => {
+            console.log(yelpResponse);
 
-    //     );
+            var result = $("<p>");
+            for (var i = 0; i < 5; i++) {
+                var name = yelpResponse.businesses[i].name;
+                var ratings = yelpResponse.businesses[i].rating;
+                var is_closed = yelpResponse.businesses[i].is_closed;
+                var location = yelpResponse.businesses[i].location.address1;
+                var yelpLat = yelpResponse.businesses[i].coordinates.latitude;
+                var yelpLong = yelpResponse.businesses[i].coordinates.longitude;
+                $("#name").append($("<p>").text(name));
+                $("#ratings").append($("<p>").text(ratings));
+                $("#is_closed").append($("<p>").text(is_closed));
+                $("#location").append($("<p>").text(location));
+            
+            }
+        
+        });
 }
 
 //google map function of generating user and icon
