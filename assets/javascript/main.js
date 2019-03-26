@@ -40,6 +40,8 @@ var connectedRef = firebaseData.ref(".info/connected");
 var userRef = firebaseData.ref("/users");
 //user chat
 var chatRef = firebaseData.ref("/chat");
+//yelp businesses
+var yelpRef = firebaseData.ref("/yelp Businesses");
 
 // //current User Ref
 // var currentUserRef = userListRef.push();
@@ -219,21 +221,8 @@ function getYelpInfo(searchQuery, userLat, userLng) {
     }).then((yelpResponse) => {
         console.log(yelpResponse);
         for (var i = 0; i < 5; i++) {
-
-            // var name = yelpResponse.businesses[i].name;
-            // var ratings = yelpResponse.businesses[i].rating;
-            // var is_closed = yelpResponse.businesses[i].is_closed;
-            // var location = yelpResponse.businesses[i].location.address1;
-            // var yelpLat = yelpResponse.businesses[i].coordinates.latitude;
-            // var yelpLong = yelpResponse.businesses[i].coordinates.longitude;
-
+            // Add yelp businesses
             addYelpBusinesses(yelpResponse.businesses[i]);
-
-            // $("#name").append($("<p>").text(name));
-            // $("#ratings").append($("<p>").text(ratings));
-            // $("#is_closed").append($("<p>").text(is_closed));
-            // $("#location").append($("<p>").text(location));
-
         }
 
     });
@@ -384,7 +373,8 @@ function addYelpBusinesses(yelpBusiness) {
     var bName = yelpBusiness.name;
     var bRatings = yelpBusiness.rating;
     var bIs_closed = yelpBusiness.is_closed;
-    var bLocation = yelpBusiness.location.address1;
+    var bLocation = yelpBusiness.location.display_address.join("<br>");
+    var bLocationHref = " http://maps.google.com/?q="+ yelpBusiness.location.display_address.join("");
     var bLat = parseFloat(yelpBusiness.coordinates.latitude);
     var bLong = parseFloat(yelpBusiness.coordinates.longitude);
     var hours;
@@ -404,7 +394,7 @@ function addYelpBusinesses(yelpBusiness) {
         },
         // iconImage: "./assets/images/map-icon.png",
         content: `<h2 class="yelpTitle">${bName}</h2>
-        <p class="yelpDesc"> Address: <a id="yelpLink" href="${bLocation}">${bLocation}</a></p>
+        <p class="yelpDesc"> Address: <a id="yelpLink" href="${bLocationHref}">${bLocation}</a></p>
         <p class="yelpDesc">The store is ${hours} </p>`
     }
 
