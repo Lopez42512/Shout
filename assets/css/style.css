@@ -11,6 +11,14 @@
 
 button {
     font-size: 3vw;
-    
-    
+}
+
+.message-box {
+    /* width: 800px;
+    height: 800px;
+    background: #000; */
+}
+
+.message-font {
+color: black;
 }

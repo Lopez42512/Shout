@@ -3,6 +3,18 @@
 var userLocation = [];
 var gMap;
 var Radius = 5;
+var profile;
+var userID;
+var currentUsers = {
+    name: "",
+    center: {
+        lat: "",
+        lng: ""
+    },
+    radius: Radius,
+    messages: []
+}
+
 
 // Initialize Firebase ----------------------------------------
 var config = {
@@ -12,19 +24,25 @@ var config = {
     projectId: "geofiretest-9d07e",
     storageBucket: "geofiretest-9d07e.appspot.com",
     messagingSenderId: "680094207901"
-};
+  };
 firebase.initializeApp(config);
 
 //firebase database
 var firebaseData = firebase.database();
 //firebase userlocation
 var firebaseUserLocation = firebaseData.ref("user location");
+
+// users connected
+var connectedRef = firebaseData.ref(".info/connected");
 //get user list
-var userListRef = firebaseData.ref("online presence");
-//current User Ref
-var currentUserRef = userListRef.push();
-//Add ourself to the list when online
-var ourPresenceRef = firebaseData.ref(".info/connected");
+var userRef = firebaseData.ref("/users");
+//user chat
+var chatRef = firebaseData.ref("/chat");
+
+// //current User Ref
+// var currentUserRef = userListRef.push();
+// //Add ourself to the list when online
+// var ourPresenceRef = firebaseData.ref(".info/connected");
 
 //GEOFIRE-------------------------------------------------------
 //geofire ref
@@ -90,6 +108,45 @@ function getGeoLocation() {
             //set the user location to firebase
             firebaseUserLocation.set(userInfo);
 
+            //neha's approuch
+            connectedRef.on("value", function (snapshot) {
+
+                //If they're connected..
+                if (snapshot.val()) {
+                    //add user profile
+                    profile = userRef.push({
+                        name: "",
+                        center: {
+                            lat: "",
+                            lng: ""
+                        },
+                        radius: Radius,
+                        messages: []
+                    });
+
+
+                    //User's online ID
+                    userID = profile.key;
+                }
+
+                //When User leaves, remove all info
+                userRef.onDisconnect().remove();
+
+                //Update current user's info who pressed the button
+
+                userRef.child(userID).update({
+                    name: "",
+                    center: {
+                        lat: userLocation[0],
+                        lng: userLocation[1]
+                    },
+                    radius: Radius,
+                    messages: []
+                });
+                // --------------------------end of neha's approuch
+
+            }, errorObject);
+
             //user who pressed the shout set geoQuery
             var shoutQuery = geoFire.query({
                 center: userLocation,
@@ -144,31 +201,31 @@ function getGeoLocation() {
     var yelpAPI = "1QpSc4B1zI5GuI56PDAAvAfpfcsLg9LWuHRfVCeG4TIDDxRe3hGT-sxlU5h5DD0AdLgu-HHoa2cM4m1WaAefYoboIPdVHv0mCjivrwQrdU11FCFl2hd8-iaaTKOTXHYx";
 
     //-----------YELP CALL
-        $.ajax({
-            url: yelpQuery,
-            headers: {
-                'Authorization': "Bearer " + yelpAPI,
-            },
-            method: "GET"
-        }).then((yelpResponse) => {
-            console.log(yelpResponse);
+    $.ajax({
+        url: yelpQuery,
+        headers: {
+            'Authorization': "Bearer " + yelpAPI,
+        },
+        method: "GET"
+    }).then((yelpResponse) => {
+        console.log(yelpResponse);
 
-            var result = $("<p>");
-            for (var i = 0; i < 5; i++) {
-                var name = yelpResponse.businesses[i].name;
-                var ratings = yelpResponse.businesses[i].rating;
-                var is_closed = yelpResponse.businesses[i].is_closed;
-                var location = yelpResponse.businesses[i].location.address1;
-                var yelpLat = yelpResponse.businesses[i].coordinates.latitude;
-                var yelpLong = yelpResponse.businesses[i].coordinates.longitude;
-                $("#name").append($("<p>").text(name));
-                $("#ratings").append($("<p>").text(ratings));
-                $("#is_closed").append($("<p>").text(is_closed));
-                $("#location").append($("<p>").text(location));
-            
-            }
-        
-        });
+        var result = $("<p>");
+        for (var i = 0; i < 5; i++) {
+            var name = yelpResponse.businesses[i].name;
+            var ratings = yelpResponse.businesses[i].rating;
+            var is_closed = yelpResponse.businesses[i].is_closed;
+            var location = yelpResponse.businesses[i].location.address1;
+            var yelpLat = yelpResponse.businesses[i].coordinates.latitude;
+            var yelpLong = yelpResponse.businesses[i].coordinates.longitude;
+            $("#name").append($("<p>").text(name));
+            $("#ratings").append($("<p>").text(ratings));
+            $("#is_closed").append($("<p>").text(is_closed));
+            $("#location").append($("<p>").text(location));
+
+        }
+
+    });
 }
 
 //google map function of generating user and icon
@@ -343,24 +400,37 @@ function usersOnline() {
         }
     });
 
-    //number of online users is the number of objects in the presence list.
-    userListRef.on("value", function (snapshot) {
-        // remove ourselves when we disconnect
-        currentUserRef.onDisconnect().remove();
-        //user is present
-        currentUserRef.set(true);
-        console.log("# of online users = " + snapshot.numChildren());
+//     //number of online users is the number of objects in the presence list.
+//     userListRef.on("value", function (snapshot) {
+//         // remove ourselves when we disconnect
+//         currentUserRef.onDisconnect().remove();
+//         //user is present
+//         currentUserRef.set(true);
+//         console.log("# of online users = " + snapshot.numChildren());
+//     });
+
+//     //get user location
+
+
+// }
+
+$("#submit-btn").on("click", function (event) {
+    // event.preventdefault();
+
+    var message ={ chat: $("#messageBox").val()}
+    
+    //push message
+    chatRef.push(message);
+
+    chatRef.on("child_added", function (childSnapshot) {
+        var fireBaseMessage = childSnapshot.val().chat;
+        $(".message-box").append(`<p class="message-font"> ${fireBaseMessage}</p>`);
     });
-
-    //get user location
-
-
-}
-
+});
 
 // Execute Initial functions----------------
 // Check who's online
-usersOnline();
+// usersOnline();
 
 //on click shout
 $(document).on("click", "#getGeoLocation", getGeoLocation);
