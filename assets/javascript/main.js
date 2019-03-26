@@ -107,7 +107,7 @@ function getGeoLocation() {
             googleMapShout(userLocation[0], userLocation[1]);
 
             //update map with Yelp Busnisses Locations
-            getYelpInfo();
+            getYelpInfo(searchQuery, userLocation[0],userLocation[1]);
 
             //geofire set location
             firebaseUserLocation.on("value", setGeoFireUserInfo, errorObject);
@@ -206,11 +206,13 @@ function getYelpInfo(searchQuery, userLat, userLng) {
 
     // this is the call for YELP QUERY - WORKING
     var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=delis&latitude=39.951061&longitude=-75.165619&radius=5000&limit=5";
-
+   
     //testing  to get variables -- Needs WORK!
-    // var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=delis&latitude=" + userLocation[0] + "&longitude=" + userLocation[1] + "&radius="+ Radius+"&limit=5";
+    // var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=delis&latitude="+ userLat.toString() + "&longitude="+userLng.toString() + "&radius="+Radius+"&limit=5";
     var yelpAPI = "1QpSc4B1zI5GuI56PDAAvAfpfcsLg9LWuHRfVCeG4TIDDxRe3hGT-sxlU5h5DD0AdLgu-HHoa2cM4m1WaAefYoboIPdVHv0mCjivrwQrdU11FCFl2hd8-iaaTKOTXHYx";
 
+    console.log("This is the custom yelp " + yelpQuery);
+    console.log("This is the custom lat " + userLat.toString());
     //-----------YELP CALL
     $.ajax({
         url: yelpQuery,
@@ -219,7 +221,7 @@ function getYelpInfo(searchQuery, userLat, userLng) {
         },
         method: "GET"
     }).then((yelpResponse) => {
-        console.log(yelpResponse);
+        // console.log(yelpResponse);
         for (var i = 0; i < 5; i++) {
             // Add yelp businesses
             addYelpBusinesses(yelpResponse.businesses[i]);
