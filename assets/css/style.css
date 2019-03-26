@@ -1,7 +1,11 @@
-.container {
+.container1 {
     display: flex;
     justify-content: center;
     flex-direction: column;
+}
+body{
+    background-color: black;
+    position: relative;
 }
 
 #map {
@@ -13,4 +17,104 @@ button {
     font-size: 3vw;
     
     
+}
+#backGround{
+    position: fixed;
+    top: 0;
+    left: 0;
+    min-width: 100%;
+    min-height: 100%;
+    width: 100%;
+    height: 100%;
+    opacity: .7;
+  
+}
+.intro {
+    position: relative;
+    background-color: transparent;
+}
+.about{
+    position: relative;
+}
+.white {
+    color: white;
+}
+.headers {
+    font-weight: bold;
+}
+.container2{
+    color: white;
+}
+#faq {
+    background-color: black;
+}
+#welcome {
+    margin-top: 5%;
+    text-align: center;
+}
+#about{
+    margin-top: 10vh;
+    text-align: center;
+}
+#join{
+    margin-top: 10vh;
+    text-align: center;
+    margin-bottom: 10%;
+}
+.pictures {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    width: 620px;
+}
+.pic1 {
+    margin-right: 3%;
+}
+.input-group{
+    width: 40vw !important;
+    margin-left: auto;
+    margin-right: auto;
+    height: 50px !important;
+    border: solid 2px blue;
+}
+#inputName{
+    height: 46px !important;
+    font-size: 22px;
+    text-align: center;
+}
+.joinBtn {
+    margin-top: 5vh;
+    font-size: 25px;
+
+}
+.picCon{
+    text-align: center;
+}
+.shoutBtn {
+    margin-top: 3%;
+    font-size: 22px;
+}
+.copyContainer {
+    position: relative;
+    background-color: #212529;
+    height: 75px;
+}
+.copyright {
+    text-align: center;
+    padding-top: 13px;
+    margin-bottom: 0px;
+}
+
+@media (max-width: 767px) {
+    .picCon {
+        margin-left: 4.5%;
+    }
+}
+@media (max-width: 740px) {
+    .pictures {
+        width: 349px;
+    }
+    .pic2{
+        margin-top: 15px;
+    }
 }

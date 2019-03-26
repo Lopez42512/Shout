@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!--bootstrap-->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!--bootstrap-->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <title>Welcome Shout!</title>
+</head>
+
+<body>
+    <img src="./assets/images/Project background.jpg" id="backGround">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="theBar">
+        <div class="container">
+            <a class="navbar-brand" href="./welcome.html">Shout!</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+                aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#faq">FAQ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div data-spy="scroll" data-target="theBar" data-offset="0">
+        <section id="welcome">
+
+            <div class="jumbotron intro">
+                <h1 class="display-4 white headers">Meet Up At <br> A Click Of A <br> Button</h1>
+                <p class="lead white ">Instantly connect with people around you by creating an <br>event, and see who
+                    would
+                    like
+                    to
+                    join. Socialize with people <br> who share the same mindset, ideas, styles, or even occupation as
+                    you.
+                </p>
+                <a class="btn btn-primary btn-lg shoutBtn" href="#join" role="button">Join Shout!</a>
+            </div>
+        </section>
+        <section id="about">
+            <div class="jumbotron intro">
+
+                <h1 class="display-4 white headers">Don't Explore Alone <br> Explore With Others</h1>
+
+                <p class="lead white "> Love to explore? but don't have anyone to do it with? <br>Not a problem,
+                    with
+                    just a
+                    click of a button with shout,<br> you can set up an event, and shout to see whose <br>around you
+                    that love
+                    would love to hand out!
+                </p>
+                <div class="container picCon">
+                    <div class="row center pictures">
+                        <div class="card images pic1" style="width: 18rem;">
+                            <img src="./assets/images/project im 2.jpg" class="card-img-top pic1" height="275px">
+                        </div>
+                        <div class="card images pic2" style="width: 18rem;">
+                            <img src="./assets/images/project img1.jpg" class="card-img-top" height="275px">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+<!-- //767 -->
+        <section id="join">
+
+            <div class="jumbotron intro">
+                <h1 class="display-4 white headers">Join Shout!</h1>
+                <p class="lead white ">Enter Your Name and Shout With Others!</p>
+                <div class="input-group flex-nowrap">
+                    <div class="input-group-prepend">
+                    </div>
+                    <input type="text" class="form-control" id="inputName" placeholder="Enter Your Name"
+                        aria-label="Username" aria-describedby="addon-wrapping">
+                </div>
+                <button type="button" class="btn btn-primary joinBtn">Join!</button>
+            </div>
+        </section>
+        <footer>
+            <div class="copyContainer">
+                <p class="white copyright">© 2019 JIWP Platform LLC. By using the service, you agree <br> to our Privacy
+                    Policy and Terms of Use.</p>
+            </div>
+        </footer>
+    </div>
+
+
+    <!--bootstrap-->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+    <!--bootstrap-->
+</body>
+
+</html>
