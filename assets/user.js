@@ -1,3 +1,6 @@
+var userId;
+
+
 var config = {
     apiKey: "AIzaSyBgbeWYYyp8oVui9kLHUT6HSDAREQhX9nU",
     authDomain: "shout-e4409.firebaseapp.com",
@@ -10,7 +13,9 @@ firebase.initializeApp(config);
 
 var database = firebase.database();
 
-// var usersRef = ref.child("users");
+var usersRef = database.ref("users");
+
+var chatRef = database.ref("/chat")
 
 //This adds a user to firebase
 
@@ -25,7 +30,8 @@ $("#add-user-btn").on("click", function (event) {
         name: userName,
     }
 
-    database.ref("/User").push(newUser);
+    usersRef.push(newUser);
+    
 });
 
 //This adds a message to firebase
@@ -35,10 +41,7 @@ $("#submit-button").on("click", function (event) {
 
     alert(message);
 
-    var userMessage =
-        database.ref("user/message").set({
-            message: message
-        });
+    usersRef.update(message);
 
     event.preventdefault();
 })
