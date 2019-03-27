@@ -1,6 +1,5 @@
 $(document).ready(() => {
     //Global variables
-    var gMap;
     var Lattitude;
     var Longitude;
     var Radius = 5;
@@ -8,6 +7,7 @@ $(document).ready(() => {
     var yelpProfile;
     var userID;
     var yelpSearch;
+    var shoutLocation;
     // geoquery
     var shoutQuery;
     var yelpQuery;
@@ -23,7 +23,6 @@ $(document).ready(() => {
     };
     firebase.initializeApp(config);
 
-
     // Create a variable to reference the database.
     var firebaseData = firebase.database();
 
@@ -31,6 +30,7 @@ $(document).ready(() => {
     var usersRef = firebaseData.ref("/users");
     var connectionsRef = firebaseData.ref("/connections");
     var chatRef = firebaseData.ref("/chat");
+    var shoutRef = firebaseData.ref("/shoutLoc");
     var yelpRef = firebaseData.ref("/yelp Businesses");
 
     //GEOFIRE-------------------------------------------------------
@@ -52,44 +52,64 @@ $(document).ready(() => {
             connectedRef.on("value", (snapshot) => {
                 //if there is a value
                 if (snapshot.val()) {
-                    console.log("# of users "+ snapshot.numChildren() );
-                    //add unique user profile
-                    // profile = usersRef.push({
-                    //     name: "",
-                    //     center: {
-                    //         lat: "",
-                    //         lng: ""
-                    //     },
-                    //     radius: Radius, //kilometers
-                    //     message: []
-                    // });
-
-                    // //get unique user key
-                    // userID = profile.key;
-
                     // Remove users if they leave
                     connectionsRef.onDisconnect().remove();
                     usersRef.onDisconnect().remove();
+                    console.log("# of users " + snapshot.numChildren());
+
+                    //add unique user profile
+                    profile = usersRef.push({
+                        name: "static",
+                        center: {
+                            lat: Lattitude,
+                            lng: Longitude
+                        },
+                        radius: Radius, //kilometers
+                        chat: [],
+                        shoutMessage: ""
+                    });
+                    //get unique user key
+                    userID = profile.key;
                 }
             });
             //--end of connectedRef
 
+            // setUserLocation();
             //When user is added to firebase call the get location function       
-            firebaseData.ref().on("child_added", (snapshot)=>{
-                setUserLocation(snapshot);
-            },errorData);
-
-            usersRef.on("value", function (snapshot) {
-                setGeoFireUserInfo(snapshot)
+            firebaseData.ref().on("child_added", (snapshot) => {
+                setGeoFireUserInfo(snapshot);
             }, errorData);
-            //ADD user location to geofire
-       
             // --end of firebase root change event
 
+            //on click shout
+            $(document).on("click", "#shout", shoutLogic);
+
             //functions--------------
+            function shoutLogic() {
+                // set your location globaly
+                usersRef.child(userID).on("value",(childSnapShot)=>{
+                    var snap= childSnapShot.val();
+                    var shoutLocation = [snap.center.lat,snap.center.lng];
+                    
+                    console.log(snap);
+                    
+                    //update the query
+                    var shoutQuery = geoFire.query({
+                        center: shoutLocation,
+                        radius: Radius // kilometers
+                    });
+                    console.log(shoutQuery);
+                    //update map and markers
+                    googleMapShout(shoutLocation);
+                    //googleMapShout();
+                } , errorData)
+                //set map's center to shouter
+         
+            }
+
             function setUserLocation(snapshot) {
                 //update firebase User info
-                profile = usersRef.push({
+                usersRef.child(userID).update({
                     name: "static",
                     center: {
                         lat: Lattitude,
@@ -98,26 +118,26 @@ $(document).ready(() => {
                     radius: Radius, //kilometers
                     message: []
                 });
-
-                //get unique user key
+                // //get unique user key
                 userID = profile.key;
                 //set geofireinfo
                 // setGeoFireUserInfo(snapshot);
             }
+
             // geofire location
             function setGeoFireUserInfo(snapshot) {
-                snapshot.forEach(function(childSnapShot){
-                    
+                snapshot.forEach(function (childSnapShot) {
+
                     var childData = childSnapShot.val();
                     var userName = childData.name;
-                    var userLocation = [childData.center.lat,childData.center.lng];
+                    var userLocation = [childData.center.lat, childData.center.lng];
                     console.log(snapshot.val());
                     console.log(childData.length);
                     //geofire controls the reference points for distance
                     geoFire.set(userName, userLocation).then(function () {
                         console.log("Current user " + userName + "'s location has been added to GeoFire and your location is " + userLocation);
-    
-                        // geoFireRefPush.child(userName).onDisconnect().remove();
+
+                        geoFireRefPush.child(userName).onDisconnect().remove();
                     });
                 });
 
@@ -132,11 +152,69 @@ $(document).ready(() => {
 
                 // console.log(userName);
                 // console.log(userLocation);
-               
+
                 // for (var i = 0; i < sv.length; i++) {
-                   
-               
+
+
                 // }
+            }
+
+            //google map function of generating user and icon
+            function googleMapShout(shoutLocation) {
+                //create object for map
+                var shoutObject = {
+                    center: {
+                        lat: shoutLocation[0],
+                        lng: shoutLocation[1]
+                    },
+                    iconImage: "./assets/images/map-icon.png",
+                    content: "<h1>Hello Friends!</h1>"
+                }
+                //set map's center to shouter
+                map.panTo(shoutObject.center);
+
+                //add marker
+                addUserMarker(shoutObject);
+                //function Marker
+                function addUserMarker(so) {
+
+                    var marker = new google.maps.Marker({
+                        position: so.center,
+                        map: map,
+                        animation: google.maps.Animation.DROP,
+                    });
+
+                    //if user has an Icon
+                    if (so.iconImage) {
+                        //set Icon image
+                        marker.setIcon(so.iconImage);
+                    }
+
+                    // if it contains infoWindow text then create one
+                    if (so.content) {
+                        //infoWindow is a pop up for the onClick
+                        var infoWindow = new google.maps.InfoWindow({
+                            content: so.content
+                        });
+                    }
+
+                    // create circle    
+                    var cityCircle = new google.maps.Circle({
+                        strokeColor: '#FF0000',
+                        strokeOpacity: 0.15,
+                        strokeWeight: 2,
+                        fillColor: '#FF0000',
+                        fillOpacity: 0.15,
+                        map: map,
+                        center: so.center,
+                        radius: Radius * 1000 //kilometers
+                    });
+
+                    //check if marker has been clicked
+                    marker.addListener("click", () => {
+                        infoWindow.open(map, marker);
+                    });
+                }
             }
 
             //------function executions----------
@@ -145,9 +223,9 @@ $(document).ready(() => {
 
 
         }, errorHandler);
-        
-           //error handler for geolocation
-           function errorHandler(err) {
+
+        //error handler for geolocation
+        function errorHandler(err) {
             if (err.code == 1) {
                 alert("Error: Access is denied!");
             } else if (err.code == 2) {
