@@ -26,27 +26,43 @@
   <div class="container">
     <h1>Google Map</h1>
     <div id="map"> </div>
-    <button class="button" id="shout" data-lat="" data-lng="">Shout!</button>
+    <button class="button " id="shout" data-lat="" data-lng="">Shout!</button>
+    <!-- <button class="button" id="modal" data-lat="" data-lng="">Shout!</button> -->
   </div>
   <div id="name"></div>
   <div id="ratings"></div>
   <div id="is_closed"></div>
   <div id="location"></div>
 
-  <!-- Message -->
-  <div class="message-box">
-    <!-- <div class="blackbg"></div> -->
-    <input type="text" id="messageBox">
-    <button type="submit" id="submit-btn">Submit</button>
+  <!-- input box for the shout -->
+
+  <div id="myModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <form class="search-form" id="search-form">
+        <label for="yelp-search">What would you like to shout?</label>
+        <input type="text" name="shoutText" id="shoutText">
+        <label for="yelp-search">Businesses Near By</label>
+        <input type="text" name="yelpSearchInput" id="yelpSearchInput">
+      </form>
+      <button type="submit" form="search-form" value="Submit" id="shout">Search</button>
+    </div>
   </div>
 
-  <form class="search-form" id="search-form">      
-      <label for="yelp-search">Businesses Near By</label>
-      <input type="text" name="yelpSearchInput" id="yelpSearchInput">
-  </form>
-  <button type="submit" form="search-form" value="Submit" id="searchFormBtn">Search</button>
-  <!-- Scripts -->
 
+  <!-- Message -->
+  <div class="message-box">
+    <ul class="blackbg" id="messageBoxDisplay">
+      
+    </ul>
+    <div class="chat-input-style">
+      <input type="text" id="messageBoxInput">
+      <button type="submit" id="chatBtn">Submit</button></div>
+  </div>
+
+<button id="test">Buuton</button>
+
+  <!-- Scripts -->
   <script>
     // Initialize global map object --------
     var map;

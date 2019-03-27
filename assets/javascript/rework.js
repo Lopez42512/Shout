@@ -1,13 +1,15 @@
 $(document).ready(() => {
     //Global variables
+    var shoutCheck;
     var Lattitude;
     var Longitude;
     var Radius = 5;
     var profile;
     var yelpProfile;
-    var userID;
+    var profileKey;
     var shoutLocation;
     var peopleAround = {};
+    var uid;
     // geoquery
     var shoutQuery;
     var yelpQuery;
@@ -43,56 +45,74 @@ $(document).ready(() => {
     //live connection ref to the site
     var connectedRef = firebaseData.ref(".info/connected");
 
+    //Get user ID
+    firebase.auth().signInAnonymously().catch(function (error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // ...
+    });
+
     // check if someone is on the page
     connectedRef.on("value", (snapshot) => {
         //if there is a value
         if (snapshot.val()) {
 
-            profile = usersRef.push({
-                name: "",
-                center: {
-                    lat: "",
-                    lng: ""
-                },
-                radius: Radius, //kilometers
-                message: []
+            firebase.auth().onAuthStateChanged(function (user) {
+                if (user) {
+                    // User is signed in.
+                    var isAnonymous = user.isAnonymous;
+                    uid = user.uid;
 
+                    profile = usersRef.push({
+                        uid: uid,
+                        name: "",
+                        center: {
+                            lat: "",
+                            lng: ""
+                        },
+                        radius: Radius, //kilometers
+                        message: []
+
+                    });
+                    //get userRef Push key
+                    profileKey = profile.key;
+                    // Remove users if they leave
+                    connectionsRef.onDisconnect().remove();
+                    usersRef.child(profileKey).onDisconnect().remove();
+                    console.log("# of users " + snapshot.numChildren())
+                }
             });
-
-            //Get a unique key for each window that connects
-            userID = profile.key;
-
-            // Remove users if they leave
-            connectionsRef.onDisconnect().remove();
-            usersRef.onDisconnect().remove();
-            console.log("# of users " + snapshot.numChildren());
         }
     });
     //--end of connectedRef
+
+    // ------Most firebaseData Calls
 
     connectionsRef.on("value", function (snap) {
         console.log("# of online users = " + snap.numChildren());
     });
 
-    //When user is added to firebase call the get location function       
+    //Update GeoFire with the UserRef's new location      
     firebaseData.ref().on("child_changed", (snapshot) => {
-        console.log(snapshot);
         setGeoFireUserInfo(snapshot);
     }, errorData);
     // --end of firebase root change event
 
-    //on click shout
-    $(document).on("click", "#shout", shoutLogic);
+    shoutRef.on("value",(snapshot)=>{
+        
+        var snap = snapshot.val();
+        console.log(snap);
+        addShouterMarker(snap.center.lat,snap.center.lng);    
+    },errorData);
 
-    //search for Businesses
-    $(document).on("click", "#searchFormBtn", startYelpSearch);
 
-    //functions--------------
+    //---------------------------START functions--------------
     function startYelpSearch(e) {
         e.preventDefault();
         //grab value from the search input
         var yelpSearch = $("#yelpSearchInput").val();
-
+        // TODO:Get Yelp to accept user Lattitude and Longitude
         // reference lat and lng from firebase
         // yelpRef.set({
         //     yelpSearch,
@@ -119,7 +139,7 @@ $(document).ready(() => {
         // var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=delis&latitude="+ userLat.toString() + "&longitude="+userLng.toString() + "&radius="+Radius+"&limit=5";
         var yelpAPI = "1QpSc4B1zI5GuI56PDAAvAfpfcsLg9LWuHRfVCeG4TIDDxRe3hGT-sxlU5h5DD0AdLgu-HHoa2cM4m1WaAefYoboIPdVHv0mCjivrwQrdU11FCFl2hd8-iaaTKOTXHYx";
 
-        //-----------YELP CALL
+        //-----------YELP CALL--------------
         $.ajax({
             url: yelpQuery,
             headers: {
@@ -214,13 +234,18 @@ $(document).ready(() => {
     }
 
     function shoutLogic() {
+
         // set your location globaly
-        usersRef.child(userID).on("value", (childSnapShot) => {
+        usersRef.child(profileKey).on("value", (childSnapShot) => {
             var snap = childSnapShot.val();
             var shoutLocation = [snap.center.lat, snap.center.lng];
 
             console.log(snap);
 
+            shoutRef.set({
+                lat: $("#shout").attr("data-lat"),
+                lng: $("#shout").attr("data-lng")
+            });
             //update the query
             var shoutQuery = geoFire.query({
                 center: shoutLocation,
@@ -235,7 +260,7 @@ $(document).ready(() => {
             shoutQuery.on("key_entered", function (key, location, distance) {
                 peopleAround = {
                     id: key,
-                    distance: distance.toFixed(2) + "km",
+                    distance: distance + "km",
                     location: location
                 };
 
@@ -244,10 +269,8 @@ $(document).ready(() => {
                     addShouterMarker(shoutLocation);
                     console.log("People Around: " + JSON.stringify(peopleAround));
                 }
-
+                addShouterMarker(shoutLocation);
                 console.log("People Around: " + JSON.stringify(peopleAround));
-                console.log("From Shout Query - " + key + " is located at [" + location + "] which is within the query (" + distance.toFixed(2) + " km from center)");
-
             });
         }, errorData)
     }
@@ -257,13 +280,14 @@ $(document).ready(() => {
             navigator.geolocation.getCurrentPosition((position) => {
                 //set lng and lat
                 Lattitude = position.coords.latitude;
-                Longitude = position.coords.latitude;
+                Longitude = position.coords.longitude;
+                //have user unique ID be stored and referenced when pressing the button.
+                $("#shout").attr("data-lat", Lattitude.toString());
+                $("#shout").attr("data-lng", Longitude.toString());
 
-                console.log(Lattitude, Longitude);
-                console.log(position.coords.accuracy);
                 //update firebase User info
-
-                usersRef.child(userID).update({
+                usersRef.child(profileKey).update({
+                    uid: uid,
                     name: "static",
                     center: {
                         lat: Lattitude,
@@ -281,12 +305,12 @@ $(document).ready(() => {
     // geofire location
     function setGeoFireUserInfo(snapshot) {
         snapshot.forEach(function (childSnapShot) {
+            //take info from the userRef push
             var childData = childSnapShot.val();
             console.log(childData);
+            console.log(childData.center.lat);
             var userName = childData.name;
             var userLocation = [childData.center.lat, childData.center.lng];
-            console.log(childData.center.lat);
-            console.log(childData.length);
 
             //geofire controls the reference points for distance
             geoFire.set(userName, userLocation).then(function () {
@@ -358,6 +382,7 @@ $(document).ready(() => {
 
     function addShouterMarker(shoutLocation) {
         //Add marker
+        console.log(shoutLocation + "is in add shouterMArker");
         var shouter = {
             center: {
                 lat: shoutLocation[0],
@@ -387,17 +412,10 @@ $(document).ready(() => {
             var shouterInfoWindow = new google.maps.InfoWindow({
                 content: shouter.content
             });
-
         }
-        //on click, create a chat screen
-        marker.addListener("click", () => {
-            shouterInfoWindow.open(map, marker);
-        });
+        // display shout
+        shouterInfoWindow.open(map, marker);
     }
-
-    //------function executions----------
-    //get users location
-    setUserLocation();
 
     //error handler for geolocation
     function errorHandler(err) {
@@ -412,4 +430,67 @@ $(document).ready(() => {
         console.log("Error");
         console.log(err);
     }
+
+    function chatMessages(event) {
+        event.preventDefault();
+        var chatMessage = chatRef.set({
+            chatMessage: $("#messageBoxInput").val()
+        });
+
+        // clear text
+        $(".messageBoxInput").val("");
+    }
+
+    //-------FireBase Listeners------------
+
+    chatRef.on("value", function (snapshot) {
+       if (snapshot.val()){
+        var fireBaseMessage = snapshot.val().chatMessage;
+        console.log(fireBaseMessage);
+        //message key
+        // var chatKey = chatMessage.key;
+
+        $("#messageBoxDisplay").prepend(`<li class="message-font"> ${fireBaseMessage}</>`);
+        chatRef.child().onDisconnect().remove();
+       }
+    });
+    //---------------
+
+    function displayModal() {
+        $("#myModal").css("display", "block");
+    }
+
+    function hideModal() {
+        $(this).css("display", "none");
+    }
+
+    function outsideModal(event) {
+        var target = $(event.target);
+        if (target.is("#myModal")) {
+            $(this).css("display", "none");
+        }
+    }
+
+    function toggleChat() {
+        $(".message-box").toggleClass("active");
+    }
+
+    //------function executions----------
+    //get users location
+    setUserLocation();
+
+    //on click shout
+    $(document).on("click", "#shout", shoutLogic);
+
+    //search for Businesses
+    $(document).on("click", "#searchFormBtn", startYelpSearch);
+
+    // chat function
+    $(document).on("click", "#chatBtn", chatMessages);
+    //when you click the modal button
+    $(document).on("click", "#modalBtn", displayModal);
+    $(document).on("click", "#close", hideModal);
+    $(document).on("click", "#myModal", outsideModal);
+    $(document).on("click", "#test", toggleChat);
+
 });
