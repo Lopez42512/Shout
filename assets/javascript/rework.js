@@ -77,34 +77,46 @@ $(document).ready(() => {
                     });
                     //get userRef Push key
                     profileKey = profile.key;
+
+                    connectionsRef.set(true);
                     // Remove users if they leave
                     connectionsRef.onDisconnect().remove();
                     usersRef.child(profileKey).onDisconnect().remove();
-                    console.log("# of users " + snapshot.numChildren())
                 }
             });
         }
     });
     //--end of connectedRef
 
-    // ------Most firebaseData Calls
+    // ------Most firebase Calls
 
     connectionsRef.on("value", function (snap) {
         console.log("# of online users = " + snap.numChildren());
     });
 
+    //get users location
+    setUserLocation();
+
     //Update GeoFire with the UserRef's new location      
     firebaseData.ref().on("child_changed", (snapshot) => {
         setGeoFireUserInfo(snapshot);
+
+        // addShouterMarker()
     }, errorData);
     // --end of firebase root change event
 
-    shoutRef.on("value",(snapshot)=>{
-        
+    shoutRef.on("value", (snapshot) => {
         var snap = snapshot.val();
-        console.log(snap);
-        addShouterMarker(snap.center.lat,snap.center.lng);    
-    },errorData);
+        // addShouterMarker(snap.lat, snap.lng);
+        var marker = new google.maps.Marker({
+            position: new google.maps.LatLng(Lattitude, Longitude),
+            map: map,
+            animation: google.maps.Animation.DROP
+        });
+
+        // To add the marker to the map, call setMap();
+        marker.setMap(map);
+    }, errorData);
 
 
     //---------------------------START functions--------------
@@ -239,19 +251,18 @@ $(document).ready(() => {
         usersRef.child(profileKey).on("value", (childSnapShot) => {
             var snap = childSnapShot.val();
             var shoutLocation = [snap.center.lat, snap.center.lng];
-
-            console.log(snap);
-
+            //set shout ref
             shoutRef.set({
-                lat: $("#shout").attr("data-lat"),
-                lng: $("#shout").attr("data-lng")
+                center: {
+                    lat: $("#shout").attr("data-lat"),
+                    lng: $("#shout").attr("data-lng")
+                }
             });
             //update the query
             var shoutQuery = geoFire.query({
                 center: shoutLocation,
                 radius: Radius // kilometers
             });
-            console.log(shoutQuery);
 
             //update map and markers
             googleMapShout(shoutLocation);
@@ -306,18 +317,21 @@ $(document).ready(() => {
     function setGeoFireUserInfo(snapshot) {
         snapshot.forEach(function (childSnapShot) {
             //take info from the userRef push
-            var childData = childSnapShot.val();
-            console.log(childData);
-            console.log(childData.center.lat);
-            var userName = childData.name;
-            var userLocation = [childData.center.lat, childData.center.lng];
+            if (childSnapShot.val()) {
+                var childData = childSnapShot.val();
 
-            //geofire controls the reference points for distance
-            geoFire.set(userName, userLocation).then(function () {
-                console.log("Current user " + userName + "'s location has been added to GeoFire and your location is " + userLocation);
+                console.log(childData.center.lat);
+                var userName = childData.name;
+                var userLocation = [childData.center.lat, childData.center.lng];
 
-                geoFireRefPush.child(userName).onDisconnect().remove();
-            });
+                //geofire controls the reference points for distance
+                geoFire.set(userName, userLocation).then(function () {
+                    console.log("Current user " + userName + "'s location has been added to GeoFire and your location is " + userLocation);
+
+                    geoFireRefPush.child(userName).onDisconnect().remove();
+                });
+            }
+
         });
     }
 
@@ -334,7 +348,7 @@ $(document).ready(() => {
         }
         //set map's center to shouter
         map.panTo(shoutObject.center);
-
+        map.setZoom(14);
         //add marker
         addUserMarker(shoutObject);
         //function Marker
@@ -382,7 +396,6 @@ $(document).ready(() => {
 
     function addShouterMarker(shoutLocation) {
         //Add marker
-        console.log(shoutLocation + "is in add shouterMArker");
         var shouter = {
             center: {
                 lat: shoutLocation[0],
@@ -444,15 +457,15 @@ $(document).ready(() => {
     //-------FireBase Listeners------------
 
     chatRef.on("value", function (snapshot) {
-       if (snapshot.val()){
-        var fireBaseMessage = snapshot.val().chatMessage;
-        console.log(fireBaseMessage);
-        //message key
-        // var chatKey = chatMessage.key;
+        if (snapshot.val()) {
+            var fireBaseMessage = snapshot.val().chatMessage;
+            console.log(fireBaseMessage);
+            //message key
+            // var chatKey = chatMessage.key;
 
-        $("#messageBoxDisplay").prepend(`<li class="message-font"> ${fireBaseMessage}</>`);
-        chatRef.child().onDisconnect().remove();
-       }
+            $("#messageBoxDisplay").prepend(`<li class="message-font"> ${fireBaseMessage}</>`);
+            chatRef.child().onDisconnect().remove();
+        }
     });
     //---------------
 
@@ -476,8 +489,6 @@ $(document).ready(() => {
     }
 
     //------function executions----------
-    //get users location
-    setUserLocation();
 
     //on click shout
     $(document).on("click", "#shout", shoutLogic);
