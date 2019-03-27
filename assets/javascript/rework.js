@@ -6,12 +6,12 @@ $(document).ready(() => {
     var profile;
     var yelpProfile;
     var userID;
-    var yelpSearch;
     var shoutLocation;
     var peopleAround = {};
     // geoquery
     var shoutQuery;
     var yelpQuery;
+    var yelpSearch;
 
     // Initialize Firebase ----------------------------------------
     var config = {
@@ -84,7 +84,135 @@ $(document).ready(() => {
     //on click shout
     $(document).on("click", "#shout", shoutLogic);
 
+    //search for Businesses
+    $(document).on("click", "#searchFormBtn", startYelpSearch);
+
     //functions--------------
+    function startYelpSearch(e) {
+        e.preventDefault();
+        //grab value from the search input
+        var yelpSearch = $("#yelpSearchInput").val();
+
+        // reference lat and lng from firebase
+        // yelpRef.set({
+        //     yelpSearch,
+        //     lat: Lattitude,
+        //     lng: Longitude
+        // });
+        var stringLat = Lattitude.toString();
+        var stringLng = Longitude.toString();
+
+        // console.log(stringLng.split());
+        //Ajax call for yelp and loading businesses on to the map
+        getYelpInfo(yelpSearch);
+    }
+    //Ajax call to yelp
+    function getYelpInfo(searchQuery, stringLat, stringLng, ) {
+
+        console.log(Lattitude);
+        // this is the call for YELP QUERY - WORKING
+        var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=" + searchQuery + "&latitude=39.951061&longitude=-75.165619&radius=5000&limit=5";
+
+        console.log(yelpQuery);
+
+        //testing  to get variables -- Needs WORK!
+        // var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=delis&latitude="+ userLat.toString() + "&longitude="+userLng.toString() + "&radius="+Radius+"&limit=5";
+        var yelpAPI = "1QpSc4B1zI5GuI56PDAAvAfpfcsLg9LWuHRfVCeG4TIDDxRe3hGT-sxlU5h5DD0AdLgu-HHoa2cM4m1WaAefYoboIPdVHv0mCjivrwQrdU11FCFl2hd8-iaaTKOTXHYx";
+
+        //-----------YELP CALL
+        $.ajax({
+            url: yelpQuery,
+            headers: {
+                'Authorization': "Bearer " + yelpAPI,
+            },
+            method: "GET"
+        }).then((yelpResponse) => {
+            console.log(yelpResponse);
+            for (var i = 0; i < 5; i++) {
+                // Add yelp businesses
+                addYelpBusinesses(yelpResponse.businesses[i]);
+            }
+
+        });
+    }
+
+    function addYelpBusinesses(yelpBusiness) {
+        var bName = yelpBusiness.name;
+        var bRatings = yelpBusiness.rating;
+        var bIs_closed = yelpBusiness.is_closed;
+        var bLocation = yelpBusiness.location.display_address.join("<br>");
+        var bLocationHref = " http://maps.google.com/?q=" + yelpBusiness.location.display_address.join("");
+        var bLat = parseFloat(yelpBusiness.coordinates.latitude);
+        var bLong = parseFloat(yelpBusiness.coordinates.longitude);
+        var hours;
+
+        if (bIs_closed) {
+            hours = "closed";
+        } else {
+            hours = "open";
+        }
+        //create a business map object so we can have a cleaner look
+        var businessMapObject = {
+            coords: {
+                center: {
+                    lat: bLat,
+                    lng: bLong
+                }
+            },
+            // iconImage: "./assets/images/map-icon.png",
+            content: `<h2 class="yelpTitle">${bName}</h2>
+            <p class="yelpDesc"> Address: <a id="yelpLink" href="${bLocationHref}">${bLocation}</a></p>
+            <p class="yelpDesc">The store is ${hours} </p>`
+        }
+
+        //Create marker
+        addYelpMarker(businessMapObject);
+
+        //creating the marker
+        function addYelpMarker(businessM) {
+
+            //create map marker object
+            var marker = new google.maps.Marker({
+                position: businessM.coords.center,
+                map: map,
+                animation: google.maps.Animation.DROP,
+            });
+            // console.log(user.coords.center);
+
+            //if user has an Icon
+            if (businessM.iconImage) {
+                //set Icon image
+                marker.setIcon(businessM.iconImage);
+            }
+
+            // if it contains infoWindow text then create one
+            if (businessM.content) {
+                //infoWindow is a pop up for the onClick
+                var infoWindow = new google.maps.InfoWindow({
+                    content: businessM.content
+                });
+            }
+
+            // create circle    
+            // var cityCircle = new google.maps.Circle({
+            //     strokeColor: '#FF0000',
+            //     strokeOpacity: 0.15,
+            //     strokeWeight: 2,
+            //     fillColor: '#FF0000',
+            //     fillOpacity: 0.15,
+            //     map: map,
+            //     center: user.coords.center,
+            //     radius: (user.coords.radius) * 1000 //kilometers
+            // });
+
+            //check if marker has been clicked
+            marker.addListener("click", () => {
+
+                infoWindow.open(map, marker);
+            });
+        }
+    }
+
     function shoutLogic() {
         // set your location globaly
         usersRef.child(userID).on("value", (childSnapShot) => {
@@ -111,19 +239,17 @@ $(document).ready(() => {
                     location: location
                 };
 
-                //If you're the shouter, don't drop a pin on you
-                // if (Math.floor(distance) !== 0) {
-                //     addShouterMarker(shoutLocation);
-                //     console.log("People Around: " + JSON.stringify(peopleAround));
-                // }
+                // If you're the shouter, don't drop a pin on you
+                if (Math.floor(distance) !== 0) {
+                    addShouterMarker(shoutLocation);
+                    console.log("People Around: " + JSON.stringify(peopleAround));
+                }
 
-                addShouterMarker(shoutLocation);
                 console.log("People Around: " + JSON.stringify(peopleAround));
                 console.log("From Shout Query - " + key + " is located at [" + location + "] which is within the query (" + distance.toFixed(2) + " km from center)");
 
             });
         }, errorData)
-
     }
 
     function setUserLocation(snapshot) {
@@ -159,7 +285,7 @@ $(document).ready(() => {
             console.log(childData);
             var userName = childData.name;
             var userLocation = [childData.center.lat, childData.center.lng];
-            console.log(snapshot.val());
+            console.log(childData.center.lat);
             console.log(childData.length);
 
             //geofire controls the reference points for distance
@@ -272,7 +398,6 @@ $(document).ready(() => {
     //------function executions----------
     //get users location
     setUserLocation();
-
 
     //error handler for geolocation
     function errorHandler(err) {

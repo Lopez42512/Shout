@@ -16,7 +16,7 @@
   <script src="https://cdn.firebase.com/libs/geofire/4.1.0/geofire.min.js"></script>
   <!-- RSVP -->
   <script src="https://cdn.jsdelivr.net/npm/rsvp@4/dist/rsvp.min.js"></script>
-  
+
 </head>
 
 <body>
@@ -28,10 +28,10 @@
     <div id="map"> </div>
     <button class="button" id="shout" data-lat="" data-lng="">Shout!</button>
   </div>
-  <div id= "name"></div>
-  <div id= "ratings"></div>
-  <div id= "is_closed"></div>
-  <div id= "location"></div>
+  <div id="name"></div>
+  <div id="ratings"></div>
+  <div id="is_closed"></div>
+  <div id="location"></div>
 
   <!-- Message -->
   <div class="message-box">
@@ -40,6 +40,11 @@
     <button type="submit" id="submit-btn">Submit</button>
   </div>
 
+  <form class="search-form" id="search-form">      
+      <label for="yelp-search">Businesses Near By</label>
+      <input type="text" name="yelpSearchInput" id="yelpSearchInput">
+  </form>
+  <button type="submit" form="search-form" value="Submit" id="searchFormBtn">Search</button>
   <!-- Scripts -->
 
   <script>

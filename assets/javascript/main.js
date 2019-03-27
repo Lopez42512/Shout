@@ -198,12 +198,24 @@ function getGeoLocation() {
     }
 }
 
+function startYelpSearch(e) {
+    e.preventDefault();
+    //grab value from the search input
+    var yelpSearch = $("#yelpSearchInput").val();
+   
+    // //set the value onfirebase
+    yelpRef.set({
+        yelpSearch
+    });
+    //Ajax call for yelp and loading businesses on to the map
+    getYelpInfo(yelpSearch);
+}
 
 //Ajax call to yelp
 function getYelpInfo(searchQuery, userLat, userLng) {
 
     // this is the call for YELP QUERY - WORKING
-    var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=delis&latitude=39.951061&longitude=-75.165619&radius=5000&limit=5";
+    var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term="+searchQuery+"&latitude=39.951061&longitude=-75.165619&radius=5000&limit=5";
    
     //testing  to get variables -- Needs WORK!
     // var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=delis&latitude="+ userLat.toString() + "&longitude="+userLng.toString() + "&radius="+Radius+"&limit=5";
@@ -496,7 +508,7 @@ function usersOnline() {
 // }
 
 $("#submit-btn").on("click", function (event) {
-    // event.preventdefault();
+    event.preventDefault();
 
     var message = {
         chat: $("#messageBox").val()
