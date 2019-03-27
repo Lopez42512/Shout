@@ -108,8 +108,10 @@ $(document).ready(() => {
     shoutRef.on("value", (snapshot) => {
         var snap = snapshot.val();
         // addShouterMarker(snap.lat, snap.lng);
+        console.log("This is shoutref ");
+        console.log(snap);
         var marker = new google.maps.Marker({
-            position: new google.maps.LatLng(Lattitude, Longitude),
+            position: new google.maps.LatLng(snap.center.lat, snap.center.lng),
             map: map,
             animation: google.maps.Animation.DROP
         });
