@@ -16,8 +16,6 @@ var currentUsers = {
     radius: Radius,
     messages: []
 }
-
-
 // Initialize Firebase ----------------------------------------
 var config = {
     apiKey: "AIzaSyBgbeWYYyp8oVui9kLHUT6HSDAREQhX9nU",
@@ -353,7 +351,7 @@ function addShouterMarker(shoutLocation) {
         });
 
     }
-
+ 
     marker.addListener("click", () => {
 
         shouterInfoWindow.open(map, marker);
@@ -518,4 +516,4 @@ $("#submit-btn").on("click", function (event) {
 // usersOnline();
 
 //on click shout
-$(document).on("click", "#getGeoLocation", getGeoLocation);
+$(document).on("click", "#shout", getGeoLocation);
