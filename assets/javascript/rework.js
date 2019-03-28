@@ -14,15 +14,16 @@ $(document).ready(() => {
     var shoutQuery;
     var yelpQuery;
     var yelpSearch;
+    var user;
 
-    // Initialize Firebase ----------------------------------------
+    // Initialize Firebase
     var config = {
-        apiKey: "AIzaSyBWlRO86vNl6sL5psQX5f7H9Lw_wsULP9g",
-        authDomain: "geofiretest-9d07e.firebaseapp.com",
-        databaseURL: "https://geofiretest-9d07e.firebaseio.com",
-        projectId: "geofiretest-9d07e",
-        storageBucket: "geofiretest-9d07e.appspot.com",
-        messagingSenderId: "680094207901"
+        apiKey: "AIzaSyBgbeWYYyp8oVui9kLHUT6HSDAREQhX9nU",
+        authDomain: "shout-e4409.firebaseapp.com",
+        databaseURL: "https://shout-e4409.firebaseio.com",
+        projectId: "shout-e4409",
+        storageBucket: "shout-e4409.appspot.com",
+        messagingSenderId: "881880939559"
     };
     firebase.initializeApp(config);
 
@@ -93,18 +94,19 @@ $(document).ready(() => {
         console.log("# of online users = " + snap.numChildren());
     });
 
-    //Update GeoFire with the UserRef's new location      
+    //Update GeoFire with the UserRef's new location
     firebaseData.ref().on("child_changed", (snapshot) => {
         setGeoFireUserInfo(snapshot);
     }, errorData);
+
     // --end of firebase root change event
 
-    shoutRef.on("value",(snapshot)=>{
-        
+    shoutRef.on("value", (snapshot) => {
+
         var snap = snapshot.val();
         console.log(snap);
-        addShouterMarker(snap.center.lat,snap.center.lng);    
-    },errorData);
+        addShouterMarker(snap.center.lat, snap.center.lng);
+    }, errorData);
 
 
     //---------------------------START functions--------------
@@ -138,7 +140,7 @@ $(document).ready(() => {
         //testing  to get variables -- Needs WORK!
         // var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=delis&latitude="+ userLat.toString() + "&longitude="+userLng.toString() + "&radius="+Radius+"&limit=5";
         var yelpAPI = "1QpSc4B1zI5GuI56PDAAvAfpfcsLg9LWuHRfVCeG4TIDDxRe3hGT-sxlU5h5DD0AdLgu-HHoa2cM4m1WaAefYoboIPdVHv0mCjivrwQrdU11FCFl2hd8-iaaTKOTXHYx";
-
+        console.log(yelpAPI)
         //-----------YELP CALL--------------
         $.ajax({
             url: yelpQuery,
@@ -213,7 +215,7 @@ $(document).ready(() => {
                 });
             }
 
-            // create circle    
+            // create circle
             // var cityCircle = new google.maps.Circle({
             //     strokeColor: '#FF0000',
             //     strokeOpacity: 0.15,
@@ -227,7 +229,6 @@ $(document).ready(() => {
 
             //check if marker has been clicked
             marker.addListener("click", () => {
-
                 infoWindow.open(map, marker);
             });
         }
@@ -296,7 +297,6 @@ $(document).ready(() => {
                     radius: Radius, //kilometers
                     message: []
                 });
-
             }, errorHandler);
             // setGeoFireUserInfo(snapshot);
         }
@@ -360,7 +360,7 @@ $(document).ready(() => {
                 });
             }
 
-            // create circle    
+            // create circle
             var cityCircle = new google.maps.Circle({
                 strokeColor: '#FF0000',
                 strokeOpacity: 0.15,
@@ -374,7 +374,8 @@ $(document).ready(() => {
 
             //check if marker has been clicked
             marker.addListener("click", () => {
-                infoWindow.open(map, marker);
+                toggleChat()
+                // infoWindow.open(map, marker);
             });
         }
 
@@ -397,7 +398,6 @@ $(document).ready(() => {
             map: map,
             animation: google.maps.Animation.DROP
         });
-
         // console.log(shouter.coords.center);
 
         //if user has an Icon
@@ -434,25 +434,33 @@ $(document).ready(() => {
     function chatMessages(event) {
         event.preventDefault();
         var chatMessage = chatRef.set({
-            chatMessage: $("#messageBoxInput").val()
+            chatMessage: $("#messageBoxInput").val(),
+            user: user
         });
 
         // clear text
-        $(".messageBoxInput").val("");
+        $("#messageBoxInput").val("");
     }
 
-    //-------FireBase Listeners------------
+    $("#fakeButton").on("click", function (event) {
+        user = $("#fakeChatInput").val();
+        alert(user);
+        usersRef.set(user);
+        // clear text
+        // $("#messageBoxInput").val("");
+    });
 
     chatRef.on("value", function (snapshot) {
-       if (snapshot.val()){
-        var fireBaseMessage = snapshot.val().chatMessage;
-        console.log(fireBaseMessage);
-        //message key
-        // var chatKey = chatMessage.key;
+        if (snapshot.val()) {
+            var fireBaseMessage = snapshot.val().chatMessage;
+            var messageUser = snapshot.val().user;
+            console.log(fireBaseMessage);
+            //message key
+            // var chatKey = chatMessage.key;
 
-        $("#messageBoxDisplay").prepend(`<li class="message-font"> ${fireBaseMessage}</>`);
-        chatRef.child().onDisconnect().remove();
-       }
+            $("#messageBoxDisplay").append(`<li class="message-font">${messageUser}: ${fireBaseMessage}</>`);
+            chatRef.child().onDisconnect().remove();
+        }
     });
     //---------------
 
@@ -494,3 +502,4 @@ $(document).ready(() => {
     $(document).on("click", "#test", toggleChat);
 
 });
+

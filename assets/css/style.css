@@ -27,6 +27,7 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+    overflow: scroll;
 }
 
 .message-box.active {
@@ -66,6 +67,7 @@
 }
 
 .chat-input-style {
+    position: relative;
     display: flex;
     width: 100%;
 }
