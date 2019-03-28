@@ -163,13 +163,12 @@ $(document).ready(() => {
     //update yelp markers on all users
     yelpRef.on("value", (snapshot) => {
         var dataSnap = snapshot.val();
-        console.log("Running yelp on ref!");
-        console.log(dataSnap);
         //convert lat and lng to strings
         var stringLatF = dataSnap.center.lat.toString();
         var stringLngF = dataSnap.center.lng.toString();
-        
-        getYelpInfo(dataSnap.search,stringLatF,stringLngF);
+
+        console.log("geting info");
+        getYelpInfo(dataSnap.search, stringLatF, stringLngF);
     }, errorData);
 
     //---------------------------START functions--------------
@@ -184,11 +183,21 @@ $(document).ready(() => {
         console.log(yelpSearch);
         // reference lat and lng from firebase
         usersRef.child(profileKey).once("value").then((snapshot) => {
-
             var snapData = snapshot.val();
             //Make them strings for the searhc
             var stringLat = snapData.center.lat.toString();
             var stringLng = snapData.center.lng.toString();
+            var search = $("#yelpSearchInput").val();
+
+            //update your yelp ref      
+            yelpRef.set({
+                center: {
+                    lat: snapData.center.lat,
+                    lng: snapData.center.lng
+                },
+                search: "",
+                shout: true
+            });
 
             //Ajax call for yelp and loading businesses on to the map
             getYelpInfo(yelpSearch, stringLat, stringLng);
@@ -198,6 +207,7 @@ $(document).ready(() => {
 
     //Ajax call to yelp
     function getYelpInfo(searchQuery, stringLat, stringLng, ) {
+
 
         // this is the call for YELP QUERY - WORKING
         var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=" + searchQuery + "&latitude=" + stringLat + "&longitude=" + stringLng + "&radius=5000&limit=5";
@@ -314,15 +324,6 @@ $(document).ready(() => {
                     lng: shoutLocation[1]
                 },
                 message: ""
-            });
-
-            yelpRef.set({
-                center: {
-                    lat: shoutLocation[0],
-                    lng: shoutLocation[1]
-                },
-                search: "",
-                shout: true
             });
 
             console.log($("#shoutText").val());
