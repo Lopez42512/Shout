@@ -80,17 +80,20 @@ $(document).ready(() => {
                     //get userRef Push key
                     profileKey = profile.key;
 
-                    connectionsRef.set(true);
+                    connectionsRef.push(true);
                     // Remove users if they leave
                     connectionsRef.onDisconnect().remove();
                     usersRef.child(profileKey).onDisconnect().remove();
+                    shoutRef.onDisconnect().remove();
+                    yelpRef.onDisconnect().remove();
+
                 }
             });
         }
     });
     //--end of connectedRef
 
-    // ------Most firebase Calls
+    // --------------------Most firebase Calls
 
     connectionsRef.on("value", function (snap) {
         console.log("# of online users = " + snap.numChildren());
@@ -111,7 +114,6 @@ $(document).ready(() => {
     shoutRef.on("value", (snapshot) => {
         var snap = snapshot.val();
         // addShouterMarker([snap.center.lat, snap.center.lng]);
-        console.log("This is shoutref ");
 
         //set yelp ref
         yelpRef.set({
@@ -120,12 +122,6 @@ $(document).ready(() => {
                 lng: snap.center.lng
             },
             shout: true
-        });
-
-        var marker = new google.maps.Marker({
-            position: new google.maps.LatLng(snap.center.lat, snap.center.lng),
-            map: map,
-            animation: google.maps.Animation.DROP
         });
 
         //set global variable
@@ -148,7 +144,13 @@ $(document).ready(() => {
 
             // Drop a pin if you find someone
             if (Math.floor(distance) !== 0) {
+                var marker = new google.maps.Marker({
+                    position: new google.maps.LatLng(snap.center.lat, snap.center.lng),
+                    map: map,
+                    animation: google.maps.Animation.DROP
+                });
                 marker.setMap(map);
+
                 // addShouterMarker(shoutLocation);
                 console.log("People Around: " + JSON.stringify(peopleAround));
             }
@@ -364,7 +366,7 @@ $(document).ready(() => {
     function setGeoFireUserInfo(snapshot) {
         snapshot.forEach(function (childSnapShot) {
             //take info from the userRef push
-            if (childSnapShot.val().lat) {
+            if (childSnapShot.val()) {
                 var childData = childSnapShot.val();
 
                 console.log(childData.center.lat);
@@ -373,8 +375,7 @@ $(document).ready(() => {
 
                 //geofire controls the reference points for distance
                 geoFire.set(userName, userLocation).then(function () {
-                    console.log("Current user " + userName + "'s location has been added to GeoFire and your location is " + userLocation);
-
+                
                     geoFireRefPush.child(userName).onDisconnect().remove();
                 });
             }

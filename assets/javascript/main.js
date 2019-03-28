@@ -91,14 +91,7 @@ function getGeoLocation() {
                     },
                     radius: Radius //kilometers
                 }
-                // user2 = {
-                //     name: "user 2",
-                //     center: {
-                //         lat: parseFloat(40.065494),
-                //         lng: parseFloat(-75.091064)
-                //     },
-                //     radius: Radius //kilometers
-                // }
+                
             ]
 
             //update map with location of user and create an icon and circle.
@@ -171,7 +164,7 @@ function getGeoLocation() {
             shoutQuery.on("key_entered", function (key, location, distance) {
                 peopleAround = {
                     id: key,
-                    distance: distance.toFixed(2) + "km",
+                    distance: distance+ "km",
                     location: location
                 };
 
@@ -180,8 +173,6 @@ function getGeoLocation() {
                     addShouterMarker(userLocation);
                     console.log("People Around: " + JSON.stringify(peopleAround));
                 }
-
-                // locationOfShouter(userLocation);
 
                 //show the shouter's location
 
