@@ -10,8 +10,10 @@ $(document).ready(() => {
     var shoutLocation;
     var peopleAround = {};
     var uid;
+    var listenLoctation = [];
     // geoquery
     var shoutQuery;
+    var listenQuery;
     var yelpQuery;
     var yelpSearch;
     var currentLatitude;
@@ -113,57 +115,75 @@ $(document).ready(() => {
     //shout updates
     shoutRef.on("value", (snapshot) => {
         var snap = snapshot.val();
-        // addShouterMarker([snap.center.lat, snap.center.lng]);
 
-        // //set yelp refTODO: DELETE IT HAS BEEN MOVED
-        // yelpRef.set({
-        //     center: {
-        //         lat: snap.center.lat,
-        //         lng: snap.center.lng
-        //     },
-        //     search: $("#yelpSearchInput").val(),
-        //     shout: true
-        // });
+        if (snap) {
+            // addShouterMarker([snap.center.lat, snap.center.lng]);
 
-        //set global variable TODO:May not need in future
-        currentLatitude = snap.center.lat;
-        currentLongitude = snap.center.lng;
+            // //set yelp refTODO: DELETE IT HAS BEEN MOVED
+            // yelpRef.set({
+            //     center: {
+            //         lat: snap.center.lat,
+            //         lng: snap.center.lng
+            //     },
+            //     search: $("#yelpSearchInput").val(),
+            //     shout: true
+            // });
 
-        //query array for geofire
-        var listenLoctation = [snap.center.lat, snap.center, lng];
-        //update the query
-        var listenQuery = geoFire.query({
-            center: listenLoctation,
-            radius: Radius // kilometers
-        });
-        var listenAround = {};
-        //check if someone is in your radius and drop a pin to shouter's  location
-        listenQuery.on("key_entered", function (key, location, distance) {
-            listenAround = {
-                id: key,
-                distance: distance + "km",
-                location: location
-            };
+            //set global variable TODO:May not need in future
+            currentLatitude = snap.center.lat;
+            currentLongitude = snap.center.lng;
 
-            console.log(JSON.stringify(listenAround) + " have heard your shout!");
-            // Drop a pin if you find someone
-            if (Math.floor(distance) !== 0) {
-                var marker = new google.maps.Marker({
-                    position: new google.maps.LatLng(snap.center.lat, snap.center.lng),
-                    map: map,
-                    animation: google.maps.Animation.DROP
+            // TODO:have to put this back inside the distance checker
+            //query array for geofire
+            console.log(snap.center.lat);
+            //update the query
+            var listenLoctation = [snap.center.lat, snap.center.lng];
+            console.log(listenLoctation);
+
+            if (typeof listenQuery !== "undefined") {
+
+                listenQuery.updateCriteria({
+                    center: [snap.center.lat, snap.center.lng],
+                    radius: Radius
                 });
-                marker.setMap(map);
 
-                // addShouterMarker(shoutLocation);
-                console.log("People Around: " + JSON.stringify(peopleAround));
+            } else {
+                //create listen query
+                listenQuery = geoFire.query({
+                    center: listenLoctation,
+                    radius: Radius // kilometers
+                });
+
+                var listenAround = {};
+                //check if someone is in your radius and drop a pin to shouter's  location
+                listenQuery.on("key_entered", function (key, location, distance) {
+                    console.log("listening");
+
+                    listenAround = {
+                        id: key,
+                        distance: distance + "km",
+                        location: location
+                    };
+                    var marker = new google.maps.Marker({
+                        position: new google.maps.LatLng(snap.center.lat, snap.center.lng),
+                        map: map,
+                        animation: google.maps.Animation.DROP
+                    });
+                    marker.setMap(map);
+
+                    console.log(JSON.stringify(listenAround) + " have heard your shout!");
+
+                    // addShouterMarker(shoutLocation);
+
+                    // Drop a pin if you find someone
+                    if (Math.floor(distance) !== 0) {
+
+
+                    }
+                });
+
             }
-        });
-
-        //update location for Yelp with your location
-        console.log(snap);
-        console.log("This is your lat and lng from your START YELP SEARCH");
-        startYelpSearch(snap.center.lat, snap.center.lng)
+        }
     }, errorData);
 
     //update yelp markers on all users
@@ -179,7 +199,7 @@ $(document).ready(() => {
         var yelpSearch = $("#yelpSearchInput").val();
         // TODO:Ask the guys if we want the user's location or the shout loc.
         //set yelp ref
-  
+
         console.log($("#yelpSearchInput").val());
         console.log(yelpSearch);
         // reference lat and lng from firebase
@@ -321,8 +341,8 @@ $(document).ready(() => {
 
             yelpRef.set({
                 center: {
-                    lat: snapData.center.lat,
-                    lng: snapData.center.lng
+                    lat: shoutLocation[0],
+                    lng: shoutLocation[1]
                 },
                 search: "",
                 shout: true
@@ -330,30 +350,37 @@ $(document).ready(() => {
 
             console.log($("#shoutText").val());
 
-            
-            //update the query
-            var shoutQuery = geoFire.query({
-                center: shoutLocation,
-                radius: Radius // kilometers
-            });
+            if (typeof shoutQuery !== "undefined") {
+                //update the query
 
-            //check if someone is in your radius and drop a pin to shouter's  location
-            shoutQuery.on("key_entered", function (key, location, distance) {
-                peopleAround = {
-                    id: key,
-                    distance: distance + "km",
-                    location: location
-                };
+                shoutQuery.updateCrieria({
+                    center: shoutLocation,
+                    radius: Radius // kilometers
+                });
 
-                // If you're the shouter, don't drop a pin on you
-                if (Math.floor(distance) !== 0) {
-                    // marker.setMap(map);
-                    addShouterMarker(shoutLocation);
+            } else {
+
+                var shoutQuery = geoFire.query({
+                    center: shoutLocation,
+                    radius: Radius // kilometers
+                });
+                //check if someone is in your radius and drop a pin to shouter's  location
+                shoutQuery.on("key_entered", function (key, location, distance) {
+                    peopleAround = {
+                        id: key,
+                        distance: distance + "km",
+                        location: location
+                    };
+
+                    // If you're the shouter, don't drop a pin on you
+                    if (Math.floor(distance) !== 0) {
+                        // marker.setMap(map);
+                        addShouterMarker(shoutLocation);
+                        console.log("People Around: " + JSON.stringify(peopleAround));
+                    }
                     console.log("People Around: " + JSON.stringify(peopleAround));
-                }
-                console.log("People Around: " + JSON.stringify(peopleAround));
-            });
-
+                });
+            }
             //update map and markers
             googleMapShout(shoutLocation);
 
