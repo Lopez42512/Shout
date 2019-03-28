@@ -174,6 +174,17 @@ $(document).ready(() => {
         }
     }, errorData);
 
+    chatRef.on("value", function (snapshot) {
+        if (snapshot.val()) {
+            var fireBaseMessage = snapshot.val().chatMessage;
+            console.log(fireBaseMessage);
+            //message key
+            // var chatKey = chatMessage.key;
+
+            $("#messageBoxDisplay").prepend(`<li class="message-font"> ${fireBaseMessage}</>`);
+            chatRef.child().onDisconnect().remove();
+        }
+    });
 
     //---------------------------START functions--------------
     function startYelpSearch(e) {
@@ -211,8 +222,6 @@ $(document).ready(() => {
 
     //Ajax call to yelp
     function getYelpInfo(searchQuery, stringLat, stringLng, ) {
-
-
         // this is the call for YELP QUERY - WORKING
         var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=" + searchQuery + "&latitude=" + stringLat + "&longitude=" + stringLng + "&radius=5000&limit=5";
 
@@ -233,7 +242,7 @@ $(document).ready(() => {
             console.log(yelpResponse);
             for (var i = 0; i < yelpResponse.businesses.length; i++) {
                 // Add yelp businesses
-                addYelpBusinesses(yelpResponse.businesses[i]);
+               window.setTimeout(addYelpBusinesses(yelpResponse.businesses[i]),i*250);
             }
         });
     }
@@ -269,53 +278,36 @@ $(document).ready(() => {
 
         //Create marker
         addYelpMarker(businessMapObject);
+        
+    }
 
-        //creating the marker
-        function addYelpMarker(businessM) {
-            //check if shout if the user made the shout
+    function addYelpMarker(businessM) {
 
+        //create map marker object
+        var marker = new google.maps.Marker({
+            position: businessM.coords.center,
+            map: map,
+            animation: google.maps.Animation.DROP,
+        });
 
-            //create map marker object
-            var marker = new google.maps.Marker({
-                position: businessM.coords.center,
-                map: map,
-                animation: google.maps.Animation.DROP,
-            });
-            // console.log(user.coords.center);
+        //if user has an Icon
+        if (businessM.iconImage) {
+            //set Icon image
+            marker.setIcon(businessM.iconImage);
+        }
 
-            allShoutMarkers.push(marker);
-            //if user has an Icon
-            if (businessM.iconImage) {
-                //set Icon image
-                marker.setIcon(businessM.iconImage);
-            }
-
-            // if it contains infoWindow text then create one
-            if (businessM.content) {
-                //infoWindow is a pop up for the onClick
-                var infoWindow = new google.maps.InfoWindow({
-                    content: businessM.content
-                });
-            }
-
-            // create circle    
-            // var cityCircle = new google.maps.Circle({
-            //     strokeColor: '#FF0000',
-            //     strokeOpacity: 0.15,
-            //     strokeWeight: 2,
-            //     fillColor: '#FF0000',
-            //     fillOpacity: 0.15,
-            //     map: map,
-            //     center: user.coords.center,
-            //     radius: (user.coords.radius) * 1000 //kilometers
-            // });
-
-            //check if marker has been clicked
-            marker.addListener("click", () => {
-
-                infoWindow.open(map, marker);
+        // if it contains infoWindow text then create one
+        if (businessM.content) {
+            //infoWindow is a pop up for the onClick
+            var infoWindow = new google.maps.InfoWindow({
+                content: businessM.content
             });
         }
+        //check if marker has been clicked
+        marker.addListener("click", () => {
+
+            infoWindow.open(map, marker);
+        });
     }
 
     function shoutLogic() {
@@ -505,12 +497,12 @@ $(document).ready(() => {
             optimized: false
         });
 
-        var mapOverlay = new google.maps.OverlayView();
-        mapOverlay.draw = function () {
-            this.getPanes().markerLayer.id = "pluse"
-        }
+        // var mapOverlay = new google.maps.OverlayView();
+        // mapOverlay.draw = function () {
+        //     this.getPanes().markerLayer.id = "pluse"
+        // }
 
-        mapOverlay.setMap(map);
+        // mapOverlay.setMap(map);
         // console.log(shouter.coords.center);
 
         //if user has an Icon
@@ -527,8 +519,14 @@ $(document).ready(() => {
                 disableAutoPan: true
             });
         }
+
         // display shout
         shouterInfoWindow.open(map, marker);
+
+        //bounce animation
+        setTimeout(() => {
+            marker.setAnimation(google.maps.Animation.BOUNCE);
+        }, 1000);
     }
 
     //error handler for geolocation
@@ -554,20 +552,6 @@ $(document).ready(() => {
         // clear text
         $(".messageBoxInput").val("");
     }
-
-    //-------FireBase Listeners------------
-
-    chatRef.on("value", function (snapshot) {
-        if (snapshot.val()) {
-            var fireBaseMessage = snapshot.val().chatMessage;
-            console.log(fireBaseMessage);
-            //message key
-            // var chatKey = chatMessage.key;
-
-            $("#messageBoxDisplay").prepend(`<li class="message-font"> ${fireBaseMessage}</>`);
-            chatRef.child().onDisconnect().remove();
-        }
-    });
 
     // clear markers
     function deleteMarkers() {
