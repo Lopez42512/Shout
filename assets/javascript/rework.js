@@ -124,24 +124,27 @@ $(document).ready(() => {
             shout: true
         });
 
-        //set global variable
+        //set global variable TODO:May not need in future
         currentLatitude = snap.center.lat;
         currentLongitude = snap.center.lng;
 
+        //query array for geofire
+        var listenLoctation = [snap.center.lat, snap.center, lng];
         //update the query
         var listenQuery = geoFire.query({
-            center: shoutLocation,
+            center: listenLoctation,
             radius: Radius // kilometers
         });
-
+        var listenAround = {};
         //check if someone is in your radius and drop a pin to shouter's  location
         listenQuery.on("key_entered", function (key, location, distance) {
-            peopleAround = {
+            listenAround = {
                 id: key,
                 distance: distance + "km",
                 location: location
             };
 
+            console.log(JSON.stringify(listenAround) + " have heard your shout!");
             // Drop a pin if you find someone
             if (Math.floor(distance) !== 0) {
                 var marker = new google.maps.Marker({
@@ -154,7 +157,6 @@ $(document).ready(() => {
                 // addShouterMarker(shoutLocation);
                 console.log("People Around: " + JSON.stringify(peopleAround));
             }
-            console.log("People Around: " + JSON.stringify(peopleAround));
         });
 
         //update location for Yelp with your location
@@ -164,33 +166,32 @@ $(document).ready(() => {
     }, errorData);
 
     //---------------------------START functions--------------
-        console.log("This is the Value");
-        function startYelpSearch(e) {
-            e.preventDefault();
-            //grab value from the search input
-            var yelpSearch = $("#yelpSearchInput").val();
-            // TODO:Get Yelp to accept user Lattitude and Longitude
-            // reference lat and lng from firebase
-            console.log("This is your lat and lng from your START YELP SEARCH");
-            //set YELP info 
+    function startYelpSearch(e) {
+        e.preventDefault();
+        //grab value from the search input
+        var yelpSearch = $("#yelpSearchInput").val();
+        // TODO:Ask 
 
-            var stringLat = currentLatitude.toString();
-            var stringLng = currentLongitude.toString();
+        // reference lat and lng from firebase
+        yelpRef.once("value").then((snapshot) => {
 
-            console.log("YELP LAT LNG");
-            console.log(stringLat, stringLng);
-            // console.log(stringLng.split());
+            var snapData = snapshot.val();
+            console.log(snapData);
+            console.log("snapData Once Yelp!!");
+
+            var stringLat = snapData.center.lat.toString();
+            var stringLng = snapData.center.lng.toString();
+
             //Ajax call for yelp and loading businesses on to the map
-            // getYelpInfo(yelpSearch, stringLat, stringLng);
-            getYelpInfo(yelpSearch, stringLat, stringLng);
-        }
-   
+            getYelpInfo(yelpSearch, stringLat, stringLng);   
+        });
+    }
+
     //Ajax call to yelp
     function getYelpInfo(searchQuery, stringLat, stringLng, ) {
 
-
         // this is the call for YELP QUERY - WORKING
-        var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=" + searchQuery + "&latitude=" + stringLat + "&longitude=" + stringLng + "&radius=5000&limit=10";
+        var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=" + searchQuery + "&latitude=" + stringLat + "&longitude=" + stringLng + "&radius=5000&limit=5";
 
         console.log(yelpQuery);
 
@@ -375,7 +376,7 @@ $(document).ready(() => {
 
                 //geofire controls the reference points for distance
                 geoFire.set(userName, userLocation).then(function () {
-                
+
                     geoFireRefPush.child(userName).onDisconnect().remove();
                 });
             }
