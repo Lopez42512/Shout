@@ -107,8 +107,6 @@ $(document).ready(() => {
     //Update GeoFire with the UserRef's new location      
     firebaseData.ref().on("child_changed", (snapshot) => {
         setGeoFireUserInfo(snapshot);
-
-        // addShouterMarker()
     }, errorData);
     // --end of firebase root change event
 
@@ -117,18 +115,6 @@ $(document).ready(() => {
         var snap = snapshot.val();
 
         if (snap) {
-            // addShouterMarker([snap.center.lat, snap.center.lng]);
-
-            // //set yelp refTODO: DELETE IT HAS BEEN MOVED
-            // yelpRef.set({
-            //     center: {
-            //         lat: snap.center.lat,
-            //         lng: snap.center.lng
-            //     },
-            //     search: $("#yelpSearchInput").val(),
-            //     shout: true
-            // });
-
             //set global variable TODO:May not need in future
             currentLatitude = snap.center.lat;
             currentLongitude = snap.center.lng;
@@ -143,7 +129,7 @@ $(document).ready(() => {
             if (typeof listenQuery !== "undefined") {
 
                 listenQuery.updateCriteria({
-                    center: [snap.center.lat, snap.center.lng],
+                    center: listenLoctation,
                     radius: Radius
                 });
 
@@ -154,6 +140,7 @@ $(document).ready(() => {
                     radius: Radius // kilometers
                 });
 
+                // TODO:FOR CLASS MAKE SURE THIS IS TAKEN OUT
                 var listenAround = {};
                 //check if someone is in your radius and drop a pin to shouter's  location
                 listenQuery.on("key_entered", function (key, location, distance) {
@@ -164,22 +151,13 @@ $(document).ready(() => {
                         distance: distance + "km",
                         location: location
                     };
-                    var marker = new google.maps.Marker({
-                        position: new google.maps.LatLng(snap.center.lat, snap.center.lng),
-                        map: map,
-                        animation: google.maps.Animation.DROP
-                    });
-                    marker.setMap(map);
-
-                    console.log(JSON.stringify(listenAround) + " have heard your shout!");
-
-                    // addShouterMarker(shoutLocation);
-
-                    // Drop a pin if you find someone
+                    //if you're next to the listener, then don't drop the marker
                     if (Math.floor(distance) !== 0) {
-
-
+                        addShouterMarker(listenLoctation);
                     }
+                    // Drop a pin if you find someoneTODO: MAY NEED IT FOR CLASS PRESENTATION
+                    // addShouterMarker(listenLoctation);
+                    console.log(JSON.stringify(listenAround) + " have heard your shout!");
                 });
 
             }
@@ -492,7 +470,6 @@ $(document).ready(() => {
                 infoWindow.open(map, marker);
             });
         }
-
     }
 
     function addShouterMarker(shoutLocation) {
@@ -513,6 +490,7 @@ $(document).ready(() => {
             animation: google.maps.Animation.DROP
         });
 
+        marker.setMap(map);
         // console.log(shouter.coords.center);
 
         //if user has an Icon
@@ -525,7 +503,8 @@ $(document).ready(() => {
         if (shouter.content) {
             //infoWindow is a pop up for the onClick
             var shouterInfoWindow = new google.maps.InfoWindow({
-                content: shouter.content
+                content: shouter.content,
+                disableAutoPan: true
             });
         }
         // display shout
