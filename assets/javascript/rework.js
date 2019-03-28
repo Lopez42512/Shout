@@ -120,11 +120,8 @@ $(document).ready(() => {
             currentLongitude = snap.center.lng;
 
             // TODO:have to put this back inside the distance checker
-            //query array for geofire
-            console.log(snap.center.lat);
             //update the query
             var listenLoctation = [snap.center.lat, snap.center.lng];
-            console.log(listenLoctation);
 
             if (typeof listenQuery !== "undefined") {
 
@@ -157,9 +154,8 @@ $(document).ready(() => {
                     }
                     // Drop a pin if you find someoneTODO: MAY NEED IT FOR CLASS PRESENTATION
                     // addShouterMarker(listenLoctation);
-                    console.log(JSON.stringify(listenAround) + " have heard your shout!");
+                    console.log(JSON.stringify(key) + " have heard your shout!" + "and they are " + distance + " km away");
                 });
-
             }
         }
     }, errorData);
@@ -167,7 +163,13 @@ $(document).ready(() => {
     //update yelp markers on all users
     yelpRef.on("value", (snapshot) => {
         var dataSnap = snapshot.val();
-
+        console.log("Running yelp on ref!");
+        console.log(dataSnap);
+        //convert lat and lng to strings
+        var stringLatF = dataSnap.center.lat.toString();
+        var stringLngF = dataSnap.center.lng.toString();
+        
+        getYelpInfo(dataSnap.search,stringLatF,stringLngF);
     }, errorData);
 
     //---------------------------START functions--------------
@@ -184,9 +186,6 @@ $(document).ready(() => {
         usersRef.child(profileKey).once("value").then((snapshot) => {
 
             var snapData = snapshot.val();
-            console.log(snapData.center.lat);
-            console.log("snapData Once Yelp!!");
-
             //Make them strings for the searhc
             var stringLat = snapData.center.lat.toString();
             var stringLng = snapData.center.lng.toString();
