@@ -1,9 +1,9 @@
 $(document).ready(() => {
     //Global variables
-    var shoutCheck;
+    var shoutCheck = false;
     var Lattitude;
     var Longitude;
-    var Radius = 5;
+    var Radius = 100;
     var profile;
     var yelpProfile;
     var profileKey;
@@ -11,6 +11,9 @@ $(document).ready(() => {
     var peopleAround = {};
     var uid;
     var listenLoctation = [];
+    var allUserMarkers = [];
+    var allShoutMarkers = [];
+    var allYelpMarkers = [];
     // geoquery
     var shoutQuery;
     var listenQuery;
@@ -151,6 +154,17 @@ $(document).ready(() => {
                     //if you're next to the listener, then don't drop the marker
                     if (Math.floor(distance) !== 0) {
                         addShouterMarker(listenLoctation);
+
+                        //update yelp markers on all users
+                        yelpRef.on("value", (snapshot) => {
+                            var dataSnap = snapshot.val();
+                            //convert lat and lng to strings
+                            var stringLatF = dataSnap.center.lat.toString();
+                            var stringLngF = dataSnap.center.lng.toString();
+
+                            console.log("geting info");
+                            getYelpInfo(dataSnap.search, stringLatF, stringLngF);
+                        }, errorData);
                     }
                     // Drop a pin if you find someoneTODO: MAY NEED IT FOR CLASS PRESENTATION
                     // addShouterMarker(listenLoctation);
@@ -160,16 +174,6 @@ $(document).ready(() => {
         }
     }, errorData);
 
-    //update yelp markers on all users
-    yelpRef.on("value", (snapshot) => {
-        var dataSnap = snapshot.val();
-        //convert lat and lng to strings
-        var stringLatF = dataSnap.center.lat.toString();
-        var stringLngF = dataSnap.center.lng.toString();
-
-        console.log("geting info");
-        getYelpInfo(dataSnap.search, stringLatF, stringLngF);
-    }, errorData);
 
     //---------------------------START functions--------------
     function startYelpSearch(e) {
@@ -268,6 +272,8 @@ $(document).ready(() => {
 
         //creating the marker
         function addYelpMarker(businessM) {
+            //check if shout if the user made the shout
+
 
             //create map marker object
             var marker = new google.maps.Marker({
@@ -277,6 +283,7 @@ $(document).ready(() => {
             });
             // console.log(user.coords.center);
 
+            allShoutMarkers.push(marker);
             //if user has an Icon
             if (businessM.iconImage) {
                 //set Icon image
@@ -312,7 +319,6 @@ $(document).ready(() => {
     }
 
     function shoutLogic() {
-
         // set your location globaly
         usersRef.child(profileKey).on("value", (childSnapShot) => {
             var snapData = childSnapShot.val();
@@ -416,6 +422,7 @@ $(document).ready(() => {
 
     //google map function of generating user and icon
     function googleMapShout(shoutLocation) {
+
         //create object for map
         var shoutObject = {
             center: {
@@ -423,16 +430,23 @@ $(document).ready(() => {
                 lng: shoutLocation[1]
             },
             iconImage: "./assets/images/map-icon.png",
-            content: "<h1>Hello Friends!</h1>"
+            content: "<h1>Hello Friends!</h1> <div class='pulse' ></div> "
         }
         //set map's center to shouter
         map.panTo(shoutObject.center);
         map.setZoom(14);
-        //add marker
-        addUserMarker(shoutObject);
-        //function Marker
-        function addUserMarker(so) {
 
+        // check if shout is true
+        if (shoutCheck === false) {
+            console.log("FALSE!!!");
+            addUserMarker(shoutObject);
+            shoutCheck = true;
+        } else {
+            return;
+        }
+
+        //add Shouter's Marker
+        function addUserMarker(so) {
             var marker = new google.maps.Marker({
                 position: so.center,
                 map: map,
@@ -487,10 +501,16 @@ $(document).ready(() => {
         var marker = new google.maps.Marker({
             position: shouter.center,
             map: map,
-            animation: google.maps.Animation.DROP
+            animation: google.maps.Animation.DROP,
+            optimized: false
         });
 
-        marker.setMap(map);
+        var mapOverlay = new google.maps.OverlayView();
+        mapOverlay.draw = function () {
+            this.getPanes().markerLayer.id = "pluse"
+        }
+
+        mapOverlay.setMap(map);
         // console.log(shouter.coords.center);
 
         //if user has an Icon
@@ -548,6 +568,17 @@ $(document).ready(() => {
             chatRef.child().onDisconnect().remove();
         }
     });
+
+    // clear markers
+    function deleteMarkers() {
+        clearMarkers();
+        markers = [];
+    }
+
+    function clearMarkers() {
+        setMapOnAll(null);
+    }
+
     //---------------
 
     function displayModal() {
@@ -584,5 +615,12 @@ $(document).ready(() => {
     $(document).on("click", "#close", hideModal);
     $(document).on("click", "#myModal", outsideModal);
     $(document).on("click", "#test", toggleChat);
+
+    //extra features
+    var typed = new Typed(".ideas", {
+        strings: ["Pizza", "movies", "Go for a walk"],
+        loop: true,
+        smartBackspace: true // Default value
+    });
 
 });
