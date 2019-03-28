@@ -115,14 +115,15 @@ $(document).ready(() => {
         var snap = snapshot.val();
         // addShouterMarker([snap.center.lat, snap.center.lng]);
 
-        //set yelp ref
-        yelpRef.set({
-            center: {
-                lat: snap.center.lat,
-                lng: snap.center.lng
-            },
-            shout: true
-        });
+        // //set yelp refTODO: DELETE IT HAS BEEN MOVED
+        // yelpRef.set({
+        //     center: {
+        //         lat: snap.center.lat,
+        //         lng: snap.center.lng
+        //     },
+        //     search: $("#yelpSearchInput").val(),
+        //     shout: true
+        // });
 
         //set global variable TODO:May not need in future
         currentLatitude = snap.center.lat;
@@ -165,26 +166,37 @@ $(document).ready(() => {
         startYelpSearch(snap.center.lat, snap.center.lng)
     }, errorData);
 
+    //update yelp markers on all users
+    yelpRef.on("value", (snapshot) => {
+        var dataSnap = snapshot.val();
+
+    }, errorData);
+
     //---------------------------START functions--------------
     function startYelpSearch(e) {
         e.preventDefault();
         //grab value from the search input
         var yelpSearch = $("#yelpSearchInput").val();
-        // TODO:Ask 
-
+        // TODO:Ask the guys if we want the user's location or the shout loc.
+        //set yelp ref
+  
+        console.log($("#yelpSearchInput").val());
+        console.log(yelpSearch);
         // reference lat and lng from firebase
-        yelpRef.once("value").then((snapshot) => {
+        usersRef.child(profileKey).once("value").then((snapshot) => {
 
             var snapData = snapshot.val();
-            console.log(snapData);
+            console.log(snapData.center.lat);
             console.log("snapData Once Yelp!!");
 
+            //Make them strings for the searhc
             var stringLat = snapData.center.lat.toString();
             var stringLng = snapData.center.lng.toString();
 
             //Ajax call for yelp and loading businesses on to the map
-            getYelpInfo(yelpSearch, stringLat, stringLng);   
+            getYelpInfo(yelpSearch, stringLat, stringLng);
         });
+
     }
 
     //Ajax call to yelp
@@ -296,8 +308,8 @@ $(document).ready(() => {
 
         // set your location globaly
         usersRef.child(profileKey).on("value", (childSnapShot) => {
-            var snap = childSnapShot.val();
-            var shoutLocation = [snap.center.lat, snap.center.lng];
+            var snapData = childSnapShot.val();
+            var shoutLocation = [snapData.center.lat, snapData.center.lng];
             //set shout ref
             shoutRef.set({
                 center: {
@@ -307,6 +319,18 @@ $(document).ready(() => {
                 message: ""
             });
 
+            yelpRef.set({
+                center: {
+                    lat: snapData.center.lat,
+                    lng: snapData.center.lng
+                },
+                search: "",
+                shout: true
+            });
+
+            console.log($("#shoutText").val());
+
+            
             //update the query
             var shoutQuery = geoFire.query({
                 center: shoutLocation,
@@ -355,7 +379,8 @@ $(document).ready(() => {
                         lng: Longitude
                     },
                     radius: Radius, //kilometers
-                    message: []
+                    message: [],
+                    shoutMessage: ""
                 });
 
             }, errorHandler);
