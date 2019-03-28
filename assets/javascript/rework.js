@@ -14,15 +14,17 @@ $(document).ready(() => {
     var shoutQuery;
     var yelpQuery;
     var yelpSearch;
+    var currentLatitude;
+    var currentLongitude;
 
     // Initialize Firebase ----------------------------------------
     var config = {
-        apiKey: "AIzaSyBWlRO86vNl6sL5psQX5f7H9Lw_wsULP9g",
-        authDomain: "geofiretest-9d07e.firebaseapp.com",
-        databaseURL: "https://geofiretest-9d07e.firebaseio.com",
-        projectId: "geofiretest-9d07e",
-        storageBucket: "geofiretest-9d07e.appspot.com",
-        messagingSenderId: "680094207901"
+        apiKey: "AIzaSyBgbeWYYyp8oVui9kLHUT6HSDAREQhX9nU",
+        authDomain: "shout-e4409.firebaseapp.com",
+        databaseURL: "https://shout-e4409.firebaseio.com",
+        projectId: "shout-e4409",
+        storageBucket: "shout-e4409.appspot.com",
+        messagingSenderId: "881880939559"
     };
     firebase.initializeApp(config);
 
@@ -105,47 +107,88 @@ $(document).ready(() => {
     }, errorData);
     // --end of firebase root change event
 
+    //shout updates
     shoutRef.on("value", (snapshot) => {
         var snap = snapshot.val();
-        // addShouterMarker(snap.lat, snap.lng);
+        // addShouterMarker([snap.center.lat, snap.center.lng]);
         console.log("This is shoutref ");
-        console.log(snap);
+
+        //set yelp ref
+        yelpRef.set({
+            center: {
+                lat: snap.center.lat,
+                lng: snap.center.lng
+            },
+            shout: true
+        });
+
         var marker = new google.maps.Marker({
             position: new google.maps.LatLng(snap.center.lat, snap.center.lng),
             map: map,
             animation: google.maps.Animation.DROP
         });
 
-        // To add the marker to the map, call setMap();
-        marker.setMap(map);
+        //set global variable
+        currentLatitude = snap.center.lat;
+        currentLongitude = snap.center.lng;
+
+        //update the query
+        var listenQuery = geoFire.query({
+            center: shoutLocation,
+            radius: Radius // kilometers
+        });
+
+        //check if someone is in your radius and drop a pin to shouter's  location
+        listenQuery.on("key_entered", function (key, location, distance) {
+            peopleAround = {
+                id: key,
+                distance: distance + "km",
+                location: location
+            };
+
+            // Drop a pin if you find someone
+            if (Math.floor(distance) !== 0) {
+                marker.setMap(map);
+                // addShouterMarker(shoutLocation);
+                console.log("People Around: " + JSON.stringify(peopleAround));
+            }
+            console.log("People Around: " + JSON.stringify(peopleAround));
+        });
+
+        //update location for Yelp with your location
+        console.log(snap);
+        console.log("This is your lat and lng from your START YELP SEARCH");
+        startYelpSearch(snap.center.lat, snap.center.lng)
     }, errorData);
 
-
     //---------------------------START functions--------------
-    function startYelpSearch(e) {
-        e.preventDefault();
-        //grab value from the search input
-        var yelpSearch = $("#yelpSearchInput").val();
-        // TODO:Get Yelp to accept user Lattitude and Longitude
-        // reference lat and lng from firebase
-        // yelpRef.set({
-        //     yelpSearch,
-        //     lat: Lattitude,
-        //     lng: Longitude
-        // });
-        var stringLat = Lattitude.toString();
-        var stringLng = Longitude.toString();
+        console.log("This is the Value");
+        function startYelpSearch(e) {
+            e.preventDefault();
+            //grab value from the search input
+            var yelpSearch = $("#yelpSearchInput").val();
+            // TODO:Get Yelp to accept user Lattitude and Longitude
+            // reference lat and lng from firebase
+            console.log("This is your lat and lng from your START YELP SEARCH");
+            //set YELP info 
 
-        // console.log(stringLng.split());
-        //Ajax call for yelp and loading businesses on to the map
-        getYelpInfo(yelpSearch);
-    }
+            var stringLat = currentLatitude.toString();
+            var stringLng = currentLongitude.toString();
+
+            console.log("YELP LAT LNG");
+            console.log(stringLat, stringLng);
+            // console.log(stringLng.split());
+            //Ajax call for yelp and loading businesses on to the map
+            // getYelpInfo(yelpSearch, stringLat, stringLng);
+            getYelpInfo(yelpSearch, stringLat, stringLng);
+        }
+   
     //Ajax call to yelp
     function getYelpInfo(searchQuery, stringLat, stringLng, ) {
 
-        console.log(Lattitude);
+
         // this is the call for YELP QUERY - WORKING
-        var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=" + searchQuery + "&latitude=39.951061&longitude=-75.165619&radius=5000&limit=5";
+        var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=" + searchQuery + "&latitude=" + stringLat + "&longitude=" + stringLng + "&radius=5000&limit=10";
 
         console.log(yelpQuery);
 
@@ -162,11 +205,10 @@ $(document).ready(() => {
             method: "GET"
         }).then((yelpResponse) => {
             console.log(yelpResponse);
-            for (var i = 0; i < 5; i++) {
+            for (var i = 0; i < yelpResponse.businesses.length; i++) {
                 // Add yelp businesses
                 addYelpBusinesses(yelpResponse.businesses[i]);
             }
-
         });
     }
 
@@ -256,18 +298,17 @@ $(document).ready(() => {
             //set shout ref
             shoutRef.set({
                 center: {
-                    lat: $("#shout").attr("data-lat"),
-                    lng: $("#shout").attr("data-lng")
-                }
+                    lat: shoutLocation[0],
+                    lng: shoutLocation[1]
+                },
+                message: ""
             });
+
             //update the query
             var shoutQuery = geoFire.query({
                 center: shoutLocation,
                 radius: Radius // kilometers
             });
-
-            //update map and markers
-            googleMapShout(shoutLocation);
 
             //check if someone is in your radius and drop a pin to shouter's  location
             shoutQuery.on("key_entered", function (key, location, distance) {
@@ -279,13 +320,17 @@ $(document).ready(() => {
 
                 // If you're the shouter, don't drop a pin on you
                 if (Math.floor(distance) !== 0) {
+                    // marker.setMap(map);
                     addShouterMarker(shoutLocation);
                     console.log("People Around: " + JSON.stringify(peopleAround));
                 }
-                addShouterMarker(shoutLocation);
                 console.log("People Around: " + JSON.stringify(peopleAround));
             });
-        }, errorData)
+
+            //update map and markers
+            googleMapShout(shoutLocation);
+
+        }, errorData);
     }
 
     function setUserLocation(snapshot) {
@@ -319,7 +364,7 @@ $(document).ready(() => {
     function setGeoFireUserInfo(snapshot) {
         snapshot.forEach(function (childSnapShot) {
             //take info from the userRef push
-            if (childSnapShot.val()) {
+            if (childSnapShot.val().lat) {
                 var childData = childSnapShot.val();
 
                 console.log(childData.center.lat);
@@ -398,6 +443,7 @@ $(document).ready(() => {
 
     function addShouterMarker(shoutLocation) {
         //Add marker
+        console.log(shoutLocation[0]);
         var shouter = {
             center: {
                 lat: shoutLocation[0],

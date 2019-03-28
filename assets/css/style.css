@@ -174,3 +174,33 @@ form#search-form {
     text-align: center;
   }
   
+  .test-container{
+      display: flex;
+      flex-direction: row;
+      transition: .25s all ease-in-out;
+  }
+
+  .test-container:hover {
+      flex-direction: column;
+  }
+
+  .div1, .div2 {
+      height: 100px;
+      width: 100px;
+      background-color: red;
+      transition: .25s all ease-in-out;
+  }
+
+  .div2 {
+      display: none;
+      background-color: blue;
+  }
+
+  .div1:hover {
+    width: 400px;
+    flex: 3;
+}
+
+.div2:hover {
+    display: none;
+}
