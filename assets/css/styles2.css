@@ -128,12 +128,28 @@ img.shout-icon {
 
 .chat-flex {
     background-color: #fff;
-    height: 100%;
-    width: 40vw;
+    height: 90%;
+    width: 30vw;
     transition: all .3s ease-in-out;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+}
+
+.chat-area {
+    height: 20em;
+    display: flex;
+    justify-content: flex-end;
+    flex-direction: column;
+    position: relative;
+    height: 24em;
+    overflow: hidden;
+}
+
+.chat-text {
+    top: 0px;
+    width: 100%;
+    height: 123em;
 }
 
 .chat-text ul {
@@ -141,7 +157,7 @@ img.shout-icon {
 }
 
 .messaging-flex {
-    height: 2.5em;
+    height: 13.5em;
     background-color: red;
     display: flex;
 }
@@ -149,8 +165,8 @@ img.shout-icon {
 .chat-input {
     flex-basis: 70%;
     flex: 3;
+    width: 100%;
     font-size: 2em;
-    background-color: pink;
     border: 2px solid darkgray;
 }
 
@@ -172,14 +188,28 @@ img.shout-icon {
     flex: 1;
 }
 
-.yelp-content{
 
+.yelp-contet {
+    display: flex;
+}
+
+form#search-form {
+    display: flex;
+    flex: 1;
 }
 
 .search-form {
-    background-color: pink;
+    display: flex;
+    flex: 1;
 }
 
+.search-form button {
+    flex: 1;
+}
 #searchFormBtn {
   position: relative;
+}
+
+input#yelpSearchInput {
+    width: 100%;
 }

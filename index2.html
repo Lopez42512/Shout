@@ -37,18 +37,6 @@
     <section class="body-container">
         <!-- <div class="body-header"><h1>Meet up with friends and <strong class="ideas"></with some friends!strong></h1></div> -->
         <div class="body-flex">
-
-            <div class="yelp-wrapper">
-                <div class="yelp-contet">
-                    <h1>Yelp search</h1>
-                    <span class="close">&times;</span>
-                    <form class="search-form" id="search-form">
-                        <label for="yelp-search">Businesses Near By</label>
-                        <input type="text" name="yelpSearchInput" id="yelpSearchInput">
-                    </form>
-                    <button type="button" form="search-form" value="Submit" id="searchFormBtn">Search</button>
-                </div>
-            </div>
             <div class="map" id="map"></div>
             <div class="welcome">
                 <div class="welcome-wrapper">
@@ -60,14 +48,23 @@
                         <div class="modal-content">
                             <input type="text" id="shoutText" placeholder="What would you like to do?">
                         </div>
-                        <button type="button" class="shout-container" id="shout"><img src="./assets/images/shout Icon.png"
-                                alt="shout app" class="shout-icon"><span id="hoverText">Shout!</span> </button>
+                        <button type="button" class="shout-container" id="shout"><img
+                                src="./assets/images/shout Icon.png" alt="shout app" class="shout-icon"><span
+                                id="hoverText">Shout!</span> </button>
                     </div>
 
                 </div>
                 <div class="chat-wrapper">
                     <span class="close">X</span>
+                    <div class="yelp-contet">
+                        <form class="search-form" id="search-form">
+                            <label for="yelp-search">Businesses Near By</label>
+                            <input type="text" name="yelpSearchInput" id="yelpSearchInput">
+                        </form>
+                        <button type="button" form="search-form" value="Submit" id="searchFormBtn">Search</button>
+                    </div>
                     <div class="chat-flex">
+
                         <div class="chat-area">
                             <div class="chat-text">
                                 <ul>

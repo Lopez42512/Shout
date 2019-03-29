@@ -221,7 +221,7 @@ $(document).ready(() => {
             });
 
             //Ajax call for yelp and loading businesses on to the map
-            // getYelpInfo(yelpSearch, stringLat, stringLng);
+            getYelpInfo(yelpSearch, stringLat, stringLng);
         });
     }
 
@@ -267,6 +267,7 @@ $(document).ready(() => {
         } else {
             hours = "open";
         }
+
         //create a business map object so we can have a cleaner look
         var businessMapObject = {
             coords: {
@@ -277,6 +278,7 @@ $(document).ready(() => {
             },
             // iconImage: "./assets/images/map-icon.png",
             content: `<h2 class="yelpTitle">${bName}</h2>
+            <p class="yelpDesc">Ratings: ${bRatings}</p>
             <p class="yelpDesc"> Address: <a id="yelpLink" href="${bLocationHref}">${bLocation}</a></p>
             <p class="yelpDesc">The store is ${hours} </p>`
         }
