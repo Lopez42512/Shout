@@ -317,6 +317,8 @@ $(document).ready(() => {
     }
 
     function shoutLogic() {
+
+        
         var shoutTextVal = $("#shoutText").val().trim();
         // var Radius = $("#shoutRadius").val();
         var shoutText = $("#shoutText");
@@ -396,7 +398,7 @@ $(document).ready(() => {
                 }
                 //update map and markers
                 googleMapShout(shoutLocation);
-
+                setTimeout(displayChat,500);
             }, errorData);
         } //----end check if there's a
     }
@@ -616,12 +618,14 @@ $(document).ready(() => {
 
     //---------------
 
-    function displayModal() {
-        $("#myModal").css("display", "block");
+    function displayChat() {
+        $(".welcome-wrapper").css("display", "none");
+        $(".chat-wrapper").css("display", "block");
     }
 
-    function hideModal() {
-        $(this).css("display", "none");
+    function hideChat() {
+        $(".chat-wrapper").css("display", "none");
+        $(".welcome-wrapper ").css("display", "block");
     }
 
     function outsideModal(event) {
@@ -646,8 +650,7 @@ $(document).ready(() => {
     // chat function
     $(document).on("click", ".chat-btn", chatMessages);
     //when you click the modal button
-    $(document).on("click", "#modalBtn", displayModal);
-    $(document).on("click", "#close", hideModal);
+    $(document).on("click", ".close", hideChat);
     $(document).on("click", "#myModal", outsideModal);
     $(document).on("click", "#test", toggleChat);
 

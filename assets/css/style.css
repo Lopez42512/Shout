@@ -3,6 +3,9 @@ body {
     font-family: 'Montserrat', sans-serif;
 }
 
+.header{
+    height: 6em;
+}
 .container {
     display: flex;
     justify-content: center;
