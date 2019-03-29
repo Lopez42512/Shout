@@ -1,0 +1,122 @@
+*{
+    font-family: 'Montserrat', sans-serif;
+}
+
+body {
+    width: 100%;
+    /* background: linear-gradient(#e66465, #9198e5); */
+}
+
+
+.header{
+    display: flex;
+    flex-direction: row;
+    background-color: #e92630;
+    justify-content: flex-end;
+    /* background: rgb(233,38,48); */
+/* background: linear-gradient(0deg, rgba(233,38,48,1) 0%, rgba(253,187,45,1) 100%); */
+    height: 7em;
+}
+.header ul {
+    display: flex;
+    align-items: flex-end;
+    list-style-type: none;
+}
+
+.header li {
+    font-weight: bolder;
+    color: white;
+    padding: 5px 30px;
+    font-size: 1.3em;
+    transition: all .5s ease-in-out;
+}
+
+.header li:hover {
+    cursor: pointer;
+}
+.body-flex{
+    display: flex;
+    justify-content: space-around;
+    margin-top: 5vh;
+}
+.map {
+    width: 100%;
+    max-width: 800px;
+    height: 500px;
+    background: grey;
+    flex:3;
+    flex-basis: 60%;
+}
+
+.welcome {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+flex: 1;
+    width: 100%;
+    background-color: rgb(241, 241, 241);
+    box-sizing: border-box;
+    padding: 30px;
+}
+.welcome-wrapper h1{
+    font-size: 2em;
+    text-align: center;
+    font-weight: bolder;
+}
+
+.shout-area{
+    position: relative;
+}
+.shout-container {
+    margin-top: 10vh;
+    border-radius: 5px;
+    border: 3px solid rgb(190, 45, 45);
+    width: 10em;
+    padding: .9em;
+    box-sizing: content-box;
+    height: 3em;
+    transition: .3s all ease;
+}
+
+.shout-container:hover {
+    background: rgb(190, 45, 45);
+    color: white;
+    position: relative;
+    display: flex;
+    cursor: pointer;
+}
+
+.shout-container:hover img.shout-icon{
+    display: none;
+}
+
+.shout-container:hover #hoverText {
+    font-size: 2em;
+    margin: auto;
+    letter-spacing: 2px;
+}
+
+img.shout-icon {
+    height: 2em;
+}
+
+.shout-container span {
+    font-size: 2em;
+}
+
+#shoutText {
+    position: relative;
+    padding: 10px 30px;
+    top: 81px;
+    width: 100%;
+    max-width: 20em;
+    box-sizing: border-box;
+}
+
+#myModal {
+    background-color: pink;
+    width: 500px;
+    height: 300px;
+    border-radius: 5px;
+
+}

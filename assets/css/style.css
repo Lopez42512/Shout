@@ -1,3 +1,8 @@
+body {
+    /* font-family: 'Baloo Bhaijaan', cursive; */
+    font-family: 'Montserrat', sans-serif;
+}
+
 .container {
     display: flex;
     justify-content: center;
@@ -11,7 +16,17 @@
 
 #shout {
     font-size: 3vw;
+    width: 50%;
+    margin: 0 auto;
+    border: 2px solid grey;
+    border-radius: 5px;
+    height: 20%;
 }
+
+#shout:hover {
+    background-color: rgba(40, 68, 226, 0.65);
+}
+
 /* message style */
 .message-box {
     display: none;
@@ -39,7 +54,7 @@
     margin: 0px;
 }
 
-.message-box ul li{
+.message-box ul li {
     color: #585858;
     font-size: 1.5em;
     list-style: none;
@@ -61,6 +76,7 @@
     padding: 0px 30px;
     box-sizing: border-box;
 }
+
 .message-font {
     color: black;
 }
@@ -69,12 +85,14 @@
     display: flex;
     width: 100%;
 }
+
 input#messageBoxInput {
     flex-basis: 70%;
     flex: 3;
     height: 4vh;
     font-size: 2em;
 }
+
 button#chatBtn {
     border: none;
     background: rgb(212, 212, 212);
@@ -111,16 +129,16 @@ button#chatBtn {
     height: 400px;
     max-height: 100%;
     position: fixed;
-    z-index: 100;  
+    z-index: 100;
     left: 0;
     top: 0;
     bottom: 0;
-    right: 0; 
+    right: 0;
     margin: auto;
-   background-color: #e92630;
-   display: flex;
-   flex-direction: column;
-  }
+    background-color: #e92630;
+    display: flex;
+    flex-direction: column;
+}
 
 .modal {
     display: none;
@@ -147,16 +165,20 @@ button#chatBtn {
     text-decoration: none;
     cursor: pointer;
 }
-
 form#search-form {
     padding: 20px;
     background: #e92630;
     font-weight: 900;
     display: flex;
+    width: 70%;
     flex-direction: column;
+    position: relative;
+    left: 50%;
+    margin-top: 50px;
+    transform: translateX(-50%);
 }
 
-.search-form label{
+.search-form label {
     font-size: 2vw;
     color: white;
     line-height: 1.2em;
@@ -172,35 +194,96 @@ form#search-form {
     border-radius: 4px;
     font-size: 30px;
     text-align: center;
-  }
-  
-  .test-container{
-      display: flex;
-      flex-direction: row;
-      transition: .25s all ease-in-out;
-  }
-
-  .test-container:hover {
-      flex-direction: column;
-  }
-
-  .div1, .div2 {
-      height: 100px;
-      width: 100px;
-      background-color: red;
-      transition: .25s all ease-in-out;
-  }
-
-  .div2 {
-      display: none;
-      background-color: blue;
-  }
-
-  .div1:hover {
-    width: 400px;
-    flex: 3;
 }
 
-.div2:hover {
-    display: none;
+.shout-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border: 1px solid #e7e7e7;
+    border-radius: 50%;
+    background: #fff;
+    top: -55px;
+    left: 50%;
+    -webkit-transf
+}
+
+.shout-icon:hover {
+    background-color: #d4111a;
+}
+
+.popup {
+    width: 100%;
+    max-width: 400px;
+    background: #fff;
+    border-radius: 2px;
+    position: relative;
+    margin-top: 55px;
+    padding: 92px 70px 88px 70px;
+    box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+    -webkit-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+    -o-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+    -ms-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+
+}
+
+.popup-content {
+width: 100%;
+}
+
+#chatButton {
+    width: 60px;
+    align-self: center;
+}
+
+.icon-wrapper{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border: 1px solid #e7e7e7;
+    border-radius: 50%;
+    background: #fff;
+    top: -55px;
+    left: 50%;
+}
+
+img#shoutIcon {
+    text-align: center;
+    align-self: center;
+    display: block;
+    max-width: 49px;
+    margin: 0 auto;
+    
+}
+
+.input-Chat {
+    font-size: 18px;
+    color: #fff;
+    margin-top: 30px;
+    line-height: 1.2;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#chatButton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 20px;
+    min-width: 100px;
+    height: 50px;
+    background-color: #ff4b5a;
+    border-radius: 2px;
+    font-family: OpenSans-Regular;
+    font-size: 18px;
+    color: #fff;
+    line-height: 1.2;
+    margin-top: 50px;
 }

@@ -14,6 +14,7 @@ $(document).ready(() => {
     var allUserMarkers = [];
     var allShoutMarkers = [];
     var allYelpMarkers = [];
+    var chatID;
     // geoquery
     var shoutQuery;
     var listenQuery;
@@ -182,7 +183,7 @@ $(document).ready(() => {
             // var chatKey = chatMessage.key;
 
             $("#messageBoxDisplay").prepend(`<li class="message-font"> ${fireBaseMessage}</>`);
-            chatRef.child().onDisconnect().remove();
+            chatRef.onDisconnect().remove();
         }
     });
 
@@ -191,6 +192,8 @@ $(document).ready(() => {
         e.preventDefault();
         //grab value from the search input
         var yelpSearch = $("#yelpSearchInput").val();
+        console.log(yelpSearch);
+        $(".welcome").append($("<p>").text(yelpSearch));
         // TODO:Ask the guys if we want the user's location or the shout loc.
         //set yelp ref
 
@@ -242,7 +245,7 @@ $(document).ready(() => {
             console.log(yelpResponse);
             for (var i = 0; i < yelpResponse.businesses.length; i++) {
                 // Add yelp businesses
-               window.setTimeout(addYelpBusinesses(yelpResponse.businesses[i]),i*250);
+                window.setTimeout(addYelpBusinesses(yelpResponse.businesses[i]), i * 250);
             }
         });
     }
@@ -278,7 +281,7 @@ $(document).ready(() => {
 
         //Create marker
         addYelpMarker(businessMapObject);
-        
+
     }
 
     function addYelpMarker(businessM) {
@@ -311,6 +314,30 @@ $(document).ready(() => {
     }
 
     function shoutLogic() {
+        var shoutTextVal = $("#shoutText").val().trim();
+        var shoutText = $("#shoutText");
+
+
+        if (shoutTextVal === "") {
+            console.log("There is no value!");
+            shoutText.attr("placeholder", "What are you trying to do?");
+            shoutText.css("box-shadow", "0 0 5px #e92630");
+            console.log(shoutText);
+        }
+
+        //update firebase User info
+        usersRef.child(profileKey).update({
+            uid: uid,
+            name: "static",
+            center: {
+                lat: Lattitude,
+                lng: Longitude
+            },
+            radius: Radius, //kilometers
+            message: [],
+            shoutMessage: shoutTextVal
+        });
+
         // set your location globaly
         usersRef.child(profileKey).on("value", (childSnapShot) => {
             var snapData = childSnapShot.val();
@@ -321,10 +348,8 @@ $(document).ready(() => {
                     lat: shoutLocation[0],
                     lng: shoutLocation[1]
                 },
-                message: ""
+                message: shoutTextVal
             });
-
-            console.log($("#shoutText").val());
 
             if (typeof shoutQuery !== "undefined") {
                 //update the query
@@ -359,7 +384,7 @@ $(document).ready(() => {
             }
             //update map and markers
             googleMapShout(shoutLocation);
-
+            //end of if statement
         }, errorData);
     }
 
@@ -529,6 +554,14 @@ $(document).ready(() => {
         }, 1000);
     }
 
+    // chat functionality
+    function chatMessages(event) {
+        event.preventDefault();
+        var chatMessage = chatRef.set({
+            chatMessage: $("#messageBoxInput").val()
+        });
+    }
+
     //error handler for geolocation
     function errorHandler(err) {
         if (err.code == 1) {
@@ -543,15 +576,7 @@ $(document).ready(() => {
         console.log(err);
     }
 
-    function chatMessages(event) {
-        event.preventDefault();
-        var chatMessage = chatRef.set({
-            chatMessage: $("#messageBoxInput").val()
-        });
 
-        // clear text
-        $(".messageBoxInput").val("");
-    }
 
     // clear markers
     function deleteMarkers() {
@@ -604,6 +629,7 @@ $(document).ready(() => {
     var typed = new Typed(".ideas", {
         strings: ["Pizza", "movies", "Go for a walk"],
         loop: true,
+        typeSpeed: 150,
         smartBackspace: true // Default value
     });
 

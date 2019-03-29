@@ -193,7 +193,7 @@ function startYelpSearch(e) {
     e.preventDefault();
     //grab value from the search input
     var yelpSearch = $("#yelpSearchInput").val();
-   
+    $(".welcome").append( $("<p>").text(yelpSearch));
     // //set the value onfirebase
     yelpRef.set({
         yelpSearch
@@ -504,7 +504,7 @@ $("#submit-btn").on("click", function (event) {
     var message = {
         chat: $("#messageBox").val()
     }
-
+    
     //push message
     chatRef.push(message);
 

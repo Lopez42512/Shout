@@ -5,9 +5,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link href="https://fonts.googleapis.com/css?family=Baloo+Bhaijaan|Montserrat" rel="stylesheet">
 
   <link rel="stylesheet" href="./assets/css/style.css">
   <link rel="stylesheet" href="./assets/css/animations.css">
+  <link rel="stylesheet" href="./assets/css/popup.css">
   <title>Shout!</title>
 
   <!-- Firebase -->
@@ -46,7 +48,7 @@
         <label for="yelp-search">Businesses Near By</label>
         <input type="text" name="yelpSearchInput" id="yelpSearchInput">
       </form>
-      <button type="submit" form="search-form" value="Submit" id="shout">Search</button>
+      <button type="button" form="search-form" value="Submit" id="shout">Search</button>
     </div>
   </div>
 
@@ -55,21 +57,35 @@
     <input type="text" name="shoutText" id="shoutText">
     <label for="yelp-search">Businesses Near By</label>
     <input type="text" name="yelpSearchInput" id="yelpSearchInput">
-    <button type="submit" form="search-form" value="Submit" id="searchFormBtn">Search</button>
+    <button type="button" form="search-form" value="Submit" id="searchFormBtn">Search</button>
   </form>
 
   <div class="welcome">
     In the mood to hang out? Why not try shouting and see if any of your friends are around!
-    How about [<strong class="ideas"></strong>] with some friends! </div>
+    How about <strong class="ideas"></strong>with some friends! </div>
 
 
-   <!-- ishmael chat  -->
-   <!-- Message -->
+
+  <!-- ishmael chat  -->
+  <!-- Message -->
   <div class="chat">
-      <input type="text" id="chatInput">
-      <button type="submit" id="chatButton"></button>
+    <input type="text" id="chatInput">
+    <button type="button" id="chatButton"></button>
+  </div>
+
+  <div class="shout-icon">Shout!</div>
+  <div class="popup">
+    <div class="popup-content">
+
+      <span class="icon-wrapper" ><img src="./assets/images/shout Icon.png" alt="" id="shoutIcon"></span>
+      <input type="text" placeholder="name" id="chatName" class="input-Chat" alt="user"><span>
+
+      </span>
+      <button type="button" id="chatButton">!</button>
+
     </div>
-    
+  </div>
+
   <!-- Message -->
   <div class="message-box">
     <ul class="blackbg" id="messageBoxDisplay">
@@ -78,47 +94,40 @@
       <input type="text" id="messageBoxInput">
       <button type="submit" id="chatBtn">Submit</button></div>
   </div>
+    <!-- Scripts -->
+    <script>
+        // Initialize global map object --------
+        var map;
 
-  <button id="test">Button</button>
-  <div style="position:relative;">
-    <div class='pulse'></div>
-  </div>
-  <!-- Scripts -->
-  <script>
-    // Initialize global map object --------
-    var map;
+        function initMap() {
+            // fixed place for now
+            var place = {
+                zoom: 13,
+                center: {
+                    lat: 39.94,
+                    lng: -75.1993
+                }
+            }
+            // //new map
+            map = new google.maps.Map(document.getElementById("map"), place);
 
-    function initMap() {
-      // fixed place for now
-      var place = {
-        zoom: 13,
-        center: {
-          lat: 39.94,
-          lng: -75.1993
+            // console.log(map);
+            // Array of Users
+
         }
-      }
-      // //new map
-      map = new google.maps.Map(document.getElementById("map"), place);
+    </script>
+    <!-- google maps -->
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB6JIwfy4q8P_mFaKEhDn2AnJ6e6-mpctc&callback=initMap">
+    </script>
+    <!-- jquery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
-      // console.log(map);
-      // Array of Users
-
-    }
-  </script>
-  <!-- google maps -->
-  <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB6JIwfy4q8P_mFaKEhDn2AnJ6e6-mpctc&callback=initMap">
-  </script>
-  <!-- jquery -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
-  <!-- possible animation script -->
-  <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.9"></script>
-  <!-- main code -->
-  <!-- <script src="./assets/javascript/main.js"></script> -->
-  <script src="./assets/javascript/rework.js"></script>
-
-
+    <!-- possible animation script -->
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.9"></script>
+    <!-- main code -->
+    <!-- <script src="./assets/javascript/main.js"></script> -->
+    <script src="./assets/javascript/rework.js"></script>
 </body>
 
 </html>
