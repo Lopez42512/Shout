@@ -166,9 +166,9 @@ $(document).ready(() => {
                             console.log("geting info");
                             getYelpInfo(dataSnap.search, stringLatF, stringLngF);
                         }, errorData);
-                    }
+                    } //--end if
                     // Drop a pin if you find someoneTODO: MAY NEED IT FOR CLASS PRESENTATION
-                    // addShouterMarker(listenLoctation);
+                    addShouterMarker(listenLoctation);
                     console.log(JSON.stringify(key) + " have heard your shout!" + "and they are " + distance + " km away");
                 });
             }
@@ -319,73 +319,72 @@ $(document).ready(() => {
 
 
         if (shoutTextVal === "") {
-            console.log("There is no value!");
-            shoutText.attr("placeholder", "What are you trying to do?");
-            shoutText.css("box-shadow", "0 0 5px #e92630");
-            console.log(shoutText);
-        }
+            // TODO: finish with the else statement, only do this when the person has entered a message
+            checkShoutTextVal(shoutText);
+        } else {
 
-        //update firebase User info
-        usersRef.child(profileKey).update({
-            uid: uid,
-            name: "static",
-            center: {
-                lat: Lattitude,
-                lng: Longitude
-            },
-            radius: Radius, //kilometers
-            message: [],
-            shoutMessage: shoutTextVal
-        });
-
-        // set your location globaly
-        usersRef.child(profileKey).on("value", (childSnapShot) => {
-            var snapData = childSnapShot.val();
-            var shoutLocation = [snapData.center.lat, snapData.center.lng];
-            //set shout ref
-            shoutRef.set({
+            //update firebase User info
+            usersRef.child(profileKey).update({
+                uid: uid,
+                name: "static" + uid,
                 center: {
-                    lat: shoutLocation[0],
-                    lng: shoutLocation[1]
+                    lat: Lattitude,
+                    lng: Longitude
                 },
-                message: shoutTextVal
+                radius: Radius, //kilometers
+                message: [],
+                shoutMessage: shoutTextVal
             });
 
-            if (typeof shoutQuery !== "undefined") {
-                //update the query
-
-                shoutQuery.updateCrieria({
-                    center: shoutLocation,
-                    radius: Radius // kilometers
+            // set your location globaly
+            usersRef.child(profileKey).on("value", (childSnapShot) => {
+                var snapData = childSnapShot.val();
+                var shoutLocation = [snapData.center.lat, snapData.center.lng];
+                //set shout ref
+                shoutRef.set({
+                    center: {
+                        lat: shoutLocation[0],
+                        lng: shoutLocation[1]
+                    },
+                    message: shoutTextVal
                 });
 
-            } else {
+                if (typeof shoutQuery !== "undefined") {
+                    //update the query
 
-                var shoutQuery = geoFire.query({
-                    center: shoutLocation,
-                    radius: Radius // kilometers
-                });
-                //check if someone is in your radius and drop a pin to shouter's  location
-                shoutQuery.on("key_entered", function (key, location, distance) {
-                    peopleAround = {
-                        id: key,
-                        distance: distance + "km",
-                        location: location
-                    };
+                    shoutQuery.updateCrieria({
+                        center: shoutLocation,
+                        radius: Radius // kilometers
+                    });
 
-                    // If you're the shouter, don't drop a pin on you
-                    if (Math.floor(distance) !== 0) {
-                        // marker.setMap(map);
-                        addShouterMarker(shoutLocation);
+                } else {
+
+                    var shoutQuery = geoFire.query({
+                        center: shoutLocation,
+                        radius: Radius // kilometers
+                    });
+                    //check if someone is in your radius and drop a pin to shouter's  location
+                    shoutQuery.on("key_entered", function (key, location, distance) {
+                        peopleAround = {
+                            id: key,
+                            distance: distance + "km",
+                            location: location
+                        };
+
+                        // If you're the shouter, don't drop a pin on you
+                        if (Math.floor(distance) !== 0) {
+                            // marker.setMap(map);
+                            addShouterMarker(shoutLocation);
+                            console.log("People Around: " + JSON.stringify(peopleAround));
+                        }
                         console.log("People Around: " + JSON.stringify(peopleAround));
-                    }
-                    console.log("People Around: " + JSON.stringify(peopleAround));
-                });
-            }
-            //update map and markers
-            googleMapShout(shoutLocation);
-            //end of if statement
-        }, errorData);
+                    });
+                }
+                //update map and markers
+                googleMapShout(shoutLocation);
+
+            }, errorData);
+        } //----end check if there's a
     }
 
     function setUserLocation(snapshot) {
@@ -422,11 +421,8 @@ $(document).ready(() => {
             //take info from the userRef push
             if (childSnapShot.val()) {
                 var childData = childSnapShot.val();
-
-                console.log(childData.center.lat);
                 var userName = childData.name;
                 var userLocation = [childData.center.lat, childData.center.lng];
-
                 //geofire controls the reference points for distance
                 geoFire.set(userName, userLocation).then(function () {
 
@@ -504,6 +500,13 @@ $(document).ready(() => {
     }
 
     function addShouterMarker(shoutLocation) {
+
+        // add User's shout message
+        userRef.child(userID).once("value").then((snapshot) => {
+            var snapData = snapshot.val();
+            console.log("Inside the Add shouter Marker");
+            // console.log(snapData);
+        });
         //Add marker
         console.log(shoutLocation[0]);
         var shouter = {
@@ -560,6 +563,14 @@ $(document).ready(() => {
         var chatMessage = chatRef.set({
             chatMessage: $("#messageBoxInput").val()
         });
+    }
+
+    //check if threre is a shout
+    function checkShoutTextVal(shoutText) {
+        console.log("There is no value!");
+        shoutText.attr("placeholder", "What are you trying to do?");
+        shoutText.css("box-shadow", "0 0 5px #e92630");
+        return;
     }
 
     //error handler for geolocation
