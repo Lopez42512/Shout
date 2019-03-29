@@ -92,7 +92,6 @@ $(document).ready(() => {
                     usersRef.child(profileKey).onDisconnect().remove();
                     shoutRef.onDisconnect().remove();
                     yelpRef.onDisconnect().remove();
-
                 }
             });
         }
@@ -114,6 +113,7 @@ $(document).ready(() => {
     }, errorData);
     // --end of firebase root change event
 
+    // TODO: GET SHOUT LOC TO BE A PUSH
     //shout updates
     shoutRef.on("value", (snapshot) => {
         var snap = snapshot.val();
@@ -322,7 +322,6 @@ $(document).ready(() => {
             // TODO: finish with the else statement, only do this when the person has entered a message
             checkShoutTextVal(shoutText);
         } else {
-
             //update firebase User info
             usersRef.child(profileKey).update({
                 uid: uid,
@@ -333,7 +332,9 @@ $(document).ready(() => {
                 },
                 radius: Radius, //kilometers
                 message: [],
-                shoutMessage: shoutTextVal
+                shoutMessage: shoutTextVal,
+                shout: true,
+                friend: false
             });
 
             // set your location globaly
@@ -407,7 +408,9 @@ $(document).ready(() => {
                     },
                     radius: Radius, //kilometers
                     message: [],
-                    shoutMessage: ""
+                    shoutMessage: "",
+                    shout:false,
+                    friend: false
                 });
 
             }, errorHandler);
@@ -502,11 +505,11 @@ $(document).ready(() => {
     function addShouterMarker(shoutLocation) {
 
         // add User's shout message
-        userRef.child(userID).once("value").then((snapshot) => {
-            var snapData = snapshot.val();
-            console.log("Inside the Add shouter Marker");
-            // console.log(snapData);
-        });
+        // usersRef.child(userID).once("value").then((snapshot) => {
+        //     var snapData = snapshot.val();
+        //     console.log("Inside the Add shouter Marker");
+        //     // console.log(snapData);
+        // });
         //Add marker
         console.log(shoutLocation[0]);
         var shouter = {
