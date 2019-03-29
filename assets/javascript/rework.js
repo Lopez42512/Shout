@@ -41,7 +41,7 @@ $(document).ready(() => {
     var usersRef = firebaseData.ref("/users");
     var connectionsRef = firebaseData.ref("/connections");
     var chatRef = firebaseData.ref("/chat");
-    var shoutRef = firebaseData.ref("/shoutLoc");
+    var shoutRef = firebaseData.ref("/shout ref");
     var yelpRef = firebaseData.ref("/yelp Businesses");
 
     //GEOFIRE-------------------------------------------------------
@@ -117,8 +117,6 @@ $(document).ready(() => {
     //shout updates
     shoutRef.on("value", (snapshot) => {
         var snap = snapshot.val();
-
-        if (snap) {
             //set global variable TODO:May not need in future
             currentLatitude = snap.center.lat;
             currentLongitude = snap.center.lng;
@@ -126,6 +124,7 @@ $(document).ready(() => {
             // TODO:have to put this back inside the distance checker
             //update the query
             var listenLoctation = [snap.center.lat, snap.center.lng];
+            // var listenerText = snap.message;
 
             if (typeof listenQuery !== "undefined") {
 
@@ -167,22 +166,24 @@ $(document).ready(() => {
                             getYelpInfo(dataSnap.search, stringLatF, stringLngF);
                         }, errorData);
                     } //--end if
+
                     // Drop a pin if you find someoneTODO: MAY NEED IT FOR CLASS PRESENTATION
                     addShouterMarker(listenLoctation);
                     console.log(JSON.stringify(key) + " have heard your shout!" + "and they are " + distance + " km away");
                 });
             }
-        }
+        
     }, errorData);
 
+    //check chat
     chatRef.on("value", function (snapshot) {
         if (snapshot.val()) {
-            var fireBaseMessage = snapshot.val().chatMessage;
+            var fireBaseMessage = snapshot.val().key;
             console.log(fireBaseMessage);
             //message key
             // var chatKey = chatMessage.key;
 
-            $("#messageBoxDisplay").prepend(`<li class="message-font"> ${fireBaseMessage}</>`);
+            $("#chatInput").prepend(`<li class="message-font"> ${fireBaseMessage}</>`);
             chatRef.onDisconnect().remove();
         }
     });
@@ -220,7 +221,6 @@ $(document).ready(() => {
             //Ajax call for yelp and loading businesses on to the map
             getYelpInfo(yelpSearch, stringLat, stringLng);
         });
-
     }
 
     //Ajax call to yelp
@@ -315,8 +315,8 @@ $(document).ready(() => {
 
     function shoutLogic() {
         var shoutTextVal = $("#shoutText").val().trim();
+        // var Radius = $("#shoutRadius").val();
         var shoutText = $("#shoutText");
-
 
         if (shoutTextVal === "") {
             // TODO: finish with the else statement, only do this when the person has entered a message
@@ -350,6 +350,16 @@ $(document).ready(() => {
                     message: shoutTextVal
                 });
 
+                //TODO:Make it a push, so different people can shout
+                // shoutRef.set({
+                //     center: {
+                //         lat: shoutLocation[0],
+                //         lng: shoutLocation[1]
+                //     },
+                //     message: shoutTextVal
+                // });
+
+                // TODO:change this into a function so you can check once the user lands on the page and their friend is near
                 if (typeof shoutQuery !== "undefined") {
                     //update the query
 
@@ -378,7 +388,7 @@ $(document).ready(() => {
                             addShouterMarker(shoutLocation);
                             console.log("People Around: " + JSON.stringify(peopleAround));
                         }
-                        console.log("People Around: " + JSON.stringify(peopleAround));
+                        console.log("SHOUT POSITION " + JSON.stringify(peopleAround));
                     });
                 }
                 //update map and markers
@@ -409,7 +419,7 @@ $(document).ready(() => {
                     radius: Radius, //kilometers
                     message: [],
                     shoutMessage: "",
-                    shout:false,
+                    shout: false,
                     friend: false
                 });
 
@@ -504,67 +514,66 @@ $(document).ready(() => {
 
     function addShouterMarker(shoutLocation) {
 
-        // add User's shout message
-        // usersRef.child(userID).once("value").then((snapshot) => {
-        //     var snapData = snapshot.val();
-        //     console.log("Inside the Add shouter Marker");
-        //     // console.log(snapData);
-        // });
-        //Add marker
-        console.log(shoutLocation[0]);
-        var shouter = {
-            center: {
-                lat: shoutLocation[0],
-                lng: shoutLocation[1]
-            },
-            // iconImage: "./assets/images/map-icon.png",
-            content: "<h1>Shout! shout! Let it all out!</h1>"
-        }
+        // update Shouter's info
+       shoutRef.once("value").then((snapshot) => {
+            var snapData = snapshot.val();
+            //Add marker
+            console.log(snapData.message);
+            var shouter = {
+                center: {
+                    lat: shoutLocation[0],
+                    lng: shoutLocation[1]
+                },
+                // iconImage: "./assets/images/map-icon.png",
+                content: snapData.message
+            }
 
-        var marker = new google.maps.Marker({
-            position: shouter.center,
-            map: map,
-            animation: google.maps.Animation.DROP,
-            optimized: false
-        });
-
-        // var mapOverlay = new google.maps.OverlayView();
-        // mapOverlay.draw = function () {
-        //     this.getPanes().markerLayer.id = "pluse"
-        // }
-
-        // mapOverlay.setMap(map);
-        // console.log(shouter.coords.center);
-
-        //if user has an Icon
-        if (shouter.iconImage) {
-            //set Icon image
-            marker.setIcon(shouter.iconImage);
-        }
-
-        // if it contains infoWindow text then create one
-        if (shouter.content) {
-            //infoWindow is a pop up for the onClick
-            var shouterInfoWindow = new google.maps.InfoWindow({
-                content: shouter.content,
-                disableAutoPan: true
+            var marker = new google.maps.Marker({
+                position: shouter.center,
+                map: map,
+                animation: google.maps.Animation.DROP,
+                optimized: false
             });
-        }
 
-        // display shout
-        shouterInfoWindow.open(map, marker);
+            // var mapOverlay = new google.maps.OverlayView();
+            // mapOverlay.draw = function () {
+            //     this.getPanes().markerLayer.id = "pluse"
+            // }
 
-        //bounce animation
-        setTimeout(() => {
-            marker.setAnimation(google.maps.Animation.BOUNCE);
-        }, 1000);
+            // mapOverlay.setMap(map);
+            // console.log(shouter.coords.center);
+
+            //if user has an Icon
+            if (shouter.iconImage) {
+                //set Icon image
+                marker.setIcon(shouter.iconImage);
+            }
+
+            // if it contains infoWindow text then create one
+            if (shouter.content) {
+                //infoWindow is a pop up for the onClick
+                var shouterInfoWindow = new google.maps.InfoWindow({
+                    content: shouter.content,
+                    disableAutoPan: true
+                });
+            }
+
+            // display shout
+            shouterInfoWindow.open(map, marker);
+
+            //bounce animation
+            setTimeout(() => {
+                marker.setAnimation(google.maps.Animation.BOUNCE);
+            }, 200);
+        });
     }
 
     // chat functionality
     function chatMessages(event) {
-        event.preventDefault();
-        var chatMessage = chatRef.set({
-            chatMessage: $("#messageBoxInput").val()
+        // event.preventDefault();
+        var chatMessage = $("#chatInput").val()
+        chatRef.push({
+            chatMessage:chatMessage
         });
     }
 
@@ -632,7 +641,7 @@ $(document).ready(() => {
     $(document).on("click", "#searchFormBtn", startYelpSearch);
 
     // chat function
-    $(document).on("click", "#chatBtn", chatMessages);
+    $(document).on("click", ".chat-btn", chatMessages);
     //when you click the modal button
     $(document).on("click", "#modalBtn", displayModal);
     $(document).on("click", "#close", hideModal);

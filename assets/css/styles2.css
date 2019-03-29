@@ -52,12 +52,17 @@ body {
     display: flex;
     justify-content: center;
     align-content: center;
-flex: 1;
+    flex: 1;
     width: 100%;
     background-color: rgb(241, 241, 241);
     box-sizing: border-box;
     padding: 30px;
 }
+
+.welcome-wrapper {
+    display: none;
+}
+
 .welcome-wrapper h1{
     font-size: 2em;
     text-align: center;
@@ -118,5 +123,39 @@ img.shout-icon {
     width: 500px;
     height: 300px;
     border-radius: 5px;
+}
 
+.chat-flex {
+    background-color: #fff;
+    height: 100%;
+    width: 40vw;
+    transition: all .3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.chat-text ul {
+    list-style-type: none;
+}
+
+.messaging-flex {
+    height: 2.5em;
+    background-color: red;
+    display: flex;
+}
+
+.chat-input {
+    flex-basis: 70%;
+    flex: 3;
+    font-size: 2em;
+    background-color: pink;
+    border: 2px solid darkgray;
+}
+
+.chat-btn{
+    border: none;
+    background: yellow;
+    flex-basis: 30%;
+    height: 100%;
 }
