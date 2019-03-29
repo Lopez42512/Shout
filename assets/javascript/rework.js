@@ -179,9 +179,7 @@ $(document).ready(() => {
     chatRef.on("child_added", function (snapshot) {
         if (snapshot.val()) {
             var fireBaseMessage = snapshot.val().chatMessage;
-            var fireBaseMessage2 = snapshot.val().chatMessage;
             console.log(fireBaseMessage );
-            console.log(+ fireBaseMessage2);
             console.log(snapshot.child("chatMessage"))
             //message key
             // var chatKey = chatMessage.key;
@@ -519,7 +517,7 @@ $(document).ready(() => {
     }
 
     function addShouterMarker(shoutLocation) {
-
+console.log("add shouter marker!!");
         // update Shouter's info
        shoutRef.once("value").then((snapshot) => {
             var snapData = snapshot.val();
