@@ -197,7 +197,6 @@ $(document).ready(() => {
         //grab value from the search input
         var yelpSearch = $("#yelpSearchInput").val();
         console.log(yelpSearch);
-        $(".welcome").append($("<p>").text(yelpSearch));
         // TODO:Ask the guys if we want the user's location or the shout loc.
         //set yelp ref
 
@@ -217,12 +216,12 @@ $(document).ready(() => {
                     lat: snapData.center.lat,
                     lng: snapData.center.lng
                 },
-                search: "",
+                search: search,
                 shout: true
             });
 
             //Ajax call for yelp and loading businesses on to the map
-            getYelpInfo(yelpSearch, stringLat, stringLng);
+            // getYelpInfo(yelpSearch, stringLat, stringLng);
         });
     }
 
@@ -248,7 +247,7 @@ $(document).ready(() => {
             console.log(yelpResponse);
             for (var i = 0; i < yelpResponse.businesses.length; i++) {
                 // Add yelp businesses
-                window.setTimeout(addYelpBusinesses(yelpResponse.businesses[i]), i * 250);
+                addYelpBusinesses(yelpResponse.businesses[i]);
             }
         });
     }

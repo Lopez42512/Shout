@@ -165,3 +165,21 @@ img.shout-icon {
     display: none;
     transition: all .3s ease-in-out;
 }
+
+.yelp-wrapper {
+    background-color: red;
+    width: 200px;
+    flex: 1;
+}
+
+.yelp-content{
+
+}
+
+.search-form {
+    background-color: pink;
+}
+
+#searchFormBtn {
+  position: relative;
+}
