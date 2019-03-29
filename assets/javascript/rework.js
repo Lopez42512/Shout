@@ -176,14 +176,17 @@ $(document).ready(() => {
     }, errorData);
 
     //check chat
-    chatRef.on("value", function (snapshot) {
+    chatRef.on("child_added", function (snapshot) {
         if (snapshot.val()) {
-            var fireBaseMessage = snapshot.val().key;
-            console.log(fireBaseMessage);
+            var fireBaseMessage = snapshot.val().chatMessage;
+            var fireBaseMessage2 = snapshot.val().chatMessage;
+            console.log(fireBaseMessage );
+            console.log(+ fireBaseMessage2);
+            console.log(snapshot.child("chatMessage"))
             //message key
             // var chatKey = chatMessage.key;
 
-            $("#chatInput").prepend(`<li class="message-font"> ${fireBaseMessage}</>`);
+            $(".chat-text ul").prepend(`<li class="message-font"> ${fireBaseMessage}</>`);
             chatRef.onDisconnect().remove();
         }
     });
