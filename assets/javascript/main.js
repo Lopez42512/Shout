@@ -3,15 +3,27 @@
 var userLocation = [];
 var gMap;
 var Radius = 5;
-
+var profile;
+var yelpProfile;
+var userID;
+var searchQuery;
+var currentUsers = {
+    name: "",
+    center: {
+        lat: "",
+        lng: ""
+    },
+    radius: Radius,
+    messages: []
+}
 // Initialize Firebase ----------------------------------------
 var config = {
-    apiKey: "AIzaSyBWlRO86vNl6sL5psQX5f7H9Lw_wsULP9g",
-    authDomain: "geofiretest-9d07e.firebaseapp.com",
-    databaseURL: "https://geofiretest-9d07e.firebaseio.com",
-    projectId: "geofiretest-9d07e",
-    storageBucket: "geofiretest-9d07e.appspot.com",
-    messagingSenderId: "680094207901"
+    apiKey: "AIzaSyBgbeWYYyp8oVui9kLHUT6HSDAREQhX9nU",
+    authDomain: "shout-e4409.firebaseapp.com",
+    databaseURL: "https://shout-e4409.firebaseio.com",
+    projectId: "shout-e4409",
+    storageBucket: "shout-e4409.appspot.com",
+    messagingSenderId: "881880939559"
 };
 firebase.initializeApp(config);
 
@@ -19,12 +31,20 @@ firebase.initializeApp(config);
 var firebaseData = firebase.database();
 //firebase userlocation
 var firebaseUserLocation = firebaseData.ref("user location");
+
+// users connected
+var connectedRef = firebaseData.ref(".info/connected");
 //get user list
-var userListRef = firebaseData.ref("online presence");
-//current User Ref
-var currentUserRef = userListRef.push();
-//Add ourself to the list when online
-var ourPresenceRef = firebaseData.ref(".info/connected");
+var userRef = firebaseData.ref("/users");
+//user chat
+var chatRef = firebaseData.ref("/chat");
+//yelp businesses
+var yelpRef = firebaseData.ref("/yelp Businesses");
+
+// //current User Ref
+// var currentUserRef = userListRef.push();
+// //Add ourself to the list when online
+// var ourPresenceRef = firebaseData.ref(".info/connected");
 
 //GEOFIRE-------------------------------------------------------
 //geofire ref
@@ -71,24 +91,58 @@ function getGeoLocation() {
                     },
                     radius: Radius //kilometers
                 }
-                // user2 = {
-                //     name: "user 2",
-                //     center: {
-                //         lat: parseFloat(40.065494),
-                //         lng: parseFloat(-75.091064)
-                //     },
-                //     radius: Radius //kilometers
-                // }
+                
             ]
 
             //update map with location of user and create an icon and circle.
             googleMapShout(userLocation[0], userLocation[1]);
+
+            //update map with Yelp Busnisses Locations
+            getYelpInfo(searchQuery, userLocation[0],userLocation[1]);
 
             //geofire set location
             firebaseUserLocation.on("value", setGeoFireUserInfo, errorObject);
 
             //set the user location to firebase
             firebaseUserLocation.set(userInfo);
+
+            //neha's approuch
+            connectedRef.on("value", function (snapshot) {
+
+                //If they're connected..
+                if (snapshot.val()) {
+                    //add user profile
+                    profile = userRef.push({
+                        name: "",
+                        center: {
+                            lat: "",
+                            lng: ""
+                        },
+                        radius: Radius,
+                        messages: []
+                    });
+
+
+                    //User's online ID
+                    userID = profile.key;
+                }
+
+                //When User leaves, remove all info
+                userRef.onDisconnect().remove();
+
+                //Update current user's info who pressed the button
+                userRef.child(userID).update({
+                    name: "",
+                    center: {
+                        lat: userLocation[0],
+                        lng: userLocation[1]
+                    },
+                    radius: Radius,
+                    messages: []
+                });
+                // --------------------------end of neha's approuch
+
+            }, errorObject);
 
             //user who pressed the shout set geoQuery
             var shoutQuery = geoFire.query({
@@ -110,17 +164,15 @@ function getGeoLocation() {
             shoutQuery.on("key_entered", function (key, location, distance) {
                 peopleAround = {
                     id: key,
-                    distance: distance.toFixed(2) + "km",
+                    distance: distance+ "km",
                     location: location
                 };
 
-                //create a new location of the shouter who will then place it on the firebase query
+                //If you're the shouter, don't drop a pin on you
                 if (Math.floor(distance) !== 0) {
                     addShouterMarker(userLocation);
                     console.log("People Around: " + JSON.stringify(peopleAround));
                 }
-
-                // locationOfShouter(userLocation);
 
                 //show the shouter's location
 
@@ -135,40 +187,48 @@ function getGeoLocation() {
     } else {
         console.log("no access to geto");
     }
+}
+
+function startYelpSearch(e) {
+    e.preventDefault();
+    //grab value from the search input
+    var yelpSearch = $("#yelpSearchInput").val();
+    $(".welcome").append( $("<p>").text(yelpSearch));
+    // //set the value onfirebase
+    yelpRef.set({
+        yelpSearch
+    });
+    //Ajax call for yelp and loading businesses on to the map
+    getYelpInfo(yelpSearch);
+}
+
+//Ajax call to yelp
+function getYelpInfo(searchQuery, userLat, userLng) {
 
     // this is the call for YELP QUERY - WORKING
-    var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=delis&latitude=39.951061&longitude=-75.165619&radius=5000";
-
+    var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term="+searchQuery+"&latitude=39.951061&longitude=-75.165619&radius=5000&limit=5";
+   
     //testing  to get variables -- Needs WORK!
-    // var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=delis&latitude=" + userLocation[0] + "&longitude=" + userLocation[1] + "&radius=8000";
+    // var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=delis&latitude="+ userLat.toString() + "&longitude="+userLng.toString() + "&radius="+Radius+"&limit=5";
     var yelpAPI = "1QpSc4B1zI5GuI56PDAAvAfpfcsLg9LWuHRfVCeG4TIDDxRe3hGT-sxlU5h5DD0AdLgu-HHoa2cM4m1WaAefYoboIPdVHv0mCjivrwQrdU11FCFl2hd8-iaaTKOTXHYx";
 
+    console.log("This is the custom yelp " + yelpQuery);
+    console.log("This is the custom lat " + userLat.toString());
     //-----------YELP CALL
-        $.ajax({
-            url: yelpQuery,
-            headers: {
-                'Authorization': "Bearer " + yelpAPI,
-            },
-            method: "GET"
-        }).then((yelpResponse) => {
-            console.log(yelpResponse);
+    $.ajax({
+        url: yelpQuery,
+        headers: {
+            'Authorization': "Bearer " + yelpAPI,
+        },
+        method: "GET"
+    }).then((yelpResponse) => {
+        // console.log(yelpResponse);
+        for (var i = 0; i < 5; i++) {
+            // Add yelp businesses
+            addYelpBusinesses(yelpResponse.businesses[i]);
+        }
 
-            var result = $("<p>");
-            for (var i = 0; i < 5; i++) {
-                var name = yelpResponse.businesses[i].name;
-                var ratings = yelpResponse.businesses[i].rating;
-                var is_closed = yelpResponse.businesses[i].is_closed;
-                var location = yelpResponse.businesses[i].location.address1;
-                var yelpLat = yelpResponse.businesses[i].coordinates.latitude;
-                var yelpLong = yelpResponse.businesses[i].coordinates.longitude;
-                $("#name").append($("<p>").text(name));
-                $("#ratings").append($("<p>").text(ratings));
-                $("#is_closed").append($("<p>").text(is_closed));
-                $("#location").append($("<p>").text(location));
-            
-            }
-        
-        });
+    });
 }
 
 //google map function of generating user and icon
@@ -186,17 +246,18 @@ function googleMapShout(userLat, userLng) {
             },
             iconImage: "./assets/images/map-icon.png",
             content: "<h1>Hello Friends!</h1>"
-        },
-
-        secondPerson = {
-            coords: {
-                center: {
-                    lat: 40.065445,
-                    lng: -75.090635
-                }
-
-            }
         }
+        // ,
+
+        // secondPerson = {
+        //     coords: {
+        //         center: {
+        //             lat: 40.065445,
+        //             lng: -75.090635
+        //         }
+
+        //     }
+        // }
 
     ]
 
@@ -293,7 +354,7 @@ function addShouterMarker(shoutLocation) {
         });
 
     }
-
+ 
     marker.addListener("click", () => {
 
         shouterInfoWindow.open(map, marker);
@@ -310,6 +371,85 @@ function addShouterMarker(shoutLocation) {
         radius: (shouter.coords.radius) * 1000 //kilometers
     });
 }
+//------Show Yelp on Map
+function addYelpBusinesses(yelpBusiness) {
+    var bName = yelpBusiness.name;
+    var bRatings = yelpBusiness.rating;
+    var bIs_closed = yelpBusiness.is_closed;
+    var bLocation = yelpBusiness.location.display_address.join("<br>");
+    var bLocationHref = " http://maps.google.com/?q="+ yelpBusiness.location.display_address.join("");
+    var bLat = parseFloat(yelpBusiness.coordinates.latitude);
+    var bLong = parseFloat(yelpBusiness.coordinates.longitude);
+    var hours;
+
+    if (bIs_closed) {
+        hours = "closed";
+    } else {
+        hours = "open";
+    }
+    //create a business map object so we can have a cleaner look
+    var businessMapObject = {
+        coords: {
+            center: {
+                lat: bLat,
+                lng: bLong
+            }
+        },
+        // iconImage: "./assets/images/map-icon.png",
+        content: `<h2 class="yelpTitle">${bName}</h2>
+        <p class="yelpDesc"> Address: <a id="yelpLink" href="${bLocationHref}">${bLocation}</a></p>
+        <p class="yelpDesc">The store is ${hours} </p>`
+    }
+
+    console.log("Business location" + yelpBusiness.length);
+    //Create marker
+    addYelpMarker(businessMapObject);
+
+    //creating the marker
+    function addYelpMarker(businessM) {
+
+        //create map marker object
+        var marker = new google.maps.Marker({
+            position: businessM.coords.center,
+            map: map,
+            animation: google.maps.Animation.DROP,
+        });
+        // console.log(user.coords.center);
+
+        //if user has an Icon
+        if (businessM.iconImage) {
+            //set Icon image
+            marker.setIcon(businessM.iconImage);
+        }
+
+        // if it contains infoWindow text then create one
+        if (businessM.content) {
+            //infoWindow is a pop up for the onClick
+            var infoWindow = new google.maps.InfoWindow({
+                content: businessM.content
+            });
+        }
+
+        // create circle    
+        // var cityCircle = new google.maps.Circle({
+        //     strokeColor: '#FF0000',
+        //     strokeOpacity: 0.15,
+        //     strokeWeight: 2,
+        //     fillColor: '#FF0000',
+        //     fillOpacity: 0.15,
+        //     map: map,
+        //     center: user.coords.center,
+        //     radius: (user.coords.radius) * 1000 //kilometers
+        // });
+
+        //check if marker has been clicked
+        marker.addListener("click", () => {
+
+            infoWindow.open(map, marker);
+        });
+    }
+}
+
 
 function setGeoFireUserInfo(snapshot) {
     //get snapshot vallue
@@ -342,25 +482,41 @@ function usersOnline() {
             currentUserRef.set(true);
         }
     });
-
-    //number of online users is the number of objects in the presence list.
-    userListRef.on("value", function (snapshot) {
-        // remove ourselves when we disconnect
-        currentUserRef.onDisconnect().remove();
-        //user is present
-        currentUserRef.set(true);
-        console.log("# of online users = " + snapshot.numChildren());
-    });
-
-    //get user location
-
-
 }
 
+//     //number of online users is the number of objects in the presence list.
+//     userListRef.on("value", function (snapshot) {
+//         // remove ourselves when we disconnect
+//         currentUserRef.onDisconnect().remove();
+//         //user is present
+//         currentUserRef.set(true);
+//         console.log("# of online users = " + snapshot.numChildren());
+//     });
+
+//     //get user location
+
+
+// }
+
+$("#submit-btn").on("click", function (event) {
+    event.preventDefault();
+
+    var message = {
+        chat: $("#messageBox").val()
+    }
+    
+    //push message
+    chatRef.push(message);
+
+    chatRef.on("child_added", function (childSnapshot) {
+        var fireBaseMessage = childSnapshot.val().chat;
+        $(".message-box").append(`<p class="message-font"> ${fireBaseMessage}</p>`);
+    });
+});
 
 // Execute Initial functions----------------
 // Check who's online
-usersOnline();
+// usersOnline();
 
 //on click shout
-$(document).on("click", "#getGeoLocation", getGeoLocation);
+$(document).on("click", "#shout", getGeoLocation);
