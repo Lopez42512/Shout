@@ -676,7 +676,7 @@ $(document).ready(() => {
 
     //extra features
     var typed = new Typed(".ideas", {
-        strings: ["Pizza", "movies", "Go for a walk"],
+        strings: ["Foods", "Movies", "Shopping", "Gym"],
         loop: true,
         typeSpeed: 150,
         smartBackspace: true // Default value

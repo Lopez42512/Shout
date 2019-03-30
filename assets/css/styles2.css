@@ -58,7 +58,9 @@ body {
     width: 100%;
     background-color: rgb(241, 241, 241);
     box-sizing: border-box;
-    padding: 30px;
+    padding-bottom: 10px;
+    padding-right: 30px;
+    padding-left: 30px;
     margin-right: 3em;
 }
 
@@ -73,23 +75,22 @@ body {
     text-align: center;
     font-weight: bolder;
 }
-
+/* 
 .shout-area{
     position: relative;
     display: flex;
     flex-direction: column;
-}
+} */
 .shout-container {
     border-radius: 5px;
     border: 3px solid rgb(190, 45, 45);
     width: 10em;
     padding: .9em;
     box-sizing: content-box;
-    height: 3em;
     transition: .3s all ease;
-    margin-top: 10em;
     position: relative;
     align-self: center;
+    margin-top: 5px;
 }
 
 .shout-container:hover {
@@ -121,15 +122,16 @@ img.shout-icon {
 #shoutText {
     position: relative;
     padding: 20px 40px;
-    top: 81px;
     width: 100%;
     max-width: 20em;
     box-sizing: border-box;
+    align-self: center;
 }
 .modal-content{
     display: flex;
     justify-content: center;
-    height: 0;
+    position: relative;
+    flex-direction: column;
 }
 #myModal {
     background-color: pink;
@@ -199,6 +201,11 @@ img.shout-icon {
     width: 200px;
     flex: 1;
 }
+.yelp-search{
+    border: 2px solid rgb(190, 45, 45);
+    background-color: #e92630;
+    color: white;
+}
 
 
 .yelp-contet {
@@ -224,15 +231,20 @@ form#search-form {
 
 input#yelpSearchInput {
     width: 100%;
+    margin-left: 5px;
+    margin-right: 5px;
+    border: 1px solid rgb(190, 45, 45);
 }
 
 .placeholder {
-    position: absolute;
+    position: relative;
     font-size:25px;
     pointer-events: none;
     left: 1px;
     top: 1px;
     transition: 0.1s ease all;
+    align-self: center;
+    margin-bottom: 15px;
   }
   
   #shoutText:focus ~ .placeholder{
@@ -243,3 +255,22 @@ input#yelpSearchInput {
   .modal-content {
       position: relative;
   }
+  /* Media Queries */
+@media (max-width: 760px) {
+    body{
+        margin: 0;
+    }
+    .body-flex {
+        flex-direction: column !important;
+    }
+    .map {
+        margin-left: 2%;
+        margin-right: 2%;
+        max-width: 700px;
+        width: 96%;
+    }
+    .chat-flex{
+     width: auto;
+     height: auto;
+    }
+}

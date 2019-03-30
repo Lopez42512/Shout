@@ -211,7 +211,6 @@ form#search-form {
     background: #fff;
     top: -55px;
     left: 50%;
-    -webkit-transf
 }
 
 .shout-icon:hover {
@@ -290,3 +289,4 @@ img#shoutIcon {
     line-height: 1.2;
     margin-top: 50px;
 }
+
