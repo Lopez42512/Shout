@@ -154,21 +154,13 @@ $(document).ready(() => {
                 //if you're next to the listener, then don't drop the marker
                 if (Math.floor(distance) !== 0) {
                     addShouterMarker(listenLoctation);
-
-                    //update yelp markers on all users
-                    yelpRef.on("value", (snapshot) => {
-                        var dataSnap = snapshot.val();
-                        //convert lat and lng to strings
-                        var stringLatF = dataSnap.center.lat.toString();
-                        var stringLngF = dataSnap.center.lng.toString();
-
-                        console.log("geting info");
-                        getYelpInfo(dataSnap.search, stringLatF, stringLngF);
-                    }, errorData);
+                    initiateYelp();
+               
                 } //--end if
 
                 // Drop a pin if you find someoneTODO: MAY NEED IT FOR CLASS PRESENTATION
                 addShouterMarker(listenLoctation);
+                initiateYelp();
                 console.log(JSON.stringify(key) + " have heard your shout!" + "and they are " + distance + " km away");
             });
         }
@@ -190,6 +182,19 @@ $(document).ready(() => {
     });
 
     //---------------------------START functions--------------
+function initiateYelp (){
+         //update yelp markers on all users
+         yelpRef.on("value", (snapshot) => {
+            var dataSnap = snapshot.val();
+            //convert lat and lng to strings
+            var stringLatF = dataSnap.center.lat.toString();
+            var stringLngF = dataSnap.center.lng.toString();
+
+            console.log("geting info");
+            getYelpInfo(dataSnap.search, stringLatF, stringLngF);
+        }, errorData);
+}
+
     function startYelpSearch(e) {
         // e.preventDefault();
         //grab value from the search input

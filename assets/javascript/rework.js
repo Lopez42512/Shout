@@ -157,6 +157,7 @@ $(document).ready(() => {
 
                     //update yelp markers on all users
                     yelpRef.on("value", (snapshot) => {
+                        console.log("Inside yelp for firebase");
                         var dataSnap = snapshot.val();
                         //convert lat and lng to strings
                         var stringLatF = dataSnap.center.lat.toString();
@@ -169,6 +170,12 @@ $(document).ready(() => {
 
                 // Drop a pin if you find someoneTODO: MAY NEED IT FOR CLASS PRESENTATION
                 addShouterMarker(listenLoctation);
+                //yelp for everyone 
+                initiateYelp();
+
+                //----Yelp for everyone 
+
+                getYelpInfo(dataSnap.search, stringLatF, stringLngF);
                 console.log(JSON.stringify(key) + " have heard your shout!" + "and they are " + distance + " km away");
             });
         }
@@ -190,6 +197,20 @@ $(document).ready(() => {
     });
 
     //---------------------------START functions--------------
+    function initiateYelp() {
+        //update yelp markers on all users
+        yelpRef.on("value", (snapshot) => {
+            console.log("Inside yelp for firebase");
+            var dataSnap = snapshot.val();
+            //convert lat and lng to strings
+            var stringLatF = dataSnap.center.lat.toString();
+            var stringLngF = dataSnap.center.lng.toString();
+
+            console.log("geting info");
+            getYelpInfo(dataSnap.search, stringLatF, stringLngF);
+        }, errorData);
+    }
+
     function startYelpSearch(e) {
         // e.preventDefault();
         //grab value from the search input
@@ -564,11 +585,11 @@ $(document).ready(() => {
 
             // display shout
             shouterInfoWindow.open(map, marker);
-             //check if marker has been clicked
-             marker.addListener("click", () => {
+            //check if marker has been clicked
+            marker.addListener("click", () => {
                 displayChat();
             });
-        
+
             //bounce animation
             setTimeout(() => {
                 marker.setAnimation(google.maps.Animation.BOUNCE);
