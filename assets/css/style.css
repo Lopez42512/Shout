@@ -172,6 +172,10 @@ img.shout-icon {
     flex-direction: column-reverse;
  }
 
+ .chat-text ul li {
+     
+ }
+
 .messaging-flex {
     height: 13.5em;
     background-color: red;

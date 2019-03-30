@@ -588,6 +588,7 @@ function initiateYelp (){
         chatRef.push({
             chatMessage: chatMessage
         });
+        $("#chatInput").val("");
     }
 
     //check if threre is a shout
