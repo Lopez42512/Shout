@@ -1,411 +1,291 @@
-///-----------------------
-//Global variables
-var userLocation = [];
-var gMap;
-var Radius = 5;
-var profile;
-var yelpProfile;
-var userID;
-var searchQuery;
-var currentUsers = {
-    name: "",
-    center: {
-        lat: "",
-        lng: ""
-    },
-    radius: Radius,
-    messages: []
-}
-// Initialize Firebase ----------------------------------------
-var config = {
-    apiKey: "AIzaSyBgbeWYYyp8oVui9kLHUT6HSDAREQhX9nU",
-    authDomain: "shout-e4409.firebaseapp.com",
-    databaseURL: "https://shout-e4409.firebaseio.com",
-    projectId: "shout-e4409",
-    storageBucket: "shout-e4409.appspot.com",
-    messagingSenderId: "881880939559"
-};
-firebase.initializeApp(config);
+$(document).ready(() => {
+    //Global variables
+    var shoutCheck = false;
+    var Lattitude;
+    var Longitude;
+    var Radius = 100;
+    var profile;
+    var yelpProfile;
+    var profileKey;
+    var shoutLocation;
+    var peopleAround = {};
+    var uid;
+    var listenLoctation = [];
+    var allUserMarkers = [];
+    var allShoutMarkers = [];
+    var allYelpMarkers = [];
+    var chatID;
+    // geoquery
+    var shoutQuery;
+    var listenQuery;
+    var yelpQuery;
+    var yelpSearch;
+    var currentLatitude;
+    var currentLongitude;
 
-//firebase database
-var firebaseData = firebase.database();
-//firebase userlocation
-var firebaseUserLocation = firebaseData.ref("user location");
+    // Initialize Firebase ----------------------------------------
+    var config = {
+        apiKey: "AIzaSyBgbeWYYyp8oVui9kLHUT6HSDAREQhX9nU",
+        authDomain: "shout-e4409.firebaseapp.com",
+        databaseURL: "https://shout-e4409.firebaseio.com",
+        projectId: "shout-e4409",
+        storageBucket: "shout-e4409.appspot.com",
+        messagingSenderId: "881880939559"
+    };
+    firebase.initializeApp(config);
 
-// users connected
-var connectedRef = firebaseData.ref(".info/connected");
-//get user list
-var userRef = firebaseData.ref("/users");
-//user chat
-var chatRef = firebaseData.ref("/chat");
-//yelp businesses
-var yelpRef = firebaseData.ref("/yelp Businesses");
+    // Create a variable to reference the database.
+    var firebaseData = firebase.database();
 
-// //current User Ref
-// var currentUserRef = userListRef.push();
-// //Add ourself to the list when online
-// var ourPresenceRef = firebaseData.ref(".info/connected");
+    //All firebase direcories
+    var usersRef = firebaseData.ref("/users");
+    var connectionsRef = firebaseData.ref("/connections");
+    var chatRef = firebaseData.ref("/chat");
+    var shoutRef = firebaseData.ref("/shout ref");
+    var yelpRef = firebaseData.ref("/yelp Businesses");
 
-//GEOFIRE-------------------------------------------------------
-//geofire ref
-var geoFireRefPush = firebase.database().ref("/geofire-location").push();
-//gefire initilize
-var geoFire = new GeoFire(geoFireRefPush);
-//--------
-// geoquery
-var shoutQuery;
+    //GEOFIRE-------------------------------------------------------
+    //geofire ref
+    var geoFireRefPush = firebaseData.ref("/geofire-location").push();
+    //geofire initilize
+    var geoFire = new GeoFire(geoFireRefPush);
 
-//-------------------------------------------------------------------
-//TODO: When you land on page ask the  user for the location and store on to the users firebase ID
-//TODO: When you press the shout button, get that specific users location and update firebase with that location
-//TODO: Use that Shout Location and update the browser to land a marker on the New Location
+    //live connection ref to the site
+    var connectedRef = firebaseData.ref(".info/connected");
 
-// Just using HTML API for geo location and test it with other APIs
-function getGeoLocation() {
+    //Get user ID
+    firebase.auth().signInAnonymously().catch(function (error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // ...
+    });
 
-    userLocation = [];
-    var firebaseKey = Object.key;
-    // place inside function then query for it.
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
+    // check if someone is on the page
+    connectedRef.on("value", (snapshot) => {
+        //if there is a value
+        if (snapshot.val()) {
 
-            //Push Latitude and Longitude
-            userLocation.push(position.coords.latitude);
-            userLocation.push(position.coords.longitude);
+            firebase.auth().onAuthStateChanged(function (user) {
+                if (user) {
+                    // User is signed in.
+                    var isAnonymous = user.isAnonymous;
+                    uid = user.uid;
 
-            //have user unique ID be stored and referenced when pressing the button.
-            $(this).attr("data-lat", position.coords.latitude.toString());
-            $(this).attr("data-lng", position.coords.longitude.toString());
-
-            //display lattitude and longitude in dom
-            var pLocation = $("<p>");
-            pLocation.text("The Lattitude-array: " + userLocation[0] + " and the longitude-array: " + userLocation[1]);
-
-            //Set user's info for fireBasae
-            var userInfo = [
-                user1 = {
-                    name: "Jorge",
-                    center: {
-                        lat: parseFloat(userLocation[0]),
-                        lng: parseFloat(userLocation[1])
-                    },
-                    radius: Radius //kilometers
-                }
-                
-            ]
-
-            //update map with location of user and create an icon and circle.
-            googleMapShout(userLocation[0], userLocation[1]);
-
-            //update map with Yelp Busnisses Locations
-            getYelpInfo(searchQuery, userLocation[0],userLocation[1]);
-
-            //geofire set location
-            firebaseUserLocation.on("value", setGeoFireUserInfo, errorObject);
-
-            //set the user location to firebase
-            firebaseUserLocation.set(userInfo);
-
-            //neha's approuch
-            connectedRef.on("value", function (snapshot) {
-
-                //If they're connected..
-                if (snapshot.val()) {
-                    //add user profile
-                    profile = userRef.push({
+                    profile = usersRef.push({
+                        uid: uid,
                         name: "",
                         center: {
                             lat: "",
                             lng: ""
                         },
-                        radius: Radius,
-                        messages: []
+                        radius: Radius, //kilometers
+                        message: []
+
                     });
+                    //get userRef Push key
+                    profileKey = profile.key;
 
-
-                    //User's online ID
-                    userID = profile.key;
+                    connectionsRef.push(true);
+                    // Remove users if they leave
+                    connectionsRef.onDisconnect().remove();
+                    usersRef.child(profileKey).onDisconnect().remove();
+                    shoutRef.onDisconnect().remove();
+                    yelpRef.onDisconnect().remove();
                 }
+            });
+        }
+    });
+    //--end of connectedRef
 
-                //When User leaves, remove all info
-                userRef.onDisconnect().remove();
+    // --------------------Most firebase Calls
 
-                //Update current user's info who pressed the button
-                userRef.child(userID).update({
-                    name: "",
-                    center: {
-                        lat: userLocation[0],
-                        lng: userLocation[1]
-                    },
-                    radius: Radius,
-                    messages: []
-                });
-                // --------------------------end of neha's approuch
+    connectionsRef.on("value", function (snap) {
+        console.log("# of online users = " + snap.numChildren());
+    });
 
-            }, errorObject);
+    //get users location
+    setUserLocation();
 
-            //user who pressed the shout set geoQuery
-            var shoutQuery = geoFire.query({
-                center: userLocation,
+    //Update GeoFire with the UserRef's new location      
+    firebaseData.ref().on("child_changed", (snapshot) => {
+        setGeoFireUserInfo(snapshot);
+    }, errorData);
+    // --end of firebase root change event
+
+    // TODO: GET SHOUT LOC TO BE A PUSH
+    //shout updates
+    shoutRef.on("value", (snapshot) => {
+        var snap = snapshot.val();
+        //set global variable TODO:May not need in future
+        currentLatitude = snap.center.lat;
+        currentLongitude = snap.center.lng;
+
+        // TODO:have to put this back inside the distance checker
+        //update the query
+        var listenLoctation = [snap.center.lat, snap.center.lng];
+        // var listenerText = snap.message;
+
+        if (typeof listenQuery !== "undefined") {
+
+            listenQuery.updateCriteria({
+                center: listenLoctation,
+                radius: Radius
+            });
+
+        } else {
+            //create listen query
+            listenQuery = geoFire.query({
+                center: listenLoctation,
                 radius: Radius // kilometers
             });
 
-            // look at other people around
-            var peopleAround = {
-                name: "user 2",
-                center: {
-                    lat: parseFloat(40.065494),
-                    lng: parseFloat(-75.091064)
-                },
-                radius: Radius //kilometers
-            };
+            // TODO:FOR CLASS MAKE SURE THIS IS TAKEN OUT
+            var listenAround = {};
+            //check if someone is in your radius and drop a pin to shouter's  location
+            listenQuery.on("key_entered", function (key, location, distance) {
+                console.log("listening");
 
-            //check if someone is in your radius
-            shoutQuery.on("key_entered", function (key, location, distance) {
-                peopleAround = {
+                listenAround = {
                     id: key,
-                    distance: distance+ "km",
+                    distance: distance + "km",
                     location: location
                 };
-
-                //If you're the shouter, don't drop a pin on you
+                //if you're next to the listener, then don't drop the marker
                 if (Math.floor(distance) !== 0) {
-                    addShouterMarker(userLocation);
-                    console.log("People Around: " + JSON.stringify(peopleAround));
-                }
+                    addShouterMarker(listenLoctation);
 
-                //show the shouter's location
+                    //update yelp markers on all users
+                    yelpRef.on("value", (snapshot) => {
+                        var dataSnap = snapshot.val();
+                        //convert lat and lng to strings
+                        var stringLatF = dataSnap.center.lat.toString();
+                        var stringLngF = dataSnap.center.lng.toString();
 
-                // addSellerToMap(oneSeller);
-                console.log("From Shout Query - " + key + " is located at [" + location + "] which is within the query (" + distance.toFixed(2) + " km from center)");
+                        console.log("geting info");
+                        getYelpInfo(dataSnap.search, stringLatF, stringLngF);
+                    }, errorData);
+                } //--end if
 
+                // Drop a pin if you find someoneTODO: MAY NEED IT FOR CLASS PRESENTATION
+                addShouterMarker(listenLoctation);
+                console.log(JSON.stringify(key) + " have heard your shout!" + "and they are " + distance + " km away");
             });
-
-            //update body
-            $("body").append(pLocation);
-        });
-    } else {
-        console.log("no access to geto");
-    }
-}
-
-function startYelpSearch(e) {
-    e.preventDefault();
-    //grab value from the search input
-    var yelpSearch = $("#yelpSearchInput").val();
-    $(".welcome").append( $("<p>").text(yelpSearch));
-    // //set the value onfirebase
-    yelpRef.set({
-        yelpSearch
-    });
-    //Ajax call for yelp and loading businesses on to the map
-    getYelpInfo(yelpSearch);
-}
-
-//Ajax call to yelp
-function getYelpInfo(searchQuery, userLat, userLng) {
-
-    // this is the call for YELP QUERY - WORKING
-    var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term="+searchQuery+"&latitude=39.951061&longitude=-75.165619&radius=5000&limit=5";
-   
-    //testing  to get variables -- Needs WORK!
-    // var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=delis&latitude="+ userLat.toString() + "&longitude="+userLng.toString() + "&radius="+Radius+"&limit=5";
-    var yelpAPI = "1QpSc4B1zI5GuI56PDAAvAfpfcsLg9LWuHRfVCeG4TIDDxRe3hGT-sxlU5h5DD0AdLgu-HHoa2cM4m1WaAefYoboIPdVHv0mCjivrwQrdU11FCFl2hd8-iaaTKOTXHYx";
-
-    console.log("This is the custom yelp " + yelpQuery);
-    console.log("This is the custom lat " + userLat.toString());
-    //-----------YELP CALL
-    $.ajax({
-        url: yelpQuery,
-        headers: {
-            'Authorization': "Bearer " + yelpAPI,
-        },
-        method: "GET"
-    }).then((yelpResponse) => {
-        // console.log(yelpResponse);
-        for (var i = 0; i < 5; i++) {
-            // Add yelp businesses
-            addYelpBusinesses(yelpResponse.businesses[i]);
         }
 
+    }, errorData);
+
+    //check chat
+    chatRef.on("child_added", function (snapshot) {
+        if (snapshot.val()) {
+            var fireBaseMessage = snapshot.val().chatMessage;
+            console.log(fireBaseMessage);
+            console.log(snapshot.child("chatMessage"))
+            //message key
+            // var chatKey = chatMessage.key;
+
+            $(".chat-text ul").prepend(`<li class="message-font"> ${fireBaseMessage}</>`);
+            chatRef.onDisconnect().remove();
+        }
     });
-}
 
-//google map function of generating user and icon
-function googleMapShout(userLat, userLng) {
+    //---------------------------START functions--------------
+    function startYelpSearch(e) {
+        // e.preventDefault();
+        //grab value from the search input
+        var yelpSearch = $("#yelpSearchInput").val();
+        console.log(yelpSearch);
+        // TODO:Ask the guys if we want the user's location or the shout loc.
+        //set yelp ref
 
-    var allUsers = [
+        console.log($("#yelpSearchInput").val());
+        console.log(yelpSearch);
+        // reference lat and lng from firebase
+        usersRef.child(profileKey).once("value").then((snapshot) => {
+            var snapData = snapshot.val();
+            //Make them strings for the searhc
+            var stringLat = snapData.center.lat.toString();
+            var stringLng = snapData.center.lng.toString();
+            var search = $("#yelpSearchInput").val();
 
-        firstUser = {
+            //update your yelp ref      
+            yelpRef.set({
+                center: {
+                    lat: snapData.center.lat,
+                    lng: snapData.center.lng
+                },
+                search: search,
+                shout: true
+            });
+
+            //Ajax call for yelp and loading businesses on to the map
+            getYelpInfo(yelpSearch, stringLat, stringLng);
+        });
+    }
+
+    //Ajax call to yelp
+    function getYelpInfo(searchQuery, stringLat, stringLng, ) {
+        // this is the call for YELP QUERY - WORKING
+        var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=" + searchQuery + "&latitude=" + stringLat + "&longitude=" + stringLng + "&radius=5000&limit=5";
+
+        console.log(yelpQuery);
+
+        //testing  to get variables -- Needs WORK!
+        // var yelpQuery = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=delis&latitude="+ userLat.toString() + "&longitude="+userLng.toString() + "&radius="+Radius+"&limit=5";
+        var yelpAPI = "1QpSc4B1zI5GuI56PDAAvAfpfcsLg9LWuHRfVCeG4TIDDxRe3hGT-sxlU5h5DD0AdLgu-HHoa2cM4m1WaAefYoboIPdVHv0mCjivrwQrdU11FCFl2hd8-iaaTKOTXHYx";
+
+        //-----------YELP CALL--------------
+        $.ajax({
+            url: yelpQuery,
+            headers: {
+                'Authorization': "Bearer " + yelpAPI,
+            },
+            method: "GET"
+        }).then((yelpResponse) => {
+            console.log(yelpResponse);
+            for (var i = 0; i < yelpResponse.businesses.length; i++) {
+                // Add yelp businesses
+                addYelpBusinesses(yelpResponse.businesses[i]);
+            }
+        });
+    }
+
+    function addYelpBusinesses(yelpBusiness) {
+        var bName = yelpBusiness.name;
+        var bRatings = yelpBusiness.rating;
+        var bIs_closed = yelpBusiness.is_closed;
+        var bLocation = yelpBusiness.location.display_address.join("<br>");
+        var bLocationHref = " http://maps.google.com/?q=" + yelpBusiness.location.display_address.join("");
+        var bLat = parseFloat(yelpBusiness.coordinates.latitude);
+        var bLong = parseFloat(yelpBusiness.coordinates.longitude);
+        var hours;
+
+        if (bIs_closed) {
+            hours = "closed";
+        } else {
+            hours = "open";
+        }
+
+        //create a business map object so we can have a cleaner look
+        var businessMapObject = {
             coords: {
                 center: {
-                    lat: userLat,
-                    lng: userLng
-                },
-                radius: Radius //kilometers
+                    lat: bLat,
+                    lng: bLong
+                }
             },
-            iconImage: "./assets/images/map-icon.png",
-            content: "<h1>Hello Friends!</h1>"
-        }
-        // ,
-
-        // secondPerson = {
-        //     coords: {
-        //         center: {
-        //             lat: 40.065445,
-        //             lng: -75.090635
-        //         }
-
-        //     }
-        // }
-
-    ]
-
-    //set map's center to shouter
-    map.panTo(allUsers[0].coords.center);
-
-    //loop through markers and drop
-    for (var i = 0; i < allUsers.length; i++) {
-        var userIndex = allUsers[i];
-        //    window.setTimeout( function(){
-        //     addUserMarker(userIndex)
-        //    },200) ;
-
-        addUserMarker(userIndex);
-    }
-
-    //function Marker
-    function addUserMarker(user) {
-
-        var marker = new google.maps.Marker({
-            position: user.coords.center,
-            map: map,
-            animation: google.maps.Animation.DROP,
-        });
-        // console.log(user.coords.center);
-
-        //if user has an Icon
-        if (user.iconImage) {
-            //set Icon image
-            marker.setIcon(user.iconImage);
+            // iconImage: "./assets/images/map-icon.png",
+            content: `<h2 class="yelpTitle">${bName}</h2>
+            <p class="yelpDesc">Ratings: ${bRatings}</p>
+            <p class="yelpDesc"> Address: <a id="yelpLink" href="${bLocationHref}">${bLocation}</a></p>
+            <p class="yelpDesc">The store is ${hours} </p>`
         }
 
-        // if it contains infoWindow text then create one
-        if (user.content) {
-            //infoWindow is a pop up for the onClick
-            var infoWindow = new google.maps.InfoWindow({
-                content: user.content
-            });
-        }
-
-        // create circle    
-        var cityCircle = new google.maps.Circle({
-            strokeColor: '#FF0000',
-            strokeOpacity: 0.15,
-            strokeWeight: 2,
-            fillColor: '#FF0000',
-            fillOpacity: 0.15,
-            map: map,
-            center: user.coords.center,
-            radius: (user.coords.radius) * 1000 //kilometers
-        });
-
-        //check if marker has been clicked
-        marker.addListener("click", () => {
-
-            infoWindow.open(map, marker);
-        });
-    }
-}
-
-function addShouterMarker(shoutLocation) {
-    //Add marker
-    var shouter = {
-        coords: {
-            center: {
-                lat: shoutLocation[0],
-                lng: shoutLocation[1]
-            },
-            radius: Radius //kilometers
-        },
-        // iconImage: "./assets/images/map-icon.png",
-        content: "<h1>This is a SHOUT!</h1>"
-    };
-
-    var marker = new google.maps.Marker({
-        position: shouter.coords.center,
-        map: map,
-        animation: google.maps.Animation.DROP
-    });
-
-    // console.log(shouter.coords.center);
-
-    //if user has an Icon
-    if (shouter.iconImage) {
-        //set Icon image
-        marker.setIcon(shouter.iconImage);
-    }
-
-    // if it contains infoWindow text then create one
-    if (shouter.content) {
-        //infoWindow is a pop up for the onClick
-        var shouterInfoWindow = new google.maps.InfoWindow({
-            content: shouter.content
-        });
+        //Create marker
+        addYelpMarker(businessMapObject);
 
     }
- 
-    marker.addListener("click", () => {
 
-        shouterInfoWindow.open(map, marker);
-    });
-
-    var cityCircle = new google.maps.Circle({
-        strokeColor: '#00bcd4',
-        strokeOpacity: 0.3,
-        strokeWeight: 2,
-        fillColor: '#f33839',
-        fillOpacity: 0.35,
-        map: map,
-        center: shouter.coords.center,
-        radius: (shouter.coords.radius) * 1000 //kilometers
-    });
-}
-//------Show Yelp on Map
-function addYelpBusinesses(yelpBusiness) {
-    var bName = yelpBusiness.name;
-    var bRatings = yelpBusiness.rating;
-    var bIs_closed = yelpBusiness.is_closed;
-    var bLocation = yelpBusiness.location.display_address.join("<br>");
-    var bLocationHref = " http://maps.google.com/?q="+ yelpBusiness.location.display_address.join("");
-    var bLat = parseFloat(yelpBusiness.coordinates.latitude);
-    var bLong = parseFloat(yelpBusiness.coordinates.longitude);
-    var hours;
-
-    if (bIs_closed) {
-        hours = "closed";
-    } else {
-        hours = "open";
-    }
-    //create a business map object so we can have a cleaner look
-    var businessMapObject = {
-        coords: {
-            center: {
-                lat: bLat,
-                lng: bLong
-            }
-        },
-        // iconImage: "./assets/images/map-icon.png",
-        content: `<h2 class="yelpTitle">${bName}</h2>
-        <p class="yelpDesc"> Address: <a id="yelpLink" href="${bLocationHref}">${bLocation}</a></p>
-        <p class="yelpDesc">The store is ${hours} </p>`
-    }
-
-    console.log("Business location" + yelpBusiness.length);
-    //Create marker
-    addYelpMarker(businessMapObject);
-
-    //creating the marker
     function addYelpMarker(businessM) {
 
         //create map marker object
@@ -414,7 +294,6 @@ function addYelpBusinesses(yelpBusiness) {
             map: map,
             animation: google.maps.Animation.DROP,
         });
-        // console.log(user.coords.center);
 
         //if user has an Icon
         if (businessM.iconImage) {
@@ -429,94 +308,379 @@ function addYelpBusinesses(yelpBusiness) {
                 content: businessM.content
             });
         }
-
-        // create circle    
-        // var cityCircle = new google.maps.Circle({
-        //     strokeColor: '#FF0000',
-        //     strokeOpacity: 0.15,
-        //     strokeWeight: 2,
-        //     fillColor: '#FF0000',
-        //     fillOpacity: 0.15,
-        //     map: map,
-        //     center: user.coords.center,
-        //     radius: (user.coords.radius) * 1000 //kilometers
-        // });
-
         //check if marker has been clicked
         marker.addListener("click", () => {
 
             infoWindow.open(map, marker);
         });
     }
-}
+
+    function shoutLogic() {
 
 
-function setGeoFireUserInfo(snapshot) {
-    //get snapshot vallue
-    var snapshot = snapshot.val();
-    // var keys = Object.keys(snapshot);
-    //add all users 
-    for (var i = 0; i < snapshot.length; i++) {
-        var userName = snapshot[i].name;
-        var userLocation = [snapshot[i].center.lat, snapshot[i].center.lng];
-        var Radius = snapshot[i].radius;
+        var shoutTextVal = $("#shoutText").val().trim();
+        // var Radius = $("#shoutRadius").val();
+        var shoutText = $("#shoutText");
 
-        geoFire.set(userName, userLocation).then(function () {
-            // console.log("Current user " + userName + "'s location has been added to GeoFire and your location is " + userLocation);
+        if (shoutTextVal === "") {
+            // TODO: finish with the else statement, only do this when the person has entered a message
+            checkShoutTextVal(shoutText);
+        } else {
+            //update firebase User info
+            usersRef.child(profileKey).update({
+                uid: uid,
+                name: "static" + uid,
+                center: {
+                    lat: Lattitude,
+                    lng: Longitude
+                },
+                radius: Radius, //kilometers
+                message: [],
+                shoutMessage: shoutTextVal,
+                shout: true,
+                friend: false
+            });
 
-            // geoFireRefPush.child(userName).onDisconnect().remove();
+            // set your location globaly
+            usersRef.child(profileKey).on("value", (childSnapShot) => {
+                var snapData = childSnapShot.val();
+                var shoutLocation = [snapData.center.lat, snapData.center.lng];
+                //set shout ref
+                shoutRef.set({
+                    center: {
+                        lat: shoutLocation[0],
+                        lng: shoutLocation[1]
+                    },
+                    message: shoutTextVal
+                });
+
+                //TODO:Make it a push, so different people can shout
+                // shoutRef.set({
+                //     center: {
+                //         lat: shoutLocation[0],
+                //         lng: shoutLocation[1]
+                //     },
+                //     message: shoutTextVal
+                // });
+
+                // TODO:change this into a function so you can check once the user lands on the page and their friend is near
+                if (typeof shoutQuery !== "undefined") {
+                    //update the query
+
+                    shoutQuery.updateCrieria({
+                        center: shoutLocation,
+                        radius: Radius // kilometers
+                    });
+
+                } else {
+
+                    var shoutQuery = geoFire.query({
+                        center: shoutLocation,
+                        radius: Radius // kilometers
+                    });
+                    //check if someone is in your radius and drop a pin to shouter's  location
+                    shoutQuery.on("key_entered", function (key, location, distance) {
+                        peopleAround = {
+                            id: key,
+                            distance: distance + "km",
+                            location: location
+                        };
+
+                        // If you're the shouter, don't drop a pin on you
+                        if (Math.floor(distance) !== 0) {
+                            // marker.setMap(map);
+                            addShouterMarker(shoutLocation);
+                            console.log("People Around: " + JSON.stringify(peopleAround));
+                        }
+                        console.log("SHOUT POSITION " + JSON.stringify(peopleAround));
+                    });
+                }
+                //update map and markers
+                googleMapShout(shoutLocation);
+                setTimeout(displayChat, 500);
+            }, errorData);
+        } //----end check if there's a
+    }
+
+    function setUserLocation(snapshot) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((position) => {
+                //set lng and lat
+                Lattitude = position.coords.latitude;
+                Longitude = position.coords.longitude;
+                //have user unique ID be stored and referenced when pressing the button.
+                $("#shout").attr("data-lat", Lattitude.toString());
+                $("#shout").attr("data-lng", Longitude.toString());
+
+                //update firebase User info
+                usersRef.child(profileKey).update({
+                    uid: uid,
+                    name: "static",
+                    center: {
+                        lat: Lattitude,
+                        lng: Longitude
+                    },
+                    radius: Radius, //kilometers
+                    message: [],
+                    shoutMessage: "",
+                    shout: false,
+                    friend: false
+                });
+
+            }, errorHandler);
+            // setGeoFireUserInfo(snapshot);
+        }
+    }
+
+    // geofire location
+    function setGeoFireUserInfo(snapshot) {
+        snapshot.forEach(function (childSnapShot) {
+            //take info from the userRef push
+            if (childSnapShot.val()) {
+                var childData = childSnapShot.val();
+                var userName = childData.name;
+                var userLocation = [childData.center.lat, childData.center.lng];
+                //geofire controls the reference points for distance
+                geoFire.set(userName, userLocation).then(function () {
+
+                    geoFireRefPush.child(userName).onDisconnect().remove();
+                });
+            }
+
         });
     }
-}
 
-function errorObject(errorObject) {
-    console.log("The read failed: " + errorObject.code);
-};
+    //google map function of generating user and icon
+    function googleMapShout(shoutLocation) {
 
-function usersOnline() {
-    ourPresenceRef.on("value", function (snapshot) {
-        if (snapshot.val()) {
-            // remove ourselves when we disconnect
-            currentUserRef.onDisconnect().remove();
-
-            currentUserRef.set(true);
+        //create object for map
+        var shoutObject = {
+            center: {
+                lat: shoutLocation[0],
+                lng: shoutLocation[1]
+            },
+            iconImage: "./assets/images/map-icon.png",
+            content: "<h1>Hello Friends!</h1> <div class='pulse' ></div> "
         }
-    });
-}
+        //set map's center to shouter
+        map.panTo(shoutObject.center);
+        map.setZoom(14);
 
-//     //number of online users is the number of objects in the presence list.
-//     userListRef.on("value", function (snapshot) {
-//         // remove ourselves when we disconnect
-//         currentUserRef.onDisconnect().remove();
-//         //user is present
-//         currentUserRef.set(true);
-//         console.log("# of online users = " + snapshot.numChildren());
-//     });
+        // check if shout is true
+        if (shoutCheck === false) {
+            console.log("FALSE!!!");
+            addUserMarker(shoutObject);
+            shoutCheck = true;
+        } else {
+            return;
+        }
 
-//     //get user location
+        //add Shouter's Marker
+        function addUserMarker(so) {
+            var marker = new google.maps.Marker({
+                position: so.center,
+                map: map,
+                animation: google.maps.Animation.DROP,
+            });
 
+            //if user has an Icon
+            if (so.iconImage) {
+                //set Icon image
+                marker.setIcon(so.iconImage);
+            }
 
-// }
+            // if it contains infoWindow text then create one
+            if (so.content) {
+                //infoWindow is a pop up for the onClick
+                var infoWindow = new google.maps.InfoWindow({
+                    content: so.content
+                });
+            }
 
-$("#submit-btn").on("click", function (event) {
-    event.preventDefault();
+            // create circle    
+            var cityCircle = new google.maps.Circle({
+                strokeColor: '#FF0000',
+                strokeOpacity: 0.15,
+                strokeWeight: 2,
+                fillColor: '#FF0000',
+                fillOpacity: 0.15,
+                map: map,
+                center: so.center,
+                radius: Radius * 1000 //kilometers
+            });
 
-    var message = {
-        chat: $("#messageBox").val()
+            //check if marker has been clicked
+            marker.addListener("click", () => {
+                infoWindow.open(map, marker);
+            });
+        }
     }
-    
-    //push message
-    chatRef.push(message);
 
-    chatRef.on("child_added", function (childSnapshot) {
-        var fireBaseMessage = childSnapshot.val().chat;
-        $(".message-box").append(`<p class="message-font"> ${fireBaseMessage}</p>`);
+    function addShouterMarker(shoutLocation) {
+        console.log("add shouter marker!!");
+        // update Shouter's info
+        shoutRef.once("value").then((snapshot) => {
+            var snapData = snapshot.val();
+            //Add marker
+            console.log(snapData.message);
+            var shouter = {
+                center: {
+                    lat: shoutLocation[0],
+                    lng: shoutLocation[1]
+                },
+                // iconImage: "./assets/images/map-icon.png",
+                content: `<h1 id="shoutMessage">${snapData.message}</h1>`
+            }
+
+            var marker = new google.maps.Marker({
+                position: shouter.center,
+                map: map,
+                animation: google.maps.Animation.DROP,
+                optimized: false
+            });
+
+            // var mapOverlay = new google.maps.OverlayView();
+            // mapOverlay.draw = function () {
+            //     this.getPanes().markerLayer.id = "pluse"
+            // }
+
+            // mapOverlay.setMap(map);
+            // console.log(shouter.coords.center);
+
+            //if user has an Icon
+            if (shouter.iconImage) {
+                //set Icon image
+                marker.setIcon(shouter.iconImage);
+            }
+
+            // if it contains infoWindow text then create one
+            if (shouter.content) {
+                //infoWindow is a pop up for the onClick
+                var shouterInfoWindow = new google.maps.InfoWindow({
+                    content: shouter.content,
+                    disableAutoPan: true
+                });
+            }
+
+            // display shout
+            shouterInfoWindow.open(map, marker);
+             //check if marker has been clicked
+             marker.addListener("click", () => {
+                displayChat();
+            });
+        
+            //bounce animation
+            setTimeout(() => {
+                marker.setAnimation(google.maps.Animation.BOUNCE);
+            }, 200);
+        });
+    }
+
+    // chat functionality
+    function chatMessages(event) {
+        // event.preventDefault();
+        var chatMessage = $("#chatInput").val()
+        chatRef.push({
+            chatMessage: chatMessage
+        });
+    }
+
+    //check if threre is a shout
+    function checkShoutTextVal(shoutText) {
+        console.log("There is no value!");
+        shoutText.attr("placeholder", "What are you trying to do?");
+        shoutText.css("box-shadow", "0 0 5px #e92630");
+        return;
+    }
+
+    //error handler for geolocation
+    function errorHandler(err) {
+        if (err.code == 1) {
+            alert("Error: Access is denied!");
+        } else if (err.code == 2) {
+            alert("Error: Position is unavailable!");
+        }
+    }
+
+    function errorData(err) {
+        console.log("Error");
+        console.log(err);
+    }
+
+
+
+    // clear markers
+    function deleteMarkers() {
+        clearMarkers();
+        markers = [];
+    }
+
+    function clearMarkers() {
+        setMapOnAll(null);
+    }
+
+    //---------------
+
+    function displayChat() {
+        $(".welcome-wrapper").css("display", "none");
+        $(".chat-wrapper").css("display", "block");
+    }
+
+    function hideChat() {
+        $(".chat-wrapper").css("display", "none");
+        $(".welcome-wrapper ").css("display", "block");
+    }
+
+    function outsideModal(event) {
+        var target = $(event.target);
+        if (target.is("#myModal")) {
+            $(this).css("display", "none");
+        }
+    }
+
+    function toggleChat() {
+        $(".message-box").toggleClass("active");
+    }
+
+    //------function executions----------
+    //on click shout
+    $(document).on("click", "#shout", shoutLogic);
+    $(document).on("keyup", "#shoutText", function (event) {
+        event.preventDefault();
+        if (event.keyCode === 13) {
+            $("#shout").click();
+        }
+    })
+
+    //search for Businesses
+    $(document).on("click", "#searchFormBtn", startYelpSearch);
+    $(document).on("keyup", "#yelpSearchInput", function (event) {
+        event.preventDefault();
+        if (event.keyCode === 13) {
+            $("#searchFormBtn").click();
+        }
+    })
+
+    // chat function
+    $(document).on("click", ".chat-btn", chatMessages);
+    $(document).on("keyup", "#chatInput", function (event) {
+        event.preventDefault();
+        if (event.keyCode === 13) {
+            $(".chat-btn").click();
+        }
+    })
+    //when you click the modal button
+    $(document).on("click", ".close", hideChat);
+    $(document).on("click", "#myModal", outsideModal);
+    $(document).on("click", "#test", toggleChat);
+
+    //extra features
+    var typed = new Typed(".ideas", {
+        strings: ["Pizza", "movies", "Go for a walk"],
+        loop: true,
+        typeSpeed: 150,
+        smartBackspace: true // Default value
     });
+
 });
 
-// Execute Initial functions----------------
-// Check who's online
-// usersOnline();
-
-//on click shout
-$(document).on("click", "#shout", getGeoLocation);
