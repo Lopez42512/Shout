@@ -80,7 +80,6 @@ body {
     flex-direction: column;
 }
 .shout-container {
-    margin-top: 10vh;
     border-radius: 5px;
     border: 3px solid rgb(190, 45, 45);
     width: 10em;
@@ -88,7 +87,7 @@ body {
     box-sizing: content-box;
     height: 3em;
     transition: .3s all ease;
-    margin-top: 7em;
+    margin-top: 10em;
     position: relative;
     align-self: center;
 }
@@ -121,7 +120,7 @@ img.shout-icon {
 
 #shoutText {
     position: relative;
-    padding: 10px 30px;
+    padding: 20px 40px;
     top: 81px;
     width: 100%;
     max-width: 20em;
@@ -226,3 +225,21 @@ form#search-form {
 input#yelpSearchInput {
     width: 100%;
 }
+
+.placeholder {
+    position: absolute;
+    font-size:25px;
+    pointer-events: none;
+    left: 1px;
+    top: 1px;
+    transition: 0.1s ease all;
+  }
+  
+  #shoutText:focus ~ .placeholder{
+    top: 1px;
+    font-size: 11px;
+  }
+
+  .modal-content {
+      position: relative;
+  }

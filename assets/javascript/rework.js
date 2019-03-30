@@ -117,69 +117,69 @@ $(document).ready(() => {
     //shout updates
     shoutRef.on("value", (snapshot) => {
         var snap = snapshot.val();
-            //set global variable TODO:May not need in future
-            currentLatitude = snap.center.lat;
-            currentLongitude = snap.center.lng;
+        //set global variable TODO:May not need in future
+        currentLatitude = snap.center.lat;
+        currentLongitude = snap.center.lng;
 
-            // TODO:have to put this back inside the distance checker
-            //update the query
-            var listenLoctation = [snap.center.lat, snap.center.lng];
-            // var listenerText = snap.message;
+        // TODO:have to put this back inside the distance checker
+        //update the query
+        var listenLoctation = [snap.center.lat, snap.center.lng];
+        // var listenerText = snap.message;
 
-            if (typeof listenQuery !== "undefined") {
+        if (typeof listenQuery !== "undefined") {
 
-                listenQuery.updateCriteria({
-                    center: listenLoctation,
-                    radius: Radius
-                });
+            listenQuery.updateCriteria({
+                center: listenLoctation,
+                radius: Radius
+            });
 
-            } else {
-                //create listen query
-                listenQuery = geoFire.query({
-                    center: listenLoctation,
-                    radius: Radius // kilometers
-                });
+        } else {
+            //create listen query
+            listenQuery = geoFire.query({
+                center: listenLoctation,
+                radius: Radius // kilometers
+            });
 
-                // TODO:FOR CLASS MAKE SURE THIS IS TAKEN OUT
-                var listenAround = {};
-                //check if someone is in your radius and drop a pin to shouter's  location
-                listenQuery.on("key_entered", function (key, location, distance) {
-                    console.log("listening");
+            // TODO:FOR CLASS MAKE SURE THIS IS TAKEN OUT
+            var listenAround = {};
+            //check if someone is in your radius and drop a pin to shouter's  location
+            listenQuery.on("key_entered", function (key, location, distance) {
+                console.log("listening");
 
-                    listenAround = {
-                        id: key,
-                        distance: distance + "km",
-                        location: location
-                    };
-                    //if you're next to the listener, then don't drop the marker
-                    if (Math.floor(distance) !== 0) {
-                        addShouterMarker(listenLoctation);
-
-                        //update yelp markers on all users
-                        yelpRef.on("value", (snapshot) => {
-                            var dataSnap = snapshot.val();
-                            //convert lat and lng to strings
-                            var stringLatF = dataSnap.center.lat.toString();
-                            var stringLngF = dataSnap.center.lng.toString();
-
-                            console.log("geting info");
-                            getYelpInfo(dataSnap.search, stringLatF, stringLngF);
-                        }, errorData);
-                    } //--end if
-
-                    // Drop a pin if you find someoneTODO: MAY NEED IT FOR CLASS PRESENTATION
+                listenAround = {
+                    id: key,
+                    distance: distance + "km",
+                    location: location
+                };
+                //if you're next to the listener, then don't drop the marker
+                if (Math.floor(distance) !== 0) {
                     addShouterMarker(listenLoctation);
-                    console.log(JSON.stringify(key) + " have heard your shout!" + "and they are " + distance + " km away");
-                });
-            }
-        
+
+                    //update yelp markers on all users
+                    yelpRef.on("value", (snapshot) => {
+                        var dataSnap = snapshot.val();
+                        //convert lat and lng to strings
+                        var stringLatF = dataSnap.center.lat.toString();
+                        var stringLngF = dataSnap.center.lng.toString();
+
+                        console.log("geting info");
+                        getYelpInfo(dataSnap.search, stringLatF, stringLngF);
+                    }, errorData);
+                } //--end if
+
+                // Drop a pin if you find someoneTODO: MAY NEED IT FOR CLASS PRESENTATION
+                addShouterMarker(listenLoctation);
+                console.log(JSON.stringify(key) + " have heard your shout!" + "and they are " + distance + " km away");
+            });
+        }
+
     }, errorData);
 
     //check chat
     chatRef.on("child_added", function (snapshot) {
         if (snapshot.val()) {
             var fireBaseMessage = snapshot.val().chatMessage;
-            console.log(fireBaseMessage );
+            console.log(fireBaseMessage);
             console.log(snapshot.child("chatMessage"))
             //message key
             // var chatKey = chatMessage.key;
@@ -191,7 +191,7 @@ $(document).ready(() => {
 
     //---------------------------START functions--------------
     function startYelpSearch(e) {
-        e.preventDefault();
+        // e.preventDefault();
         //grab value from the search input
         var yelpSearch = $("#yelpSearchInput").val();
         console.log(yelpSearch);
@@ -317,7 +317,7 @@ $(document).ready(() => {
 
     function shoutLogic() {
 
-        
+
         var shoutTextVal = $("#shoutText").val().trim();
         // var Radius = $("#shoutRadius").val();
         var shoutText = $("#shoutText");
@@ -397,7 +397,7 @@ $(document).ready(() => {
                 }
                 //update map and markers
                 googleMapShout(shoutLocation);
-                setTimeout(displayChat,500);
+                setTimeout(displayChat, 500);
             }, errorData);
         } //----end check if there's a
     }
@@ -517,9 +517,9 @@ $(document).ready(() => {
     }
 
     function addShouterMarker(shoutLocation) {
-console.log("add shouter marker!!");
+        console.log("add shouter marker!!");
         // update Shouter's info
-       shoutRef.once("value").then((snapshot) => {
+        shoutRef.once("value").then((snapshot) => {
             var snapData = snapshot.val();
             //Add marker
             console.log(snapData.message);
@@ -529,7 +529,7 @@ console.log("add shouter marker!!");
                     lng: shoutLocation[1]
                 },
                 // iconImage: "./assets/images/map-icon.png",
-                content: snapData.message
+                content: `<h1 id="shoutMessage">${snapData.message}</h1>`
             }
 
             var marker = new google.maps.Marker({
@@ -564,7 +564,11 @@ console.log("add shouter marker!!");
 
             // display shout
             shouterInfoWindow.open(map, marker);
-
+             //check if marker has been clicked
+             marker.addListener("click", () => {
+                displayChat();
+            });
+        
             //bounce animation
             setTimeout(() => {
                 marker.setAnimation(google.maps.Animation.BOUNCE);
@@ -577,7 +581,7 @@ console.log("add shouter marker!!");
         // event.preventDefault();
         var chatMessage = $("#chatInput").val()
         chatRef.push({
-            chatMessage:chatMessage
+            chatMessage: chatMessage
         });
     }
 
@@ -639,15 +643,32 @@ console.log("add shouter marker!!");
     }
 
     //------function executions----------
-
     //on click shout
     $(document).on("click", "#shout", shoutLogic);
+    $(document).on("keyup", "#shoutText", function (event) {
+        event.preventDefault();
+        if (event.keyCode === 13) {
+            $("#shout").click();
+        }
+    })
 
     //search for Businesses
     $(document).on("click", "#searchFormBtn", startYelpSearch);
+    $(document).on("keyup", "#yelpSearchInput", function (event) {
+        event.preventDefault();
+        if (event.keyCode === 13) {
+            $("#searchFormBtn").click();
+        }
+    })
 
     // chat function
     $(document).on("click", ".chat-btn", chatMessages);
+    $(document).on("keyup", "#chatInput", function (event) {
+        event.preventDefault();
+        if (event.keyCode === 13) {
+            $(".chat-btn").click();
+        }
+    })
     //when you click the modal button
     $(document).on("click", ".close", hideChat);
     $(document).on("click", "#myModal", outsideModal);
@@ -662,3 +683,4 @@ console.log("add shouter marker!!");
     });
 
 });
+
