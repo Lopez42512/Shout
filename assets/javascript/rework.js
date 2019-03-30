@@ -115,7 +115,7 @@ $(document).ready(() => {
 
     // TODO: GET SHOUT LOC TO BE A PUSH
     //shout updates
-    shoutRef.on("value", (snapshot) => {
+    shoutRef.on("child_added", (snapshot) => {
         var snap = snapshot.val();
         //set global variable TODO:May not need in future
         currentLatitude = snap.center.lat;
@@ -346,7 +346,7 @@ $(document).ready(() => {
                 var snapData = childSnapShot.val();
                 var shoutLocation = [snapData.center.lat, snapData.center.lng];
                 //set shout ref
-                shoutRef.set({
+                shoutRef.push({
                     center: {
                         lat: shoutLocation[0],
                         lng: shoutLocation[1]
@@ -519,7 +519,7 @@ $(document).ready(() => {
     function addShouterMarker(shoutLocation) {
         console.log("add shouter marker!!");
         // update Shouter's info
-        shoutRef.once("value").then((snapshot) => {
+        shoutRef.once("child_added").then((snapshot) => {
             var snapData = snapshot.val();
             //Add marker
             console.log(snapData.message);
