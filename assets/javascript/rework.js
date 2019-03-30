@@ -90,7 +90,7 @@ $(document).ready(() => {
                     // Remove users if they leave
                     connectionsRef.onDisconnect().remove();
                     usersRef.child(profileKey).onDisconnect().remove();
-                    shoutRef.onDisconnect().remove();
+                    // shoutRef.onDisconnect().remove();
                     yelpRef.onDisconnect().remove();
                 }
             });
@@ -115,13 +115,14 @@ $(document).ready(() => {
 
     // TODO: GET SHOUT LOC TO BE A PUSH
     //shout updates
-    shoutRef.on("value", (snapshot) => {
+    shoutRef.on("child_added", (snapshot) => {
         var snap = snapshot.val();
         //set global variable TODO:May not need in future
         currentLatitude = snap.center.lat;
         currentLongitude = snap.center.lng;
 
-        // TODO:have to put this back inside the distance checker
+        var shoutMessage = snap.message;
+        // TODO:have to put this back inside the distanc    e checker
         //update the query
         var listenLoctation = [snap.center.lat, snap.center.lng];
         // var listenerText = snap.message;
@@ -153,7 +154,7 @@ $(document).ready(() => {
                 };
                 //if you're next to the listener, then don't drop the marker
                 if (Math.floor(distance) !== 0) {
-                    addShouterMarker(listenLoctation);
+                    addShouterMarker(shoutMessage, listenLoctation);
 
                     //update yelp markers on all users
                     yelpRef.on("value", (snapshot) => {
@@ -168,7 +169,7 @@ $(document).ready(() => {
                 } //--end if
 
                 // Drop a pin if you find someoneTODO: MAY NEED IT FOR CLASS PRESENTATION
-                addShouterMarker(listenLoctation);
+                addShouterMarker(shoutMessage, listenLoctation);
                 console.log(JSON.stringify(key) + " have heard your shout!" + "and they are " + distance + " km away");
             });
         }
@@ -342,19 +343,20 @@ $(document).ready(() => {
             });
 
             // set your location globaly
-            usersRef.child(profileKey).on("value", (childSnapShot) => {
-                var snapData = childSnapShot.val();
-                var shoutLocation = [snapData.center.lat, snapData.center.lng];
+            // usersRef.child(profileKey).on("value", (childSnapShot) => {
+                // var snapData = childSnapShot.val();
+                // var shoutLocation = [snapData.center.lat, snapData.center.lng];
+                var shoutLocation =[Lattitude,Longitude];
                 //set shout ref
-                shoutRef.set({
+                shoutRef.push({
                     center: {
-                        lat: shoutLocation[0],
-                        lng: shoutLocation[1]
+                        lat: Lattitude,
+                        lng: Longitude
                     },
                     message: shoutTextVal
                 });
 
-                //TODO:Make it a push, so different people can shout
+                // //TODO:Make it a push, so different people can shout
                 // shoutRef.set({
                 //     center: {
                 //         lat: shoutLocation[0],
@@ -398,7 +400,7 @@ $(document).ready(() => {
                 //update map and markers
                 googleMapShout(shoutLocation);
                 setTimeout(displayChat, 500);
-            }, errorData);
+            // }, errorData);
         } //----end check if there's a
     }
 
@@ -516,20 +518,22 @@ $(document).ready(() => {
         }
     }
 
-    function addShouterMarker(shoutLocation) {
+    function addShouterMarker(shoutMessage, shoutLocation) {
         console.log("add shouter marker!!");
         // update Shouter's info
-        shoutRef.once("value").then((snapshot) => {
+        // TODO:CHANGING CODE FROM SHOUTREF TO USER REF
+        // shoutRef.once("child_added").then((snapshot) => {
             var snapData = snapshot.val();
+            console.log(snapData);
             //Add marker
-            console.log(snapData.message);
+            // console.log(snapData.message);
             var shouter = {
                 center: {
                     lat: shoutLocation[0],
                     lng: shoutLocation[1]
                 },
                 // iconImage: "./assets/images/map-icon.png",
-                content: `<h1 id="shoutMessage">${snapData.message}</h1>`
+                content: `<h1 id="shoutMessage">${shoutMessage}</h1>`
             }
 
             var marker = new google.maps.Marker({
@@ -573,7 +577,7 @@ $(document).ready(() => {
             setTimeout(() => {
                 marker.setAnimation(google.maps.Animation.BOUNCE);
             }, 200);
-        });
+        // });
     }
 
     // chat functionality
