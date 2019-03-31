@@ -109,13 +109,14 @@ $(document).ready(() => {
 
     //Update GeoFire with the UserRef's new location      
     firebaseData.ref().on("child_changed", (snapshot) => {
-        setGeoFireUserInfo(snapshot);
     }, errorData);
     // --end of firebase root change event
 
     // TODO: GET SHOUT LOC TO BE A PUSH
     //shout updates
     shoutRef.on("child_added", (snapshot) => {
+        // setGeoFireUserInfo(snapshot);
+
         var snap = snapshot.val();
         //set global variable TODO:May not need in future
         currentLatitude = snap.center.lat;
@@ -169,7 +170,7 @@ $(document).ready(() => {
 
                 // Drop a pin if you find someoneTODO: MAY NEED IT FOR CLASS PRESENTATION
                 addShouterMarker(listenLoctation);
-                console.log(JSON.stringify(key) + " have heard your shout!" + "and they are " + distance + " km away");
+                // console.log(JSON.stringify(key) + " have heard your shout!" + "and they are " + distance + " km away");
             });
         }
 
@@ -179,7 +180,7 @@ $(document).ready(() => {
     chatRef.on("child_added", function (snapshot) {
         if (snapshot.val()) {
             var fireBaseMessage = snapshot.val().chatMessage;
-            console.log(fireBaseMessage);
+            // console.log(fireBaseMessage);
             console.log(snapshot.child("chatMessage"))
             //message key
             // var chatKey = chatMessage.key;
@@ -353,7 +354,7 @@ $(document).ready(() => {
                     },
                     message: shoutTextVal
                 });
-
+                setGeoFireUserInfo(childSnapShot);
                 //TODO:Make it a push, so different people can shout
                 // shoutRef.set({
                 //     center: {
@@ -392,12 +393,14 @@ $(document).ready(() => {
                             addShouterMarker(shoutLocation);
                             console.log("People Around: " + JSON.stringify(peopleAround));
                         }
-                        console.log("SHOUT POSITION " + JSON.stringify(peopleAround));
+                        // console.log("SHOUT POSITION " + JSON.stringify(peopleAround));
                     });
                 }
                 //update map and markers
                 googleMapShout(shoutLocation);
                 setTimeout(displayChat, 500);
+                $("#shoutText").val("");
+
             }, errorData);
         } //----end check if there's a
     }
@@ -428,26 +431,25 @@ $(document).ready(() => {
                 });
 
             }, errorHandler);
-            // setGeoFireUserInfo(snapshot);
+
         }
     }
 
     // geofire location
     function setGeoFireUserInfo(snapshot) {
-        snapshot.forEach(function (childSnapShot) {
+        // snapshot.forEach(function (childSnapShot) {
             //take info from the userRef push
-            if (childSnapShot.val()) {
-                var childData = childSnapShot.val();
-                var userName = childData.name;
-                var userLocation = [childData.center.lat, childData.center.lng];
-                //geofire controls the reference points for distance
-                geoFire.set(userName, userLocation).then(function () {
+            var childData = snapshot.val();
+            var userName = childData.name;
+            var userLocation = [childData.center.lat, childData.center.lng];
+            //geofire controls the reference points for distance
+            geoFire.set(userName, userLocation).then(function () {
 
-                    geoFireRefPush.child(userName).onDisconnect().remove();
-                });
-            }
+                geoFireRefPush.child(userName).onDisconnect().remove();
+            });
 
-        });
+
+        // });
     }
 
     //google map function of generating user and icon
@@ -468,7 +470,6 @@ $(document).ready(() => {
 
         // check if shout is true
         if (shoutCheck === false) {
-            console.log("FALSE!!!");
             addUserMarker(shoutObject);
             shoutCheck = true;
         } else {
@@ -519,7 +520,7 @@ $(document).ready(() => {
     function addShouterMarker(shoutLocation) {
         console.log("add shouter marker!!");
         // update Shouter's info
-        shoutRef.once("child_added").then((snapshot) => {
+        shoutRef.on("child_added", (snapshot) => {
             var snapData = snapshot.val();
             //Add marker
             console.log(snapData.message);
@@ -564,11 +565,11 @@ $(document).ready(() => {
 
             // display shout
             shouterInfoWindow.open(map, marker);
-             //check if marker has been clicked
-             marker.addListener("click", () => {
+            //check if marker has been clicked
+            marker.addListener("click", () => {
                 displayChat();
             });
-        
+
             //bounce animation
             setTimeout(() => {
                 marker.setAnimation(google.maps.Animation.BOUNCE);
@@ -587,7 +588,6 @@ $(document).ready(() => {
 
     //check if threre is a shout
     function checkShoutTextVal(shoutText) {
-        console.log("There is no value!");
         shoutText.attr("placeholder", "What are you trying to do?");
         shoutText.css("box-shadow", "0 0 5px #e92630");
         return;
