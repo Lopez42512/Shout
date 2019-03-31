@@ -109,7 +109,7 @@ $(document).ready(() => {
 
     //Update GeoFire with the UserRef's new location      
     firebaseData.ref().on("child_changed", (snapshot) => {
-        setGeoFireUserInfo(snapshot);
+        // setGeoFireUserInfo(snapshot);
     }, errorData);
     // --end of firebase root change event
 
@@ -118,8 +118,9 @@ $(document).ready(() => {
     shoutRef.on("value", (snapshot) => {
         var snap = snapshot.val();
         //set global variable TODO:May not need in future
-        currentLatitude = snap.center.lat;
-        currentLongitude = snap.center.lng;
+        console.log(snapshot.val());
+        // currentLatitude = snap.center.lat;
+        // currentLongitude = snap.center.lng;
 
         // TODO:have to put this back inside the distance checker
         //update the query
@@ -160,7 +161,7 @@ $(document).ready(() => {
 
                 // Drop a pin if you find someoneTODO: MAY NEED IT FOR CLASS PRESENTATION
                 addShouterMarker(listenLoctation);
-                initiateYelp();
+                initiateYelp(snapshot);
                 console.log(JSON.stringify(key) + " have heard your shout!" + "and they are " + distance + " km away");
             });
         }
@@ -182,10 +183,12 @@ $(document).ready(() => {
     });
 
     //---------------------------START functions--------------
-function initiateYelp (){
+function initiateYelp (snapshot){
+    console.log(snapshot.val());
          //update yelp markers on all users
          yelpRef.on("value", (snapshot) => {
             var dataSnap = snapshot.val();
+            console.log(dataSnap);
             //convert lat and lng to strings
             var stringLatF = dataSnap.center.lat.toString();
             var stringLngF = dataSnap.center.lng.toString();
@@ -359,6 +362,7 @@ function initiateYelp (){
                     message: shoutTextVal
                 });
 
+                setGeoFireUserInfo_UserRef(childSnapShot);
                 //TODO:Make it a push, so different people can shout
                 // shoutRef.set({
                 //     center: {
@@ -433,7 +437,6 @@ function initiateYelp (){
                 });
 
             }, errorHandler);
-            // setGeoFireUserInfo(snapshot);
         }
     }
 
@@ -453,6 +456,23 @@ function initiateYelp (){
             }
 
         });
+    }
+
+    function setGeoFireUserInfo_UserRef(snapshot) {
+    
+            //take info from the userRef push
+            if (snapshot.val()) {
+                var snapData = snapshot.val();
+                var userName = snapData.name;
+                var userLocation = [snapData.center.lat, snapData.center.lng];
+                //geofire controls the reference points for distance
+                geoFire.set(userName, userLocation).then(function () {
+
+                    geoFireRefPush.child(userName).onDisconnect().remove();
+                });
+            }
+
+        
     }
 
     //google map function of generating user and icon
