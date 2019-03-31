@@ -354,20 +354,12 @@ $(document).ready(() => {
                     },
                     message: shoutTextVal
                 });
-                setGeoFireUserInfo(childSnapShot);
-                //TODO:Make it a push, so different people can shout
-                // shoutRef.set({
-                //     center: {
-                //         lat: shoutLocation[0],
-                //         lng: shoutLocation[1]
-                //     },
-                //     message: shoutTextVal
-                // });
 
-                // TODO:change this into a function so you can check once the user lands on the page and their friend is near
+                //Changed this to happen after the user is update; removed the for each loop and passed in the snapshot of this event.
+                setGeoFireUserInfo(childSnapShot);
+
                 if (typeof shoutQuery !== "undefined") {
                     //update the query
-
                     shoutQuery.updateCrieria({
                         center: shoutLocation,
                         radius: Radius // kilometers
@@ -438,15 +430,15 @@ $(document).ready(() => {
     // geofire location
     function setGeoFireUserInfo(snapshot) {
         // snapshot.forEach(function (childSnapShot) {
-            //take info from the userRef push
-            var childData = snapshot.val();
-            var userName = childData.name;
-            var userLocation = [childData.center.lat, childData.center.lng];
-            //geofire controls the reference points for distance
-            geoFire.set(userName, userLocation).then(function () {
+        //take info from the userRef push
+        var childData = snapshot.val();
+        var userName = childData.name;
+        var userLocation = [childData.center.lat, childData.center.lng];
+        //geofire controls the reference points for distance
+        geoFire.set(userName, userLocation).then(function () {
 
-                geoFireRefPush.child(userName).onDisconnect().remove();
-            });
+            geoFireRefPush.child(userName).onDisconnect().remove();
+        });
 
 
         // });
