@@ -11,7 +11,8 @@ body {
 .header{
     display: flex;
     flex-direction: row;
-    background-color: #e92630;
+    background-color: #af1a1a;
+    /* background-color: #e92630; */
     justify-content: flex-end;
     /* background: rgb(233,38,48); */
 /* background: linear-gradient(0deg, rgba(233,38,48,1) 0%, rgba(253,187,45,1) 100%); */
@@ -155,6 +156,21 @@ img.shout-icon {
     position: relative;
     height: 24em;
     flex: 3;
+}
+
+span.close {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    background: #474747;
+    color: white;
+    border: -6px solid darkred;
+    box-sizing: border-box;
+}
+
+span.close:hover {
+    cursor: pointer;
+    background-color: #312f2f;
 }
 
 .chat-text {
