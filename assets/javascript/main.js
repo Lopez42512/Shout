@@ -467,7 +467,7 @@ $(document).ready(() => {
                 lng: shoutLocation[1]
             },
             iconImage: "./assets/images/shout-red-marker.png",
-            content: "<h1>Hello Friends!</h1> <div class='pulse' ></div> "
+            content: "<h1>Hello Friends!</h1>"
         }
         //set map's center to shouter
         map.panTo(shoutObject.center);
@@ -507,10 +507,10 @@ $(document).ready(() => {
             // create circle    
             var cityCircle = new google.maps.Circle({
                 strokeColor: '#FF0000',
-                strokeOpacity: 0.15,
+                strokeOpacity: 0.11,
                 strokeWeight: 2,
                 fillColor: '#FF0000',
-                fillOpacity: 0.15,
+                fillOpacity: 0.11,
                 map: map,
                 center: so.center,
                 radius: Radius * 1000 //kilometers

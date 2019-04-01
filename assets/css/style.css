@@ -32,7 +32,7 @@ body {
     display: flex;
     flex-direction: row;
     background-color: #d22525;
-    justify-content: space-between;
+    justify-content: center;
     height: 5em;
 }
 
@@ -245,9 +245,10 @@ span.close:hover {
 
 .chat-btn{
     border: none;
-    background: yellow;
+    background: #474747;
     flex-basis: 30%;
     height: 100%;
+    color: white;
 }
 
 .chat-wrapper {
