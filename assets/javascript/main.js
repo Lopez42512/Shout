@@ -116,61 +116,7 @@ $(document).ready(() => {
 
     // TODO: GET SHOUT LOC TO BE A PUSH
     //shout updates
-    shoutRef.on("value", (snapshot) => {
-        var snap = snapshot.val();
-        //set global variable TODO:May not need in future
-        currentLatitude = snap.center.lat;
-        currentLongitude = snap.center.lng;
-
-      
-        // TODO:have to put this back inside the distance checker
-        //update the query
-        var listenLocation = [snap.center.lat, snap.center.lng];
-        // var listenerText = snap.message;
-
-        console.log(listenLocation);
-        if (typeof listenQuery !== "undefined") {
-
-            listenQuery.updateCriteria({
-                center: listenLocation,
-                radius: Radius
-            });
-
-        } else {
-            //create listen query
-            listenQuery = geoFire.query({
-                center: listenLocation,
-                radius: Radius // kilometers
-            });
-
-            // TODO:FOR CLASS MAKE SURE THIS IS TAKEN OUT
-            var listenAround = {};
-            //check if someone is in your radius and drop a pin to shouter's  location
-            listenQuery.on("key_entered", function (key, location, distance) {
-                console.log("listening");
-
-                listenAround = {
-                    id: key,
-                    distance: distance + "km",
-                    location: location
-                };
-                //if you're next to the listener, then don't drop the marker
-                if (Math.floor(distance) !== 0) {
-                    addShouterMarker(listenLocation, snap.message);
-                    initiateYelp();
-
-                } //--end if
-
-                // Drop a pin if you find someoneTODO: MAY NEED IT FOR CLASS PRESENTATION
-                addShouterMarker(listenLocation, snap.message );
-                initiateYelp();
-                console.log(listenLocation);
-                console.log(JSON.stringify(key) + " have heard your shout!" + "and they are " + distance + " km away");
-            });
-        }
-
-    }, errorData);
-
+   
     //check chat
     // chatRef.on("child_added", function (snapshot) {
     //     if (snapshot.val()) {
@@ -355,6 +301,7 @@ $(document).ready(() => {
             usersRef.child(profileKey).on("value", (childSnapShot) => {
                 var snapData = childSnapShot.val();
                 var shoutLocation = [snapData.center.lat, snapData.center.lng];
+                console.log(shoutLocation);
                 //set shout ref
                 shoutRef.set({
                     center: {
@@ -408,6 +355,7 @@ $(document).ready(() => {
                 //update map and markers
                 googleMapShout(shoutLocation);
                 setTimeout(displayChat, 500);
+                console.log(shoutLocation);
                 // addShouterMarker(shoutLocation);
                 $("#shoutText").val("");
             }, errorData);
@@ -717,5 +665,62 @@ $(document).ready(() => {
         typeSpeed: 150,
         smartBackspace: true // Default value
     });
+
+
+    shoutRef.on("value", (snapshot) => {
+        var snap = snapshot.val();
+        //set global variable TODO:May not need in future
+        currentLatitude = snap.center.lat;
+        currentLongitude = snap.center.lng;
+
+      
+        // TODO:have to put this back inside the distance checker
+        //update the query
+        var listenLocation = [snap.center.lat, snap.center.lng];
+        // var listenerText = snap.message;
+
+        console.log(listenLocation);
+        if (typeof listenQuery !== "undefined") {
+
+            listenQuery.updateCriteria({
+                center: listenLocation,
+                radius: Radius
+            });
+
+        } else {
+            //create listen query
+            listenQuery = geoFire.query({
+                center: listenLocation,
+                radius: Radius // kilometers
+            });
+
+            // TODO:FOR CLASS MAKE SURE THIS IS TAKEN OUT
+            var listenAround = {};
+            //check if someone is in your radius and drop a pin to shouter's  location
+            listenQuery.on("key_entered", function (key, location, distance) {
+                console.log("listening");
+
+                listenAround = {
+                    id: key,
+                    distance: distance + "km",
+                    location: location
+                };
+                //if you're next to the listener, then don't drop the marker
+                if (Math.floor(distance) !== 0) {
+                    addShouterMarker(listenLocation, snap.message);
+                    initiateYelp();
+
+                } //--end if
+
+                // Drop a pin if you find someoneTODO: MAY NEED IT FOR CLASS PRESENTATION
+                addShouterMarker(listenLocation, snap.message );
+                initiateYelp();
+                console.log(listenLocation);
+                console.log(JSON.stringify(key) + " have heard your shout!" + "and they are " + distance + " km away");
+            });
+        }
+
+    }, errorData);
+
 
 });
