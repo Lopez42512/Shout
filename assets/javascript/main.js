@@ -405,6 +405,7 @@ $(document).ready(() => {
                 //update map and markers
                 googleMapShout(shoutLocation);
                 setTimeout(displayChat, 500);
+                $("#shoutText").val("");
             }, errorData);
         } //----end check if there's a
     }

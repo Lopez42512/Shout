@@ -223,6 +223,7 @@ span.close:hover {
     margin: 0px;
     padding-left: 1em;
     padding-right: 1em;
+    padding-bottom: 1em;
  }
 
  .chat-text ul li {
