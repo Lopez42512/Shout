@@ -116,7 +116,7 @@ $(document).ready(() => {
 
     // TODO: GET SHOUT LOC TO BE A PUSH
     //shout updates
-    shoutRef.on("child_added", (snapshot) => {
+    shoutRef.orderByKey().limitToLast(1).on("child_added", (snapshot) => {
         var snap = snapshot.val();
         //set global variable TODO:May not need in future
         currentLatitude = snap.center.lat;
