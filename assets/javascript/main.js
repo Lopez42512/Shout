@@ -342,7 +342,7 @@ $(document).ready(() => {
                     lng: Longitude
                 },
                 radius: Radius, //kilometers
-                message: [],
+                message: "",
                 shoutMessage: shoutTextVal,
                 shout: true,
                 friend: false
@@ -429,7 +429,7 @@ $(document).ready(() => {
                         lng: Longitude
                     },
                     radius: Radius, //kilometers
-                    message: [],
+                    message: "",
                     shoutMessage: "",
                     shout: false,
                     friend: false
