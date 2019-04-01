@@ -117,23 +117,46 @@ $(document).ready(() => {
     // TODO: GET SHOUT LOC TO BE A PUSH
     //shout updates
     shoutRef.orderByKey().limitToLast(1).on("child_added", (snapshot) => {
+     
         var snap = snapshot.val();
+        console.log(snap);
         //set global variable TODO:May not need in future
         currentLatitude = snap.center.lat;
         currentLongitude = snap.center.lng;
 
         var shoutMessage = snap.message;
-        console.log(snapshot.val());
+        // console.log(snapshot.val());
         // TODO:have to put this back inside the distance checker
         //update the query
         var listenLoctation = [snap.center.lat, snap.center.lng];
         // var listenerText = snap.message;
-
+console.log("Listen query = " + listenQuery);
         if (typeof listenQuery !== "undefined") {
 
             listenQuery.updateCriteria({
                 center: listenLoctation,
                 radius: Radius
+            });
+
+            listenQuery.on("key_entered", function (key, location, distance) {
+                console.log("listening");
+
+                listenAround = {
+                    id: key,
+                    distance: distance + "km",
+                    location: location
+                };
+                //if you're next to the listener, then don't drop the marker
+                if (Math.floor(distance) !== 0) {
+                    addShouterMarker(listenLoctation,shoutMessage);
+                    initiateYelp();
+
+                } //--end if
+
+                // Drop a pin if you find someoneTODO: MAY NEED IT FOR CLASS PRESENTATION
+                addShouterMarker(listenLoctation,shoutMessage);
+                initiateYelp();
+                console.log(JSON.stringify(key) + " have heard your shout!" + "and they are " + distance + " km away");
             });
 
         } else {
