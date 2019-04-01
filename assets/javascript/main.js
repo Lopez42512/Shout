@@ -116,12 +116,14 @@ $(document).ready(() => {
 
     // TODO: GET SHOUT LOC TO BE A PUSH
     //shout updates
-    shoutRef.on("value", (snapshot) => {
+    shoutRef.on("child_added", (snapshot) => {
         var snap = snapshot.val();
         //set global variable TODO:May not need in future
         currentLatitude = snap.center.lat;
         currentLongitude = snap.center.lng;
 
+        var shoutMessage = snap.message;
+        console.log(snapshot.val());
         // TODO:have to put this back inside the distance checker
         //update the query
         var listenLoctation = [snap.center.lat, snap.center.lng];
@@ -154,13 +156,13 @@ $(document).ready(() => {
                 };
                 //if you're next to the listener, then don't drop the marker
                 if (Math.floor(distance) !== 0) {
-                    addShouterMarker(listenLoctation);
+                    addShouterMarker(listenLoctation,shoutMessage);
                     initiateYelp();
 
                 } //--end if
 
                 // Drop a pin if you find someoneTODO: MAY NEED IT FOR CLASS PRESENTATION
-                addShouterMarker(listenLoctation);
+                addShouterMarker(listenLoctation,shoutMessage);
                 initiateYelp();
                 console.log(JSON.stringify(key) + " have heard your shout!" + "and they are " + distance + " km away");
             });
@@ -323,8 +325,6 @@ $(document).ready(() => {
     }
 
     function shoutLogic() {
-
-
         var shoutTextVal = $("#shoutText").val().trim();
         // var Radius = $("#shoutRadius").val();
         var shoutText = $("#shoutText");
@@ -353,7 +353,7 @@ $(document).ready(() => {
                 var snapData = childSnapShot.val();
                 var shoutLocation = [snapData.center.lat, snapData.center.lng];
                 //set shout ref
-                shoutRef.set({
+                shoutRef.push({
                     center: {
                         lat: shoutLocation[0],
                         lng: shoutLocation[1]
@@ -396,15 +396,18 @@ $(document).ready(() => {
                         // If you're the shouter, don't drop a pin on you
                         if (Math.floor(distance) !== 0) {
                             // marker.setMap(map);
-                            addShouterMarker(shoutLocation);
+                            addShouterMarker(shoutLocation,shoutTextVal);
                             console.log("People Around: " + JSON.stringify(peopleAround));
                         }
                         console.log("SHOUT POSITION " + JSON.stringify(peopleAround));
                     });
                 }
+
                 //update map and markers
                 googleMapShout(shoutLocation);
                 setTimeout(displayChat, 500);
+                addShouterMarker(shoutLocation,shoutTextVal);
+
                 $("#shoutText").val("");
             }, errorData);
         } //----end check if there's a
@@ -524,20 +527,16 @@ $(document).ready(() => {
         }
     }
 
-    function addShouterMarker(shoutLocation) {
+    function addShouterMarker(shoutLocation,message) {
         console.log("add shouter marker!!");
         // update Shouter's info
-        shoutRef.once("value").then((snapshot) => {
-            var snapData = snapshot.val();
-            //Add marker
-            console.log(snapData.message);
             var shouter = {
                 center: {
                     lat: shoutLocation[0],
                     lng: shoutLocation[1]
                 },
                 iconImage: "./assets/images/shout-red-marker.png",
-                content: `<h1 id="shoutMessage">${snapData.message}</h1>`
+                content: `<h1 id="shoutMessage">${message}</h1>`
             }
 
             var marker = new google.maps.Marker({
@@ -581,7 +580,6 @@ $(document).ready(() => {
             setTimeout(() => {
                 marker.setAnimation(google.maps.Animation.BOUNCE);
             }, 200);
-        });
     }
 
     // chat functionality
