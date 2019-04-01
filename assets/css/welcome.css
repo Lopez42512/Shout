@@ -13,6 +13,13 @@ body{
 .navbar-dark .navbar-nav .nav-link {
     color: white;
 }
+#joinBtn a{
+    text-decoration: none;
+ }
+
+a {
+    color: #fff!important;
+} 
 
 p {
     margin: 0px;    

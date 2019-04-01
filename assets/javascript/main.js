@@ -466,7 +466,7 @@ $(document).ready(() => {
                 lat: shoutLocation[0],
                 lng: shoutLocation[1]
             },
-            iconImage: "./assets/images/map-icon.png",
+            iconImage: "./assets/images/.png",
             content: "<h1>Hello Friends!</h1> <div class='pulse' ></div> "
         }
         //set map's center to shouter
@@ -588,17 +588,17 @@ $(document).ready(() => {
         // event.preventDefault();
         var chatMessage = chatRef.push({
             chatMessage: $("#chatInput").val(),
-            user: user,
+            // user: user,
         })
 
         $("#chatInput").val("");
     }
 
     // Get users name
-    $("#shout").on("click", function (event) {
-        user = $('#shoutText').val();
-        usersRef.set(user);
-    })
+    // $("#shout").on("click", function (event) {
+    //     user = $('#shoutText').val();
+    //     usersRef.set(user);
+    // })
 
     // output message from firebase to chatbox
     chatRef.on("child_added", function (snapshot) {

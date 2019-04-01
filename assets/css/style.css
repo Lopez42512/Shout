@@ -2,6 +2,9 @@
     font-family: 'Montserrat', sans-serif;
     z-index: 100;
 }
+.bg-color{
+    background-color: #d22525;
+}
 
 .backGround{
     position: fixed;
@@ -29,12 +32,18 @@ body {
     display: flex;
     flex-direction: row;
     background-color: #d22525;
-    /* background-color: #e92630; */
-    justify-content: flex-end;
-    /* background: rgb(233,38,48); */
-/* background: linear-gradient(0deg, rgba(233,38,48,1) 0%, rgba(253,187,45,1) 100%); */
+    justify-content: space-between;
     height: 5em;
 }
+
+.header .logo {
+    color: white;
+    font-size: 2em;
+    text-decoration: none;
+    align-self: center;
+    margin-left: 1em;
+}
+
 .header ul {
     display: flex;
     align-items: flex-end;
@@ -57,6 +66,7 @@ body {
     justify-content: space-around;
     margin-top: 5vh;
 }
+
 .map {
     width: 100%;
     max-width: 850px;
@@ -306,6 +316,25 @@ input#yelpSearchInput {
       position: relative;
   }
 
+  /* Contact Page */
+.first{
+    margin-top: 80px;
+}
+.IMG{
+    width: 200px;
+    height: 200px;
+    position: relative;
+}
+.jumbotron{
+    padding-top: 20px;
+    padding-bottom: 20px;
+    position: relative;
+}
+.lead{
+    margin-left: 20px;
+}
+/* Contact Page */
+
   @media (max-width: 760px) {
     body{
         margin: 0;
@@ -323,4 +352,16 @@ input#yelpSearchInput {
      width: auto;
      height: auto;
     }
+    .picCon {
+        margin-left: 4.5%;
+    }
  }
+
+ @media (max-width: 740px) {
+    .pictures {
+        width: 349px;
+    }
+    .pic2{
+        margin-top: 15px;
+    }
+}
