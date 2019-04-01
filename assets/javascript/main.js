@@ -466,7 +466,7 @@ $(document).ready(() => {
                 lat: shoutLocation[0],
                 lng: shoutLocation[1]
             },
-            iconImage: "./assets/images/.png",
+            iconImage: "./assets/images/shout-red-marker.png",
             content: "<h1>Hello Friends!</h1> <div class='pulse' ></div> "
         }
         //set map's center to shouter
@@ -535,7 +535,7 @@ $(document).ready(() => {
                     lat: shoutLocation[0],
                     lng: shoutLocation[1]
                 },
-                // iconImage: "./assets/images/map-icon.png",
+                iconImage: "./assets/images/shout-red-marker.png",
                 content: `<h1 id="shoutMessage">${snapData.message}</h1>`
             }
 
