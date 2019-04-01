@@ -226,9 +226,26 @@ span.close:hover {
     padding-bottom: 1em;
  }
 
- .chat-text ul li {
-    word-break: break-all;
- }
+.chat-text ul li {
+    word-break: break-word;
+    border: 1px solid #d0d0d0;
+    margin-top: 5px;
+    background: #f5f5f5;
+    border-radius: 3px;
+    font-weight: 700;
+    padding: 10px;
+    align-self: stretch;
+    background: #2196f347;
+}
+
+.chat-text ul li:nth-child(even){
+    background: #e6e6e6;
+}
+
+span#userStyle {
+    padding: 3px;
+    text-decoration: underline;
+}
 
 .messaging-flex {
     height: 2em;
