@@ -22,6 +22,7 @@ $(document).ready(() => {
     var yelpSearch;
     var currentLatitude;
     var currentLongitude;
+    var user;
 
     // Initialize Firebase ----------------------------------------
     var config = {
@@ -155,7 +156,7 @@ $(document).ready(() => {
                 if (Math.floor(distance) !== 0) {
                     addShouterMarker(listenLoctation);
                     initiateYelp();
-               
+
                 } //--end if
 
                 // Drop a pin if you find someoneTODO: MAY NEED IT FOR CLASS PRESENTATION
@@ -168,23 +169,24 @@ $(document).ready(() => {
     }, errorData);
 
     //check chat
-    chatRef.on("child_added", function (snapshot) {
-        if (snapshot.val()) {
-            var fireBaseMessage = snapshot.val().chatMessage;
-            console.log(fireBaseMessage);
-            console.log(snapshot.child("chatMessage"))
-            //message key
-            // var chatKey = chatMessage.key;
+    // chatRef.on("child_added", function (snapshot) {
+    //     if (snapshot.val()) {
+    //         var fireBaseMessage = snapshot.val().chatMessage;
+    //         var messageUser = snapshot.val().user;
+    //         console.log(fireBaseMessage);
+    //         console.log(snapshot.child("chatMessage"))
+    //         //message key
+    //         var chatKey = chatMessage.key;
 
-            $(".chat-text ul").prepend(`<li class="message-font"> ${fireBaseMessage}</>`);
-            chatRef.onDisconnect().remove();
-        }
-    });
+    //         $(".chat-text ul").prepend(`<li class="message-font">${messageUser}: ${fireBaseMessage}</>`);
+    //         chatRef.onDisconnect().remove();
+    //     }
+    // });
 
     //---------------------------START functions--------------
-function initiateYelp (){
-         //update yelp markers on all users
-         yelpRef.on("value", (snapshot) => {
+    function initiateYelp() {
+        //update yelp markers on all users
+        yelpRef.on("value", (snapshot) => {
             var dataSnap = snapshot.val();
             //convert lat and lng to strings
             var stringLatF = dataSnap.center.lat.toString();
@@ -193,7 +195,7 @@ function initiateYelp (){
             console.log("geting info");
             getYelpInfo(dataSnap.search, stringLatF, stringLngF);
         }, errorData);
-}
+    }
 
     function startYelpSearch(e) {
         // e.preventDefault();
@@ -569,11 +571,11 @@ function initiateYelp (){
 
             // display shout
             shouterInfoWindow.open(map, marker);
-             //check if marker has been clicked
-             marker.addListener("click", () => {
+            //check if marker has been clicked
+            marker.addListener("click", () => {
                 displayChat();
             });
-        
+
             //bounce animation
             setTimeout(() => {
                 marker.setAnimation(google.maps.Animation.BOUNCE);
@@ -584,12 +586,34 @@ function initiateYelp (){
     // chat functionality
     function chatMessages(event) {
         // event.preventDefault();
-        var chatMessage = $("#chatInput").val()
-        chatRef.push({
-            chatMessage: chatMessage
-        });
+        var chatMessage = chatRef.push({
+            chatMessage: $("#chatInput").val(),
+            user: user,
+        })
+
         $("#chatInput").val("");
     }
+
+    // Get users name
+    $("#shout").on("click", function (event) {
+        user = $('#shoutText').val();
+        usersRef.set(user);
+    })
+
+    // output message from firebase to chatbox
+    chatRef.on("child_added", function (snapshot) {
+        if (snapshot.val()) {
+            var fireBaseMessage = snapshot.val().chatMessage;
+            var messageUser = snapshot.val().user;
+            console.log(fireBaseMessage);
+            console.log(snapshot.child("chatMessage"))
+            //message key
+            // var chatKey = chatMessage.key;
+
+            $(".chat-text ul").prepend(`<li class="message-font">${""}: ${fireBaseMessage}</>`);
+            chatRef.onDisconnect().remove();
+        }
+    });
 
     //check if threre is a shout
     function checkShoutTextVal(shoutText) {
@@ -621,16 +645,16 @@ function initiateYelp (){
         markers = [];
     }
 
+    function displayChat() {
+        $(".welcome-wrapper").css("display", "none");
+        $(".chat-wrapper").css("display", "block");
+    }
+
     function clearMarkers() {
         setMapOnAll(null);
     }
 
     //---------------
-
-    function displayChat() {
-        $(".welcome-wrapper").css("display", "none");
-        $(".chat-wrapper").css("display", "block");
-    }
 
     function hideChat() {
         $(".chat-wrapper").css("display", "none");
@@ -682,11 +706,10 @@ function initiateYelp (){
 
     //extra features
     var typed = new Typed(".ideas", {
-        strings: ["Pizza", "Movies", "Shopping","Gym","Spa"],
+        strings: ["Pizza", "movies", "Go for a walk"],
         loop: true,
         typeSpeed: 150,
         smartBackspace: true // Default value
     });
 
 });
-
