@@ -533,7 +533,7 @@ $(document).ready(() => {
         // update Shouter's info
         // shoutRef.once("value").then((snapshot) => {
        
-            var snapData = snapshot.val();
+            // var snapData = snapshot.val();
             //Add marker
  
             var shouter = {
