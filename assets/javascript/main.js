@@ -612,7 +612,7 @@ $(document).ready(() => {
             //message key
             // var chatKey = chatMessage.key;
 
-            $(".chat-text ul").prepend(`<li class="message-font">${messageUser}: ${fireBaseMessage}</>`);
+            $(".chat-text ul").prepend(`<li class="message-font"><span id="userStyle"> ${messageUser}:</span> ${fireBaseMessage}</>`);
             chatRef.onDisconnect().remove();
         }
     });
