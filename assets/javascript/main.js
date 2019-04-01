@@ -10,7 +10,7 @@ $(document).ready(() => {
     var shoutLocation;
     var peopleAround = {};
     var uid;
-    var listenLoctation = [];
+    var listenLocation = [];
     var allUserMarkers = [];
     var allShoutMarkers = [];
     var allYelpMarkers = [];
@@ -122,22 +122,24 @@ $(document).ready(() => {
         currentLatitude = snap.center.lat;
         currentLongitude = snap.center.lng;
 
+      
         // TODO:have to put this back inside the distance checker
         //update the query
-        var listenLoctation = [snap.center.lat, snap.center.lng];
+        var listenLocation = [snap.center.lat, snap.center.lng];
         // var listenerText = snap.message;
 
+        console.log(listenLocation);
         if (typeof listenQuery !== "undefined") {
 
             listenQuery.updateCriteria({
-                center: listenLoctation,
+                center: listenLocation,
                 radius: Radius
             });
 
         } else {
             //create listen query
             listenQuery = geoFire.query({
-                center: listenLoctation,
+                center: listenLocation,
                 radius: Radius // kilometers
             });
 
@@ -154,14 +156,15 @@ $(document).ready(() => {
                 };
                 //if you're next to the listener, then don't drop the marker
                 if (Math.floor(distance) !== 0) {
-                    addShouterMarker(listenLoctation);
+                    addShouterMarker(listenLocation, snap.message);
                     initiateYelp();
 
                 } //--end if
 
                 // Drop a pin if you find someoneTODO: MAY NEED IT FOR CLASS PRESENTATION
-                addShouterMarker(listenLoctation);
+                addShouterMarker(listenLocation, snap.message );
                 initiateYelp();
+                console.log(listenLocation);
                 console.log(JSON.stringify(key) + " have heard your shout!" + "and they are " + distance + " km away");
             });
         }
@@ -396,7 +399,7 @@ $(document).ready(() => {
                         // If you're the shouter, don't drop a pin on you
                         if (Math.floor(distance) !== 0) {
                             // marker.setMap(map);
-                            addShouterMarker(shoutLocation);
+                            addShouterMarker(shoutLocation,snapData.shoutMessage);
                             console.log("People Around: " + JSON.stringify(peopleAround));
                         }
                         console.log("SHOUT POSITION " + JSON.stringify(peopleAround));
@@ -525,20 +528,21 @@ $(document).ready(() => {
         }
     }
 
-    function addShouterMarker(shoutLocation) {
+    function addShouterMarker(shoutLocation, message) {
         console.log("add shouter marker!!");
         // update Shouter's info
-        shoutRef.once("value").then((snapshot) => {
+        // shoutRef.once("value").then((snapshot) => {
+       
             var snapData = snapshot.val();
             //Add marker
-            console.log(snapData.message);
+ 
             var shouter = {
                 center: {
                     lat: shoutLocation[0],
                     lng: shoutLocation[1]
                 },
                 iconImage: "./assets/images/shout-red-marker.png",
-                content: `<h1 id="shoutMessage">${snapData.message}</h1>`
+                content: `<h1 id="shoutMessage">${message}</h1>`
             }
 
             var marker = new google.maps.Marker({
@@ -582,7 +586,7 @@ $(document).ready(() => {
             setTimeout(() => {
                 marker.setAnimation(google.maps.Animation.BOUNCE);
             }, 200);
-        });
+        // });
     }
 
     // chat functionality
