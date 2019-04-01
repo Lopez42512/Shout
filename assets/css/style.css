@@ -1,17 +1,34 @@
 *{
     font-family: 'Montserrat', sans-serif;
+    z-index: 100;
 }
+
+.backGround{
+    position: fixed;
+    top: 0;
+    left: 0;
+    min-width: 100%;
+    min-height: 100%;
+    width: 100%;
+    height: 100%;
+    opacity: .7;
+    z-index: 1;
+ }
 
 body {
     width: 100%;
+    margin: 0;
     /* background: linear-gradient(#e66465, #9198e5); */
+    /* background: darkred url("../images/bg.png") no-repeat center fixed; */
+    background-color: darkred;
 }
 
 
 .header{
+    position: relative;
     display: flex;
     flex-direction: row;
-    background-color: #af1a1a;
+    background-color: #d22525;
     /* background-color: #e92630; */
     justify-content: flex-end;
     /* background: rgb(233,38,48); */
@@ -52,15 +69,17 @@ body {
 }
 
 .welcome {
-    display: flex;
-    justify-content: center;
-    align-content: center;
-    flex: 1;
-    width: 100%;
-    background-color: rgb(241, 241, 241);
-    box-sizing: border-box;
-    padding: 30px;
-    margin-right: 3em;
+   display: flex;
+   justify-content: center;
+   align-content: center;
+   flex: 1;
+   width: 100%;
+   background-color: rgb(241, 241, 241);
+   box-sizing: border-box;
+   padding-bottom: 10px;
+   padding-right: 30px;
+   padding-left: 30px;
+   margin-right: 3em;
 }
 
 .welcome-wrapper {
@@ -73,6 +92,8 @@ body {
     font-size: 2em;
     text-align: center;
     font-weight: bolder;
+    margin-top: 20px;
+    margin-bottom: 0px;
 }
 
 .shout-area{
@@ -80,18 +101,18 @@ body {
     display: flex;
     flex-direction: column;
 }
+
 .shout-container {
     border-radius: 5px;
     border: 3px solid rgb(190, 45, 45);
     width: 10em;
     padding: .9em;
     box-sizing: content-box;
-    height: 3em;
     transition: .3s all ease;
-    margin-top: 10em;
     position: relative;
     align-self: center;
-}
+    margin-top: 5px;
+ }
 
 .shout-container:hover {
     background: rgb(190, 45, 45);
@@ -122,16 +143,18 @@ img.shout-icon {
 #shoutText {
     position: relative;
     padding: 20px 40px;
-    top: 81px;
     width: 100%;
     max-width: 20em;
     box-sizing: border-box;
-}
+    align-self: center;
+ }
+
 .modal-content{
     display: flex;
     justify-content: center;
-    height: 0;
-}
+    flex-direction: column;
+ }
+
 #myModal {
     background-color: pink;
     width: 500px;
@@ -184,7 +207,7 @@ span.close:hover {
     list-style-type: none;
     display: flex;
     flex-direction: column-reverse;
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
     width: 100%;
     margin: 0px;
@@ -233,6 +256,16 @@ span.close:hover {
     display: flex;
 }
 
+.yelp-contet label {
+    background: #fcfcfc;
+    padding: 5px;
+    font-weight: bolder;
+    /* border: 1px solid #df1919; */
+    box-sizing: border-box;
+    background: #dc2121;
+    color: white;
+}
+
 form#search-form {
     display: flex;
     flex: 1;
@@ -255,14 +288,15 @@ input#yelpSearchInput {
 }
 
 .placeholder {
-    position: absolute;
-    font-size:25px;
-    pointer-events: none;
-    left: 1px;
-    top: 1px;
-    transition: 0.1s ease all;
-  }
-  
+   position: relative;
+   font-size:25px;
+   pointer-events: none;
+   left: 1px;
+   top: 1px;
+   transition: 0.1s ease all;
+   align-self: center;
+   margin-bottom: 15px;
+ }
   #shoutText:focus ~ .placeholder{
     top: 1px;
     font-size: 11px;
@@ -271,3 +305,22 @@ input#yelpSearchInput {
   .modal-content {
       position: relative;
   }
+
+  @media (max-width: 760px) {
+    body{
+        margin: 0;
+    }
+    .body-flex {
+        flex-direction: column;
+    }
+    .map {
+        margin-left: 2%;
+        margin-right: 2%;
+        max-width: 700px;
+        width: 96%;
+    }
+    .chat-flex{
+     width: auto;
+     height: auto;
+    }
+ }

@@ -1,121 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link href="https://fonts.googleapis.com/css?family=Baloo+Bhaijaan|Montserrat" rel="stylesheet">
-
-    <link rel="stylesheet" href="./assets/css/style.css">
-    <!-- <link rel="stylesheet" href="./assets/css/styles2.css"> -->
-    <title>Shout!</title>
-
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/5.9.1/firebase.js"></script>
-    <!-- GeoFire -->
-    <!-- <script src="./assets/javascript/geofire.min.js"></script> -->
-    <script src="https://cdn.firebase.com/libs/geofire/4.1.0/geofire.min.js"></script>
-    <!-- animate css -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
-    <!-- RSVP -->
-    <script src="https://cdn.jsdelivr.net/npm/rsvp@4/dist/rsvp.min.js"></script>
-
+    <!--bootstrap-->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!--bootstrap-->
+    <link rel="stylesheet" href="assets/css/welcome.css">
+    <title>Welcome Shout!</title>
 </head>
-
 <body>
-    <section class="header-container">
-        <div class="header">
-            <ul>
-                <li>About Us</li>
-                <li>Welcome</li>
-                <li>item3</li>
-            </ul>
+    <img src="./assets/images/welcome-bg.png" id="backGround">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-color" id="theBar">
+        <div class="container">
+            <a class="navbar-brand" href="./welcome.html">Shout!</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+                aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item white">
+                        <a class="nav-link" href="#about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#faq">FAQ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="">Contact</a>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </section>
-
-    <section class="body-container">
-        <!-- <div class="body-header"><h1>Meet up with friends and <strong class="ideas"></with some friends!strong></h1></div> -->
-        <div class="body-flex">
-            <div class="map" id="map"></div>
-            <div class="welcome">
-                <div class="welcome-wrapper">
-                    <h1>Welcome!</h1>
-                    <p>
-                        In the mood to hang out? Why not try shouting and see if any of your friends are around! </p>
-                    <p>Visiting a city for a few hours and want to see if any of your friends are around?</p>
-                    <div class="shout-area">
-                        <div class="modal-content">
-                            <input type="text" id="shoutText">
-                            <span class="placeholder"> <strong class="ideas"></strong> </span>
+    </nav>
+    <div data-spy="scroll" data-target="theBar" data-offset="0">
+        <section id="welcome">
+            <div class="jumbotron intro">
+                <h1 class="display-4 white headers">Meet Up At <br> A Click Of A <br> Button with Friends</h1>
+               
+                <a class="btn btn-danger btn-lg shoutBtn" href="#join" role="button">Join Shout!</a>
+            </div>
+        </section>
+        <section id="about">
+            <div class="jumbotron intro" style="background: #00000069;">
+                <h1 class="display-4 white headers">Don't Explore Alone <br> Explore With Friends</h1>
+                <p class="lead white "> Love to explore? but don't have anyone in mind to do it with?</p>  <p class="lead white ">Not a problem,Need someone go to the movies? Give a Shout!</p> <p class="lead white lastP">Want to get pizza but don't want it to get it alone? Give a Shout!</p>
+                <div class="container picCon">
+                    <div class="row center pictures">
+                        <div class="card images pic1" style="width: 18rem;">
+                            <img src="./assets/images/explore2.png" class="card-img-top pic1" height="275px" style="object-fit: cover;">
                         </div>
-                        <button type="button" class="shout-container" id="shout"><img
-                                src="./assets/images/shout Icon.png" alt="shout app" class="shout-icon"><span
-                                id="hoverText">Shout!</span> </button>
-                    </div>
-
-                </div>
-                <div class="chat-wrapper">
-                    <span class="close">Leave Chat</span>
-                    <div class="yelp-contet">
-                        <form class="search-form" id="search-form">
-                            <label for="yelp-search">Businesses Near By</label>
-                            <input type="text" name="yelpSearchInput" id="yelpSearchInput">
-                        </form>
-                        <button type="button" form="search-form" value="Submit" id="searchFormBtn">Search</button>
-                    </div>
-                    <div class="chat-flex">
-
-                        <div class="chat-area">
-                            <div class="chat-text">
-                                <ul>
-                                </ul>
-                            </div>
-                            <div class="messaging-flex">
-                                <input type="text" class="chat-input" id="chatInput">
-                                <button type="text" class="chat-btn">Send</button>
-                            </div>
+                        <div class="card images pic2" style="width: 18rem;">
+                            <img src="./assets/images/explore 1.png" class="card-img-top" height="275px" style="object-fit: cover;">
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- Scripts -->
-    <script>
-        // Initialize global map object --------
-        var map;
-
-        function initMap() {
-            // fixed place for now
-            var place = {
-                zoom: 13,
-                center: {
-                    lat: 39.94,
-                    lng: -75.1993
-                }
-            }
-            // //new map
-            map = new google.maps.Map(document.getElementById("map"), place);
-
-            // console.log(map);
-            // Array of Users
-
-        }
-    </script>
-    <!-- google maps -->
-    <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB6JIwfy4q8P_mFaKEhDn2AnJ6e6-mpctc&callback=initMap">
-        </script>
-    <!-- jquery -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
-    <!-- possible animation script -->
-    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.9"></script>
-    <!-- main code -->
-    <script src="./assets/javascript/main.js"></script>
-    <!-- <script src="./assets/javascript/rework.js"></script> -->
+        </section>
+        <!-- //767 -->
+        <section id="join">
+            <div class="jumbotron intro">
+                <h1 class="display-4 white headers">Join Shout!</h1>
+                <p class="lead white ">Enter Your Name and Shout With Others!</p>
+                <div class="input-group flex-nowrap">
+                    <div class="input-group-prepend">
+                    </div>
+                    <input type="text" class="form-control" id="inputName" placeholder="Enter Your Name"
+                        aria-label="Username" aria-describedby="addon-wrapping">
+                </div>
+              <button type="button" class="btn btn-danger joinBtn"><a href="./shout.html">Join!</a> </button> 
+            </div>
+        </section>
+        <footer>
+            <div class="copyContainer">
+                <p class="white copyright">© 2019 JWIP Platform LLC. By using the service, you agree to our Privacy
+                    Policy and Terms of Use.</p>
+            </div>
+        </footer>
+    </div>
+    <!--bootstrap-->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+    <!--bootstrap-->
 </body>
-
 </html>
