@@ -6,6 +6,9 @@
     background-color: #d22525;
 }
 
+.logo {
+    height: 20px;
+}
 .backGround{
     position: fixed;
     top: 0;

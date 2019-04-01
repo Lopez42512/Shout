@@ -8,6 +8,10 @@ body{
     position: relative;
 }
 
+.logo {
+    height: 20px;
+}
+
 a {
     color: white;
 }

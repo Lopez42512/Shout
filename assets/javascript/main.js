@@ -729,7 +729,7 @@ console.log("Listen query = " + listenQuery);
 
     //extra features
     var typed = new Typed(".ideas", {
-        strings: ["Pizza", "movies", "Go for a walk"],
+        strings: ["Pizza", "movies", "Spa","Gym"],
         loop: true,
         typeSpeed: 150,
         smartBackspace: true // Default value
