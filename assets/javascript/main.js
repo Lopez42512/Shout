@@ -81,7 +81,7 @@ $(document).ready(() => {
                             lng: ""
                         },
                         radius: Radius, //kilometers
-                        message: []
+                        message: ""
 
                     });
                     //get userRef Push key
@@ -540,17 +540,21 @@ $(document).ready(() => {
     // chat functionality
     function chatMessages(event) {
         // event.preventDefault();
+        var user = sessionStorage.getItem("userName");
+        console.log(user);
+
         var chatMessage = chatRef.push({
             chatMessage: $("#chatInput").val(),
-            // user: user,
-        })
+            user: user,
+        });
 
         $("#chatInput").val("");
     }
 
     // Get users name
     // $("#shout").on("click", function (event) {
-    //     user = $('#shoutText').val();
+    //     // user = $('#shoutText').val();
+    //     user = sessionStorage.getItem("userName");
     //     usersRef.set(user);
     // })
 
@@ -559,12 +563,14 @@ $(document).ready(() => {
         if (snapshot.val()) {
             var fireBaseMessage = snapshot.val().chatMessage;
             var messageUser = snapshot.val().user;
+            // var messageUser = sessionStorage;
+            console.log(fireBaseMessage);
             console.log(fireBaseMessage);
             console.log(snapshot.child("chatMessage"))
             //message key
             // var chatKey = chatMessage.key;
 
-            $(".chat-text ul").prepend(`<li class="message-font">${""}: ${fireBaseMessage}</>`);
+            $(".chat-text ul").prepend(`<li class="message-font">${messageUser}: ${fireBaseMessage}</>`);
             chatRef.onDisconnect().remove();
         }
     });
