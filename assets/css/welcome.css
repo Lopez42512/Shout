@@ -116,6 +116,45 @@ button {
     padding-top: 25px;
     margin-bottom: 0px;
 }
+/* Contact Page */
+.first{
+    margin-top: 80px;
+}
+.IMG{
+    width: 200px;
+    height: 200px;
+    position: relative;
+}
+.jumbotron{
+    padding-top: 20px;
+    padding-bottom: 20px;
+    position: relative;
+}
+.lead{
+    margin-left: 20px;
+}
+/* Contact Page */
+.first{
+    margin-top: 80px;
+}
+.IMG{
+    width: 200px;
+    height: 200px;
+    position: relative;
+}
+.jumbotron{
+    padding-top: 20px;
+    padding-bottom: 20px;
+    position: relative;
+}
+.lead{
+    margin-left: 20px;
+}
+/* Contact Page */
+
+
+
+
 @media (max-width: 767px) {
     .picCon {
         margin-left: 4.5%;
