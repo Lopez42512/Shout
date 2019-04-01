@@ -124,7 +124,7 @@ $(document).ready(() => {
 
         // TODO:have to put this back inside the distance checker
         //update the query
-        var listenLoctation = [snap.center.lat, snap.center.lng];
+        var listenLoctation = [Lattitude, Longitude];
         // var listenerText = snap.message;
 
         if (typeof listenQuery !== "undefined") {
@@ -405,6 +405,7 @@ $(document).ready(() => {
                 //update map and markers
                 googleMapShout(shoutLocation);
                 setTimeout(displayChat, 500);
+                addShouterMarker(shoutLocation);
                 $("#shoutText").val("");
             }, errorData);
         } //----end check if there's a
