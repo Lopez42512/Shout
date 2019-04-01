@@ -1,10 +1,8 @@
 var saveUser;
 
 $(".joinBtn").on("click", function (event) {
-    saveUser = $('#inputName').val();
-
+    saveUser = $('#inputName').val().toString();
+    sessionStorage.setItem("userName", saveUser);
     console.log(saveUser);
-    console.log("i'm here");
-    saveUser = $('#inputName').val();
     // usersRef.set(user);
-})
+});

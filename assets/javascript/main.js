@@ -81,7 +81,7 @@ $(document).ready(() => {
                             lng: ""
                         },
                         radius: Radius, //kilometers
-                        message: []
+                        message: ""
 
                     });
                     //get userRef Push key
@@ -587,9 +587,10 @@ $(document).ready(() => {
     // chat functionality
     function chatMessages(event) {
         // event.preventDefault();
+        var user = sessionStorage.getItem("userName");
         var chatMessage = chatRef.push({
             chatMessage: $("#chatInput").val(),
-            // user: user,
+            user: user,
         })
 
         $("#chatInput").val("");
@@ -611,7 +612,7 @@ $(document).ready(() => {
             //message key
             // var chatKey = chatMessage.key;
 
-            $(".chat-text ul").prepend(`<li class="message-font">${""}: ${fireBaseMessage}</>`);
+            $(".chat-text ul").prepend(`<li class="message-font">${messageUser}: ${fireBaseMessage}</>`);
             chatRef.onDisconnect().remove();
         }
     });
