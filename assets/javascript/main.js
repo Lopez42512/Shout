@@ -154,8 +154,8 @@ console.log("Listen query = " + listenQuery);
                 } //--end if
 
                 // Drop a pin if you find someoneTODO: MAY NEED IT FOR CLASS PRESENTATION
-                addShouterMarker(listenLoctation,shoutMessage);
-                initiateYelp();
+                // addShouterMarker(listenLoctation,shoutMessage);
+                // initiateYelp();
                 console.log(JSON.stringify(key) + " have heard your shout!" + "and they are " + distance + " km away");
             });
 
@@ -185,8 +185,8 @@ console.log("Listen query = " + listenQuery);
                 } //--end if
 
                 // Drop a pin if you find someoneTODO: MAY NEED IT FOR CLASS PRESENTATION
-                addShouterMarker(listenLoctation,shoutMessage);
-                initiateYelp();
+                // addShouterMarker(listenLoctation,shoutMessage);
+                // initiateYelp();
                 console.log(JSON.stringify(key) + " have heard your shout!" + "and they are " + distance + " km away");
             });
         }
@@ -402,6 +402,22 @@ console.log("Listen query = " + listenQuery);
                         radius: Radius // kilometers
                     });
 
+                    shoutQuery.on("key_entered", function (key, location, distance) {
+                        peopleAround = {
+                            id: key,
+                            distance: distance + "km",
+                            location: location
+                        };
+
+                        // If you're the shouter, don't drop a pin on you
+                        if (Math.floor(distance) !== 0) {
+                            // marker.setMap(map);
+                            addShouterMarker(shoutLocation,shoutTextVal);
+                            console.log("People Around: " + JSON.stringify(peopleAround));
+                        }
+                        console.log("SHOUT POSITION " + JSON.stringify(peopleAround));
+                    });
+
                 } else {
 
                     var shoutQuery = geoFire.query({
@@ -429,7 +445,7 @@ console.log("Listen query = " + listenQuery);
                 //update map and markers
                 googleMapShout(shoutLocation);
                 setTimeout(displayChat, 500);
-                addShouterMarker(shoutLocation,shoutTextVal);
+                // addShouterMarker(shoutLocation,shoutTextVal);
 
                 $("#shoutText").val("");
             }, errorData);
