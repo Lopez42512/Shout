@@ -3,7 +3,7 @@ $(document).ready(() => {
     var shoutCheck = false;
     var Lattitude;
     var Longitude;
-    var Radius = 5;
+    var Radius = 20;
     var profile;
     var yelpProfile;
     var profileKey;
@@ -150,7 +150,7 @@ $(document).ready(() => {
                 } //--end 
 
                 // TODO: MAY NEED IT FOR CLASS PRESENTATION
-                // addShouterMarker(listenLoctation, shoutMessage);
+                addShouterMarker(listenLoctation, shoutMessage);
                 initiateYelp();
                 console.log(JSON.stringify(key) + " have heard your shout!" + "and they are " + distance + " km away");
             });
@@ -180,7 +180,7 @@ $(document).ready(() => {
                 } //--end if
 
                 // MAY NEED IT FOR CLASS PRESENTATION
-                // addShouterMarker(listenLoctation, shoutMessage);
+                addShouterMarker(listenLoctation, shoutMessage);
                 initiateYelp();
                 console.log(JSON.stringify(key) + " have heard your shout!" + "and they are " + distance + " km away");
             });
@@ -424,7 +424,7 @@ $(document).ready(() => {
                 //update map and markers
                 googleMapShout(shoutLocation, shoutTextVal);
                 setTimeout(displayChat, 500);
-                // addShouterMarker(shoutLocation, shoutTextVal);
+                addShouterMarker(shoutLocation, shoutTextVal);
 
                 $("#shoutText").val("");
             }, errorData);
