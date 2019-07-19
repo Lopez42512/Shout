@@ -12,8 +12,8 @@ Is an app intended to help you connect with your friends in one click of a butto
 Firebase, Yelp Api, HTML 5/CSS3
 
 ## Creating a shout
-![](https://media.giphy.com/media/JRUzt2fLZ2pmPaxFxM/giphy.gif)
 Shout! takes two considerations when you're shouting: location and activity.  When you land on the page we ask for your your location.  Then, when you shout,the location pin with your shout is dropped letting you know you are live and shouting.  This means when your friends enter your radius, or if they are in your radius, they will see your Shout!
+![](https://media.giphy.com/media/JRUzt2fLZ2pmPaxFxM/giphy.gif)
 
 ## Messaging
 Shout offers a quick messaging system to inititate a conversation between the shouter and the friend.  This way you can both decided what to do.
