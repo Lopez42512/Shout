@@ -3,7 +3,7 @@ $(document).ready(() => {
     var shoutCheck = false;
     var Lattitude;
     var Longitude;
-    var Radius = 100;
+    var Radius = 5;
     var profile;
     var yelpProfile;
     var profileKey;
@@ -117,20 +117,17 @@ $(document).ready(() => {
     // TODO: GET SHOUT LOC TO BE A PUSH
     //shout updates
     shoutRef.orderByKey().limitToLast(1).on("child_added", (snapshot) => {
-     
+
         var snap = snapshot.val();
-        console.log(snap);
         //set global variable TODO:May not need in future
         currentLatitude = snap.center.lat;
         currentLongitude = snap.center.lng;
 
         var shoutMessage = snap.message;
-        // console.log(snapshot.val());
         // TODO:have to put this back inside the distance checker
         //update the query
         var listenLoctation = [snap.center.lat, snap.center.lng];
         // var listenerText = snap.message;
-console.log("Listen query = " + listenQuery);
         if (typeof listenQuery !== "undefined") {
 
             listenQuery.updateCriteria({
@@ -139,7 +136,6 @@ console.log("Listen query = " + listenQuery);
             });
 
             listenQuery.on("key_entered", function (key, location, distance) {
-                console.log("listening");
 
                 listenAround = {
                     id: key,
@@ -148,13 +144,13 @@ console.log("Listen query = " + listenQuery);
                 };
                 //if you're next to the listener, then don't drop the marker
                 if (Math.floor(distance) !== 0) {
-                    addShouterMarker(listenLoctation,shoutMessage);
+                    addShouterMarker(listenLoctation, shoutMessage);
                     initiateYelp();
 
-                } //--end if
+                } //--end 
 
-                // Drop a pin if you find someoneTODO: MAY NEED IT FOR CLASS PRESENTATION
-                addShouterMarker(listenLoctation,shoutMessage);
+                // TODO: MAY NEED IT FOR CLASS PRESENTATION
+                // addShouterMarker(listenLoctation, shoutMessage);
                 initiateYelp();
                 console.log(JSON.stringify(key) + " have heard your shout!" + "and they are " + distance + " km away");
             });
@@ -170,7 +166,6 @@ console.log("Listen query = " + listenQuery);
             var listenAround = {};
             //check if someone is in your radius and drop a pin to shouter's  location
             listenQuery.on("key_entered", function (key, location, distance) {
-                console.log("listening");
 
                 listenAround = {
                     id: key,
@@ -179,13 +174,13 @@ console.log("Listen query = " + listenQuery);
                 };
                 //if you're next to the listener, then don't drop the marker
                 if (Math.floor(distance) !== 0) {
-                    addShouterMarker(listenLoctation,shoutMessage);
+                    addShouterMarker(listenLoctation, shoutMessage);
                     initiateYelp();
 
                 } //--end if
 
-                // Drop a pin if you find someoneTODO: MAY NEED IT FOR CLASS PRESENTATION
-                addShouterMarker(listenLoctation,shoutMessage);
+                // MAY NEED IT FOR CLASS PRESENTATION
+                // addShouterMarker(listenLoctation, shoutMessage);
                 initiateYelp();
                 console.log(JSON.stringify(key) + " have heard your shout!" + "and they are " + distance + " km away");
             });
@@ -419,7 +414,7 @@ console.log("Listen query = " + listenQuery);
                         // If you're the shouter, don't drop a pin on you
                         if (Math.floor(distance) !== 0) {
                             // marker.setMap(map);
-                            addShouterMarker(shoutLocation,shoutTextVal);
+                            addShouterMarker(shoutLocation, shoutTextVal);
                             console.log("People Around: " + JSON.stringify(peopleAround));
                         }
                         console.log("SHOUT POSITION " + JSON.stringify(peopleAround));
@@ -427,9 +422,9 @@ console.log("Listen query = " + listenQuery);
                 }
 
                 //update map and markers
-                googleMapShout(shoutLocation);
+                googleMapShout(shoutLocation, shoutTextVal);
                 setTimeout(displayChat, 500);
-                addShouterMarker(shoutLocation,shoutTextVal);
+                // addShouterMarker(shoutLocation, shoutTextVal);
 
                 $("#shoutText").val("");
             }, errorData);
@@ -485,7 +480,7 @@ console.log("Listen query = " + listenQuery);
     }
 
     //google map function of generating user and icon
-    function googleMapShout(shoutLocation) {
+    function googleMapShout(shoutLocation, shoutText) {
 
         //create object for map
         var shoutObject = {
@@ -494,7 +489,7 @@ console.log("Listen query = " + listenQuery);
                 lng: shoutLocation[1]
             },
             iconImage: "./assets/images/shout-red-marker.png",
-            content: "<h1>Hello Friends!</h1>"
+            content: `<h1>${shoutText}</h1>`
         }
         //set map's center to shouter
         map.panTo(shoutObject.center);
@@ -502,7 +497,6 @@ console.log("Listen query = " + listenQuery);
 
         // check if shout is true
         if (shoutCheck === false) {
-            console.log("FALSE!!!");
             addUserMarker(shoutObject);
             shoutCheck = true;
         } else {
@@ -550,59 +544,59 @@ console.log("Listen query = " + listenQuery);
         }
     }
 
-    function addShouterMarker(shoutLocation,message) {
+    function addShouterMarker(shoutLocation, message) {
         console.log("add shouter marker!!");
         // update Shouter's info
-            var shouter = {
-                center: {
-                    lat: shoutLocation[0],
-                    lng: shoutLocation[1]
-                },
-                iconImage: "./assets/images/shout-red-marker.png",
-                content: `<h1 id="shoutMessage">${message}</h1>`
-            }
+        var shouter = {
+            center: {
+                lat: shoutLocation[0],
+                lng: shoutLocation[1]
+            },
+            iconImage: "./assets/images/shout-red-marker.png",
+            content: `<h1 id="shoutMessage">${message}</h1>`
+        }
 
-            var marker = new google.maps.Marker({
-                position: shouter.center,
-                map: map,
-                animation: google.maps.Animation.DROP,
-                optimized: false
+        var marker = new google.maps.Marker({
+            position: shouter.center,
+            map: map,
+            animation: google.maps.Animation.DROP,
+            optimized: false
+        });
+
+        // var mapOverlay = new google.maps.OverlayView();
+        // mapOverlay.draw = function () {
+        //     this.getPanes().markerLayer.id = "pluse"
+        // }
+
+        // mapOverlay.setMap(map);
+        // console.log(shouter.coords.center);
+
+        //if user has an Icon
+        if (shouter.iconImage) {
+            //set Icon image
+            marker.setIcon(shouter.iconImage);
+        }
+
+        // if it contains infoWindow text then create one
+        if (shouter.content) {
+            //infoWindow is a pop up for the onClick
+            var shouterInfoWindow = new google.maps.InfoWindow({
+                content: shouter.content,
+                disableAutoPan: true
             });
+        }
 
-            // var mapOverlay = new google.maps.OverlayView();
-            // mapOverlay.draw = function () {
-            //     this.getPanes().markerLayer.id = "pluse"
-            // }
+        // display shout
+        shouterInfoWindow.open(map, marker);
+        //check if marker has been clicked
+        marker.addListener("click", () => {
+            displayChat();
+        });
 
-            // mapOverlay.setMap(map);
-            // console.log(shouter.coords.center);
-
-            //if user has an Icon
-            if (shouter.iconImage) {
-                //set Icon image
-                marker.setIcon(shouter.iconImage);
-            }
-
-            // if it contains infoWindow text then create one
-            if (shouter.content) {
-                //infoWindow is a pop up for the onClick
-                var shouterInfoWindow = new google.maps.InfoWindow({
-                    content: shouter.content,
-                    disableAutoPan: true
-                });
-            }
-
-            // display shout
-            shouterInfoWindow.open(map, marker);
-            //check if marker has been clicked
-            marker.addListener("click", () => {
-                displayChat();
-            });
-
-            //bounce animation
-            setTimeout(() => {
-                marker.setAnimation(google.maps.Animation.BOUNCE);
-            }, 200);
+        //bounce animation
+        setTimeout(() => {
+            marker.setAnimation(google.maps.Animation.BOUNCE);
+        }, 200);
     }
 
     // chat functionality
@@ -640,7 +634,6 @@ console.log("Listen query = " + listenQuery);
 
     //check if threre is a shout
     function checkShoutTextVal(shoutText) {
-        console.log("There is no value!");
         shoutText.attr("placeholder", "What are you trying to do?");
         shoutText.css("box-shadow", "0 0 5px #e92630");
         return;
@@ -729,7 +722,7 @@ console.log("Listen query = " + listenQuery);
 
     //extra features
     var typed = new Typed(".ideas", {
-        strings: ["Pizza", "movies", "Spa","Gym"],
+        strings: ["Pizza", "movies", "Spa", "Gym"],
         loop: true,
         typeSpeed: 150,
         smartBackspace: true // Default value
